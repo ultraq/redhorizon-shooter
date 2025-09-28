@@ -1,2 +1,6 @@
-# redhorizon-shooter
-A twin-stick shooter built using Red Horizon
+
+Red Horizon - Shooter
+=====================
+
+A twin-stick shooter built using Red Horizon.  This is another demo project
+created to help build and test the Red Horizon engine.

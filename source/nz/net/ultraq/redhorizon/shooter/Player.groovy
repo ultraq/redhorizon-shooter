@@ -16,11 +16,13 @@
 
 package nz.net.ultraq.redhorizon.shooter
 
-import nz.net.ultraq.redhorizon.classic.graphics.PalettedSpriteShader.PalettedSpriteShaderContext
 import nz.net.ultraq.redhorizon.graphics.Palette
 import nz.net.ultraq.redhorizon.graphics.Sprite
 import nz.net.ultraq.redhorizon.graphics.SpriteSheet
 import nz.net.ultraq.redhorizon.scenegraph.Node
+import nz.net.ultraq.redhorizon.shooter.engine.GameObject
+import nz.net.ultraq.redhorizon.shooter.engine.GraphicsContext
+import nz.net.ultraq.redhorizon.shooter.engine.GraphicsObject
 import nz.net.ultraq.redhorizon.shooter.utilities.ResourceManager
 
 import org.slf4j.Logger
@@ -31,13 +33,15 @@ import org.slf4j.LoggerFactory
  *
  * @author Emanuel Rabina
  */
-class Player extends Node<Player> implements GameObject, AutoCloseable {
+class Player extends Node<Player> implements GameObject, GraphicsObject, AutoCloseable {
 
 	private static final Logger logger = LoggerFactory.getLogger(Player)
 
+	final String name = 'Player'
 	private final Palette tdPalette
 	private final SpriteSheet orcaSpriteSheet
 	private final Sprite orca
+	private final Sprite shadow
 	private float bobbingTimer
 	private int frame = 0
 
@@ -50,22 +54,37 @@ class Player extends Node<Player> implements GameObject, AutoCloseable {
 		orcaSpriteSheet = resourceManager.loadSpriteSheet('orca.shp')
 		orca = new Sprite(orcaSpriteSheet)
 			.translate(-18f, -12f, 0f)
+		shadow = new Sprite(orcaSpriteSheet)
+			.translate(-18f, -36f, 0f)
+
+		orca.name = 'Orca'
+		shadow.name = 'Shadow'
 		addChild(orca)
+		addChild(shadow)
 	}
 
 	@Override
 	void close() {
 
 		orca?.close()
+		shadow?.close()
 	}
 
-	/**
-	 * Draw the player.
-	 */
-	void render(PalettedSpriteShaderContext shaderContext) {
+	@Override
+	void render(GraphicsContext context) {
 
-		shaderContext.setPalette(tdPalette)
-		orca.draw(shaderContext, orcaSpriteSheet.getFramePosition(frame))
+		var framePosition = orcaSpriteSheet.getFramePosition(frame)
+		context.shadowShader.useShader { shaderContext ->
+			context.camera().update(shaderContext)
+			shadow.draw(shaderContext, framePosition)
+		}
+		context.palettedSpriteShader.useShader { shaderContext ->
+			context.camera().update(shaderContext)
+			shaderContext.setAdjustmentMap(context.adjustmentMap())
+			shaderContext.setAlphaMask(context.alphaMask())
+			shaderContext.setPalette(tdPalette)
+			orca.draw(shaderContext, framePosition)
+		}
 	}
 
 	@Override
@@ -73,9 +92,6 @@ class Player extends Node<Player> implements GameObject, AutoCloseable {
 
 		// Helicopter bobbing
 		bobbingTimer += delta
-		var bob = 0.0625f * Math.sin(bobbingTimer) as float
-		translate(0f, bob, 0f)
-		// TODO: Node global positions so that we only need to adjust the parent
-		orca.translate(0f, bob, 0f)
+		orca.translate(0f, 0.0625f * Math.sin(bobbingTimer) as float, 0f)
 	}
 }

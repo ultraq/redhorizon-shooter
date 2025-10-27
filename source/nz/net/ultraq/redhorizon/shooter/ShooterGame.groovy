@@ -21,17 +21,19 @@ import nz.net.ultraq.redhorizon.audio.openal.OpenALAudioDevice
 import nz.net.ultraq.redhorizon.classic.Faction
 import nz.net.ultraq.redhorizon.classic.graphics.AlphaMask
 import nz.net.ultraq.redhorizon.classic.graphics.FactionAdjustmentMap
-import nz.net.ultraq.redhorizon.classic.graphics.PalettedSpriteShader
 import nz.net.ultraq.redhorizon.graphics.Camera
 import nz.net.ultraq.redhorizon.graphics.Colour
 import nz.net.ultraq.redhorizon.graphics.Window
-import nz.net.ultraq.redhorizon.graphics.opengl.BasicShader
 import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLWindow
 import nz.net.ultraq.redhorizon.input.InputEventHandler
 import nz.net.ultraq.redhorizon.scenegraph.Scene
+import nz.net.ultraq.redhorizon.shooter.engine.GameObject
+import nz.net.ultraq.redhorizon.shooter.engine.GraphicsContext
+import nz.net.ultraq.redhorizon.shooter.engine.GraphicsObject
 import nz.net.ultraq.redhorizon.shooter.utilities.DeltaTimer
 import nz.net.ultraq.redhorizon.shooter.utilities.GridLines
 import nz.net.ultraq.redhorizon.shooter.utilities.ResourceManager
+import nz.net.ultraq.redhorizon.shooter.utilities.ShaderManager
 
 import org.joml.primitives.Rectanglef
 import org.slf4j.Logger
@@ -64,18 +66,18 @@ class ShooterGame implements Runnable {
 	private Window window
 	private Camera camera
 	private InputEventHandler inputEventHandler
-	private BasicShader basicShader
-	private PalettedSpriteShader palettedSpriteShader
 	private FactionAdjustmentMap adjustmentMap
 	private AlphaMask alphaMask
 	private AudioDevice audioDevice
 
-	private ResourceManager resourceManager
 	private Player player
 	private GridLines gridLines
 
 	@Override
 	void run() {
+
+		var resourceManager = null
+		var shaderManager = null
 
 		try {
 			// Startup
@@ -96,20 +98,20 @@ class ShooterGame implements Runnable {
 			scene << camera
 			inputEventHandler = new InputEventHandler()
 				.addInputSource(window)
-			basicShader = new BasicShader()
-			palettedSpriteShader = new PalettedSpriteShader()
 			adjustmentMap = new FactionAdjustmentMap(Faction.GOLD)
 			alphaMask = new AlphaMask()
+			shaderManager = new ShaderManager()
+			var graphicsContext = new GraphicsContext(shaderManager, camera, adjustmentMap, alphaMask)
 
 			audioDevice = new OpenALAudioDevice()
 				.withMasterVolume(0.5f)
 
 			// Init game assets
 			resourceManager = new ResourceManager('nz/net/ultraq/redhorizon/shooter/')
-			player = new Player(resourceManager)
-			scene << player
 			gridLines = new GridLines(new Rectanglef(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT).center(), 24f)
 			scene << gridLines
+			player = new Player(resourceManager)
+			scene << player
 
 			// Game loop
 			logger.debug('Game loop')
@@ -120,7 +122,7 @@ class ShooterGame implements Runnable {
 
 				input(delta)
 				logic(delta)
-				render()
+				render(graphicsContext)
 
 				Thread.yield()
 			}
@@ -134,11 +136,10 @@ class ShooterGame implements Runnable {
 				}
 			}
 			resourceManager?.close()
+			shaderManager?.close()
 			audioDevice?.close()
 			alphaMask?.close()
 			adjustmentMap?.close()
-			palettedSpriteShader?.close()
-			basicShader?.close()
 			window?.close()
 		}
 	}
@@ -174,19 +175,14 @@ class ShooterGame implements Runnable {
 	/**
 	 * Draw game objects to the screen and keep audio streams running.
 	 */
-	private void render() {
+	private void render(GraphicsContext graphicsContext) {
 
 		window.useWindow { ->
-			basicShader.useShader { shaderContext ->
-				camera.update(shaderContext)
-				gridLines.draw(shaderContext)
-			}
-			palettedSpriteShader.useShader { shaderContext ->
-				camera.update(shaderContext)
-				shaderContext.setAdjustmentMap(adjustmentMap)
-				adjustmentMap.update()
-				shaderContext.setAlphaMask(alphaMask)
-				player.render(shaderContext)
+			// TODO: Group items up by which shader bext draws them
+			scene.traverse { node ->
+				if (node instanceof GraphicsObject) {
+					node.render(graphicsContext)
+				}
 			}
 		}
 	}

@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-package nz.net.ultraq.redhorizon.shooter
+package nz.net.ultraq.redhorizon.shooter.engine
 
 /**
- * Any object in the scene that should be updated periodically.
+ * Any object in a scene that should be rendered.
  *
  * @author Emanuel Rabina
  */
-interface GameObject {
+interface GraphicsObject {
 
 	/**
-	 * Called regularly to perform any processing as a response to changes in the
-	 * scene.
-	 *
-	 * @param delta
-	 *   Time, in seconds, since the last time this method was called.
+	 * Render the element for display.
 	 */
-	void update(float delta)
+	void render(GraphicsContext context)
 }

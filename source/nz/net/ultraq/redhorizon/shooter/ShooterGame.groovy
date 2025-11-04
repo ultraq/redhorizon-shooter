@@ -27,6 +27,7 @@ import nz.net.ultraq.redhorizon.graphics.Window
 import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLWindow
 import nz.net.ultraq.redhorizon.input.InputEventHandler
 import nz.net.ultraq.redhorizon.scenegraph.Scene
+import nz.net.ultraq.redhorizon.shooter.engine.GameContext
 import nz.net.ultraq.redhorizon.shooter.engine.GameObject
 import nz.net.ultraq.redhorizon.shooter.engine.GraphicsContext
 import nz.net.ultraq.redhorizon.shooter.engine.GraphicsObject
@@ -102,6 +103,7 @@ class ShooterGame implements Runnable {
 			alphaMask = new AlphaMask()
 			shaderManager = new ShaderManager()
 			var graphicsContext = new GraphicsContext(shaderManager, camera, adjustmentMap, alphaMask)
+			var gameContext = new GameContext(inputEventHandler, window)
 
 			audioDevice = new OpenALAudioDevice()
 				.withMasterVolume(0.5f)
@@ -110,7 +112,7 @@ class ShooterGame implements Runnable {
 			resourceManager = new ResourceManager('nz/net/ultraq/redhorizon/shooter/')
 			gridLines = new GridLines(new Rectanglef(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT).center(), 24f)
 			scene << gridLines
-			player = new Player(resourceManager)
+			player = new Player(resourceManager, window.width, window.height)
 			scene << player
 
 			// Game loop
@@ -121,7 +123,7 @@ class ShooterGame implements Runnable {
 				var delta = deltaTimer.deltaTime()
 
 				input(delta)
-				logic(delta)
+				logic(delta, gameContext)
 				render(graphicsContext)
 
 				Thread.yield()
@@ -163,11 +165,11 @@ class ShooterGame implements Runnable {
 	/**
 	 * Perform the game logic.
 	 */
-	private void logic(float delta) {
+	private void logic(float delta, GameContext context) {
 
 		scene.traverse { node ->
 			if (node instanceof GameObject) {
-				node.update(delta)
+				node.update(delta, context)
 			}
 		}
 	}
@@ -178,7 +180,7 @@ class ShooterGame implements Runnable {
 	private void render(GraphicsContext graphicsContext) {
 
 		window.useWindow { ->
-			// TODO: Group items up by which shader bext draws them
+			// TODO: Group items up by which shader next draws them
 			scene.traverse { node ->
 				if (node instanceof GraphicsObject) {
 					node.render(graphicsContext)

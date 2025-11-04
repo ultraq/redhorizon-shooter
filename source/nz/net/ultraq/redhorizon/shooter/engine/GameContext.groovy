@@ -16,20 +16,17 @@
 
 package nz.net.ultraq.redhorizon.shooter.engine
 
+import nz.net.ultraq.redhorizon.graphics.Window
+import nz.net.ultraq.redhorizon.input.InputEventHandler
+
+import groovy.transform.ImmutableOptions
+
 /**
- * Any object in the scene that should be updated periodically.
+ * A collection of objects that are useful for game logic and updating state.
+ * Created so we don't have to pass so much stuff around in constructors.
  *
  * @author Emanuel Rabina
  */
-interface GameObject {
-
-	/**
-	 * Called regularly to perform any processing as a response to changes in the
-	 * scene.
-	 *
-	 * @param delta
-	 *   Time, in seconds, since the last time this method was called.
-	 * @param context
-	 */
-	void update(float delta, GameContext context)
+@ImmutableOptions(knownImmutables = ['inputEventHandler', 'window'])
+record GameContext(InputEventHandler inputEventHandler, Window window) {
 }

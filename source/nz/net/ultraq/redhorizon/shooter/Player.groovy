@@ -20,11 +20,13 @@ import nz.net.ultraq.redhorizon.graphics.Palette
 import nz.net.ultraq.redhorizon.graphics.Sprite
 import nz.net.ultraq.redhorizon.graphics.SpriteSheet
 import nz.net.ultraq.redhorizon.scenegraph.Node
+import nz.net.ultraq.redhorizon.shooter.engine.GameContext
 import nz.net.ultraq.redhorizon.shooter.engine.GameObject
 import nz.net.ultraq.redhorizon.shooter.engine.GraphicsContext
 import nz.net.ultraq.redhorizon.shooter.engine.GraphicsObject
 import nz.net.ultraq.redhorizon.shooter.utilities.ResourceManager
 
+import org.joml.Vector2f
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -36,19 +38,31 @@ import org.slf4j.LoggerFactory
 class Player extends Node<Player> implements GameObject, GraphicsObject, AutoCloseable {
 
 	private static final Logger logger = LoggerFactory.getLogger(Player)
+	private static final Vector2f up = new Vector2f(0, 1)
+
+	// TODO: These should come from the unit data for the orca sprite
+	private static final int headings = 32
+	private static final float headingStep = 360f / headings as float
 
 	final String name = 'Player'
+	private final int halfWindowWidth
+	private final int halfWindowHeight
 	private final Palette tdPalette
 	private final SpriteSheet orcaSpriteSheet
 	private final Sprite orca
 	private final Sprite shadow
 	private float bobbingTimer
+	private Vector2f screenPosition = new Vector2f()
+	private float heading = 0f
 	private int frame = 0
 
 	/**
 	 * Constructor, create a new player object.
 	 */
-	Player(ResourceManager resourceManager) {
+	Player(ResourceManager resourceManager, int windowWidth, int windowHeight) {
+
+		halfWindowHeight = windowHeight / 2 as int
+		halfWindowWidth = windowWidth / 2 as int
 
 		tdPalette = resourceManager.loadPalette('temperat-td.pal')
 		orcaSpriteSheet = resourceManager.loadSpriteSheet('orca.shp')
@@ -88,10 +102,24 @@ class Player extends Node<Player> implements GameObject, GraphicsObject, AutoClo
 	}
 
 	@Override
-	void update(float delta) {
+	void update(float delta, GameContext context) {
 
 		// Helicopter bobbing
 		bobbingTimer += delta
 		orca.translate(0f, 0.0625f * Math.sin(bobbingTimer) as float, 0f)
+
+		// Look at the cursor
+		var cursorPosition = context.inputEventHandler().cursorPosition()
+		if (cursorPosition.length()) {
+			var window = context.window()
+			screenPosition.set(cursorPosition.x - halfWindowWidth as float, window.height - cursorPosition.y - halfWindowHeight as float)
+			heading = Math.wrap(Math.toDegrees(screenPosition.angle(up)) as float, 0f, 360f)
+
+			// NOTE: C&C unit headings were ordered in a counter-clockwise order, the
+			//       reverse from how degrees-based headings are done.
+			var closestHeading = Math.round(heading / headingStep)
+			var rotationFrame = closestHeading ? headings - closestHeading : 0
+			frame = rotationFrame as int
+		}
 	}
 }

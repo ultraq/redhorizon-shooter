@@ -16,7 +16,7 @@
 
 plugins {
 	id 'idea'
-	id 'nz.net.ultraq.gradle.fluent-configuration' version '0.7.0'
+	id 'nz.net.ultraq.gradle.fluent-configuration' version '0.8.0'
 }
 
 description = 'A twin-stick shooter built using Red Horizon'
@@ -26,7 +26,7 @@ configure {
 	createGroovyApplicationProject() {
 		mainClass = 'nz.net.ultraq.redhorizon.shooter.ShooterGame'
 	}
-		.useJavaVersion(21)
+		.useJavaVersion(25)
 		.useMavenCentralRepositories()
 		.configureSource()
 		.expand('**/*.properties', [version: version])

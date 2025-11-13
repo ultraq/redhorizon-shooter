@@ -24,6 +24,8 @@ import nz.net.ultraq.redhorizon.classic.graphics.FactionAdjustmentMap
 import nz.net.ultraq.redhorizon.graphics.Camera
 import nz.net.ultraq.redhorizon.graphics.Colour
 import nz.net.ultraq.redhorizon.graphics.Window
+import nz.net.ultraq.redhorizon.graphics.imgui.DebugOverlay
+import nz.net.ultraq.redhorizon.graphics.imgui.NodeList
 import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLWindow
 import nz.net.ultraq.redhorizon.input.InputEventHandler
 import nz.net.ultraq.redhorizon.scenegraph.Scene
@@ -52,6 +54,7 @@ import static org.lwjgl.glfw.GLFW.*
 class ShooterGame implements Runnable {
 
 	static {
+		System.setProperty('joml.format', 'false')
 		System.setProperty('org.lwjgl.system.stackSize', '10240')
 	}
 
@@ -89,8 +92,6 @@ class ShooterGame implements Runnable {
 			// Init devices
 			scene = new Scene()
 			window = new OpenGLWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Shooter ${properties.getProperty('version')}")
-				.addFpsCounter()
-				.addNodeList(scene)
 				.centerToScreen()
 				.scaleToFit()
 				.withBackgroundColour(Colour.GREY)
@@ -103,7 +104,7 @@ class ShooterGame implements Runnable {
 			alphaMask = new AlphaMask()
 			shaderManager = new ShaderManager()
 			var graphicsContext = new GraphicsContext(shaderManager, camera, adjustmentMap, alphaMask)
-			var gameContext = new GameContext(inputEventHandler, window)
+			var gameContext = new GameContext(inputEventHandler, window, camera, new Rectanglef(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT))
 
 			audioDevice = new OpenALAudioDevice()
 				.withMasterVolume(0.5f)
@@ -112,12 +113,16 @@ class ShooterGame implements Runnable {
 			resourceManager = new ResourceManager('nz/net/ultraq/redhorizon/shooter/')
 			gridLines = new GridLines(new Rectanglef(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT).center(), 24f)
 			scene << gridLines
-			player = new Player(resourceManager, window.width, window.height)
+			player = new Player(resourceManager)
 			scene << player
 
 			// Game loop
 			logger.debug('Game loop')
-			window.show()
+			window
+				.addDebugOverlay(new DebugOverlay()
+					.withCursorTracking(camera))
+				.addNodeList(new NodeList(scene))
+				.show()
 			var deltaTimer = new DeltaTimer()
 			while (!window.shouldClose()) {
 				var delta = deltaTimer.deltaTime()

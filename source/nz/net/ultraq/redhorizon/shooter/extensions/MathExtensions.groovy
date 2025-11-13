@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package nz.net.ultraq.redhorizon.shooter.engine
-
-import nz.net.ultraq.redhorizon.graphics.Camera
-import nz.net.ultraq.redhorizon.graphics.Window
-import nz.net.ultraq.redhorizon.input.InputEventHandler
-
-import org.joml.primitives.Rectanglef
-
-import groovy.transform.ImmutableOptions
+package nz.net.ultraq.redhorizon.shooter.extensions
 
 /**
- * A collection of objects that are useful for game logic and updating state.
- * Created so we don't have to pass so much stuff around in constructors.
+ * Shooter-specific extensions to the Math class.
  *
  * @author Emanuel Rabina
  */
-@ImmutableOptions(knownImmutables = ['inputEventHandler', 'window', 'camera', 'worldBounds'])
-record GameContext(InputEventHandler inputEventHandler, Window window, Camera camera, Rectanglef worldBounds) {
+class MathExtensions {
+
+	/**
+	 * Wrap a value within the 0-360 value range, good for representing some value
+	 * in a circle.
+	 */
+	static float wrapToCircle(Math self, float value) {
+
+		return Math.wrap(value, 0f, 360f)
+	}
 }

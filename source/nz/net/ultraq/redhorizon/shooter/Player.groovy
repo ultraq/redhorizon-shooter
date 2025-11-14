@@ -25,10 +25,12 @@ import nz.net.ultraq.redhorizon.scenegraph.Node
 import nz.net.ultraq.redhorizon.shooter.animation.EasingFunctions
 import nz.net.ultraq.redhorizon.shooter.engine.GameContext
 import nz.net.ultraq.redhorizon.shooter.engine.GameObject
+import nz.net.ultraq.redhorizon.shooter.engine.GameObjectScript
 import nz.net.ultraq.redhorizon.shooter.engine.GraphicsContext
 import nz.net.ultraq.redhorizon.shooter.engine.GraphicsObject
 import nz.net.ultraq.redhorizon.shooter.utilities.ResourceManager
 
+import org.codehaus.groovy.control.CompilerConfiguration
 import org.joml.Vector2f
 import org.joml.Vector3f
 import org.slf4j.Logger
@@ -57,14 +59,15 @@ class Player extends Node<Player> implements GameObject, GraphicsObject, AutoClo
 
 	final String name = 'Player'
 
+	// Scripting
+	private final GroovyScriptEngine scriptEngine
+	private final Binding binding
+
 	// Rendering
 	private final Palette tdPalette
 	private final SpriteSheet orcaSpriteSheet
 	private final Sprite orca
 	private final Sprite shadow
-
-	// Bobbing
-	private float bobbingTimer = 0f
 
 	// Rotation
 	private Vector2f lastCursorPosition = new Vector2f()
@@ -96,6 +99,12 @@ class Player extends Node<Player> implements GameObject, GraphicsObject, AutoClo
 		shadow.name = 'Shadow'
 		addChild(orca)
 		addChild(shadow)
+
+		var scriptCompilerConfiguration = new CompilerConfiguration()
+		scriptCompilerConfiguration.scriptBaseClass = GameObjectScript
+		scriptEngine = new GroovyScriptEngine(new File('.').toURI().toURL())
+		scriptEngine.setConfig(scriptCompilerConfiguration)
+		binding = new Binding()
 	}
 
 	@Override
@@ -144,8 +153,9 @@ class Player extends Node<Player> implements GameObject, GraphicsObject, AutoClo
 	 */
 	private void updateBobbing(float delta) {
 
-		bobbingTimer += delta
-		orca.translate(0f, 0.0625f * Math.sin(bobbingTimer) as float, 0f)
+		binding.setProperty('delta', delta)
+		var bob = scriptEngine.run('PlayerBobbingScript.groovy', binding) as float
+		orca.translate(0f, bob, 0f)
 	}
 
 	/**

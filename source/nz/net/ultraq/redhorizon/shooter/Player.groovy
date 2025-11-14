@@ -62,10 +62,12 @@ class Player extends Node<Player> implements GameObject, GraphicsObject, AutoClo
 	private final SpriteSheet orcaSpriteSheet
 	private final Sprite orca
 	private final Sprite shadow
-	private float bobbingTimer
-	private int frame = 0
+
+	// Bobbing
+	private float bobbingTimer = 0f
 
 	// Rotation
+	private Vector2f lastCursorPosition = new Vector2f()
 	private Vector3f unprojectResult = new Vector3f()
 	private Vector2f worldCursorPosition = new Vector2f()
 	private Vector2f positionXY = new Vector2f()
@@ -73,9 +75,9 @@ class Player extends Node<Player> implements GameObject, GraphicsObject, AutoClo
 	private float heading = 0f
 
 	// Movement
+	private boolean accelerating = false
 	private Vector2f impulse = new Vector2f()
 	private Vector2f velocity = new Vector2f()
-	private Vector2f initialStoppingVelocity = new Vector2f()
 	private float accAccelerationTime = 0f
 
 	/**
@@ -105,6 +107,14 @@ class Player extends Node<Player> implements GameObject, GraphicsObject, AutoClo
 
 	@Override
 	void render(GraphicsContext context) {
+
+		// NOTE: C&C unit headings were ordered in a counter-clockwise order, the
+		//       reverse from how degrees-based headings are done.
+		var closestHeading = Math.round(heading / headingStep)
+		var frame = closestHeading ? headings - closestHeading as int : 0
+		if (accelerating) {
+			frame += headings
+		}
 
 		var framePosition = orcaSpriteSheet.getFramePosition(frame)
 		context.shadowShader.useShader { shaderContext ->
@@ -143,17 +153,13 @@ class Player extends Node<Player> implements GameObject, GraphicsObject, AutoClo
 	 */
 	private void updateHeading(float delta, Vector2f cursorPosition, Camera camera) {
 
-		if (cursorPosition.length()) {
+		if (cursorPosition && cursorPosition != lastCursorPosition) {
 			positionXY.set(position)
 			worldCursorPosition.set(camera.unproject(cursorPosition.x(), cursorPosition.y(), unprojectResult))
 			worldCursorPosition.sub(positionXY, headingToCursor)
 			heading = Math.wrap(Math.toDegrees(headingToCursor.angle(up)) as float, 0f, 360f)
 
-			// NOTE: C&C unit headings were ordered in a counter-clockwise order, the
-			//       reverse from how degrees-based headings are done.
-			var closestHeading = Math.round(heading / headingStep)
-			var rotationFrame = closestHeading ? headings - closestHeading : 0
-			frame = rotationFrame as int
+			lastCursorPosition.set(cursorPosition)
 		}
 	}
 
@@ -162,9 +168,8 @@ class Player extends Node<Player> implements GameObject, GraphicsObject, AutoClo
 	 */
 	private void updateMovement(float delta, InputEventHandler inputEventHandler) {
 
-		// Apply keyboard movement
+		// Set the direction of the movement force based on inputs
 		var impulseDirection = 0f
-		var accelerating = false
 		if (inputEventHandler.keyPressed(GLFW_KEY_W)) {
 			impulseDirection =
 				inputEventHandler.keyPressed(GLFW_KEY_A) ? Math.wrapToCircle((float)(heading - 45f)) :
@@ -187,34 +192,24 @@ class Player extends Node<Player> implements GameObject, GraphicsObject, AutoClo
 			impulseDirection = Math.wrapToCircle((float)(heading + 90f))
 			accelerating = true
 		}
+		else {
+			accelerating = false
+		}
 
+		// Adjust the strength of the force based on acceleration time
 		if (accelerating) {
-			var headingInRadians = Math.toRadians(impulseDirection)
-			impulse.set(Math.sin(headingInRadians), Math.cos(headingInRadians)).normalize()
+			var impulseDirectionInRadians = Math.toRadians(impulseDirection)
+			impulse.set(Math.sin(impulseDirectionInRadians), Math.cos(impulseDirectionInRadians)).mul(MAX_SPEED).normalize()
 			accAccelerationTime = Math.min((float)(accAccelerationTime + delta), TIME_TO_MAX_SPEED_S)
 		}
 		else {
-			impulse.zero()
 			accAccelerationTime = Math.max((float)(accAccelerationTime - delta), 0f)
 		}
 
-		// Adjust position based on the movement inputs above
-		if (impulse) {
-			if (initialStoppingVelocity) {
-				initialStoppingVelocity.zero()
-			}
-			var accelerationCurve = EasingFunctions.linear(accAccelerationTime)
-			var maxAcceleration = new Vector2f(impulse).mul(MAX_SPEED).mul(accelerationCurve).mul(delta)
-			velocity.set(maxAcceleration)
-		}
-		else if (velocity) {
-			if (!initialStoppingVelocity) {
-				initialStoppingVelocity.set(velocity)
-			}
-			var deccelerationCurve = EasingFunctions.linear(accAccelerationTime)
-			var maxDecceleration = new Vector2f(initialStoppingVelocity).mul(deccelerationCurve)
-			velocity.set(maxDecceleration)
-		}
+		// Calculate the velocity from the above
+		velocity.set(0f, 0f).lerp(impulse, EasingFunctions.linear(accAccelerationTime))
+
+		// Adjust position based on velocity
 		if (velocity) {
 			// TODO: Have parent node transform affect children
 //			var worldBounds = context.worldBounds()

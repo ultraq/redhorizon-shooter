@@ -16,20 +16,28 @@
 
 package nz.net.ultraq.redhorizon.shooter
 
-import nz.net.ultraq.redhorizon.shooter.engine.GameObjectScript
+import nz.net.ultraq.redhorizon.graphics.Sprite
 
 /**
  * A script for controlling the player sprite's bobbing motion.
  *
  * @author Emanuel Rabina
  */
-class PlayerBobbingScript extends GameObjectScript {
+class PlayerBobbingScript extends Script {
 
 	private float getBobbingTimer() {
 		if (!binding.hasVariable('bobbingTimer')) {
 			binding['bobbingTimer'] = 0f
 		}
 		return binding['bobbingTimer'] as float
+	}
+
+	private float getDelta() {
+		return binding['delta'] as float
+	}
+
+	private Sprite getOrca() {
+		return binding['orca'] as Sprite
 	}
 
 	private void setBobbingTimer(float bobbingTimer) {
@@ -40,6 +48,6 @@ class PlayerBobbingScript extends GameObjectScript {
 	Object run() {
 
 		bobbingTimer += delta
-		return 0.0625f * Math.sin(bobbingTimer) as float
+		orca.translate(0f, 0.0625f * Math.sin(bobbingTimer) as float, 0f)
 	}
 }

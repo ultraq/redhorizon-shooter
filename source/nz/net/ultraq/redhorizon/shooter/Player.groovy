@@ -25,12 +25,10 @@ import nz.net.ultraq.redhorizon.scenegraph.Node
 import nz.net.ultraq.redhorizon.shooter.animation.EasingFunctions
 import nz.net.ultraq.redhorizon.shooter.engine.GameContext
 import nz.net.ultraq.redhorizon.shooter.engine.GameObject
-import nz.net.ultraq.redhorizon.shooter.engine.GameObjectScript
 import nz.net.ultraq.redhorizon.shooter.engine.GraphicsContext
 import nz.net.ultraq.redhorizon.shooter.engine.GraphicsObject
 import nz.net.ultraq.redhorizon.shooter.utilities.ResourceManager
 
-import org.codehaus.groovy.control.CompilerConfiguration
 import org.joml.Vector2f
 import org.joml.Vector3f
 import org.slf4j.Logger
@@ -100,10 +98,7 @@ class Player extends Node<Player> implements GameObject, GraphicsObject, AutoClo
 		addChild(orca)
 		addChild(shadow)
 
-		var scriptCompilerConfiguration = new CompilerConfiguration()
-		scriptCompilerConfiguration.scriptBaseClass = GameObjectScript
 		scriptEngine = new GroovyScriptEngine(new File('.').toURI().toURL())
-		scriptEngine.setConfig(scriptCompilerConfiguration)
 		binding = new Binding()
 	}
 
@@ -153,9 +148,9 @@ class Player extends Node<Player> implements GameObject, GraphicsObject, AutoClo
 	 */
 	private void updateBobbing(float delta) {
 
-		binding.setProperty('delta', delta)
-		var bob = scriptEngine.run('PlayerBobbingScript.groovy', binding) as float
-		orca.translate(0f, bob, 0f)
+		binding['delta'] = delta
+		binding['orca'] = orca
+		scriptEngine.run('PlayerBobbingScript.groovy', binding)
 	}
 
 	/**

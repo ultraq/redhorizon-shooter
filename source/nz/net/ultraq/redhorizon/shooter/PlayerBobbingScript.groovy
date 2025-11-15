@@ -23,31 +23,25 @@ import nz.net.ultraq.redhorizon.graphics.Sprite
  *
  * @author Emanuel Rabina
  */
-class PlayerBobbingScript extends Script {
 
-	private float getBobbingTimer() {
-		if (!binding.hasVariable('bobbingTimer')) {
-			binding['bobbingTimer'] = 0f
-		}
-		return binding['bobbingTimer'] as float
-	}
+bobbingTimer += delta
+orca.translate(0f, 0.0625f * Math.sin(bobbingTimer) as float, 0f)
 
-	private float getDelta() {
-		return binding['delta'] as float
-	}
+// Methods
+// -------
 
-	private Sprite getOrca() {
-		return binding['orca'] as Sprite
-	}
+float getBobbingTimer() {
+	return binding.hasVariable('bobbingTimer') ? binding['bobbingTimer'] : 0f
+}
 
-	private void setBobbingTimer(float bobbingTimer) {
-		binding['bobbingTimer'] = bobbingTimer
-	}
+float getDelta() {
+	return binding['delta']
+}
 
-	@Override
-	Object run() {
+Sprite getOrca() {
+	return binding['orca']
+}
 
-		bobbingTimer += delta
-		orca.translate(0f, 0.0625f * Math.sin(bobbingTimer) as float, 0f)
-	}
+void setBobbingTimer(float bobbingTimer) {
+	binding['bobbingTimer'] = bobbingTimer
 }

@@ -18,6 +18,7 @@ package nz.net.ultraq.redhorizon.shooter.animation
 
 import groovy.transform.TupleConstructor
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Future
 
 /**
  * A transition is a combination of an easing function, a duration, and a
@@ -49,7 +50,7 @@ class Transition {
 	 *
 	 * @return A {@code Future} that will be completed when the transition is.
 	 */
-	CompletableFuture<Void> start() {
+	Future<Void> start() {
 
 		var startTimeMs = System.currentTimeMillis()
 		var endTimeMs = startTimeMs + durationMs

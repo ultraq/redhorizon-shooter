@@ -21,20 +21,16 @@ import nz.net.ultraq.redhorizon.audio.openal.OpenALAudioDevice
 import nz.net.ultraq.redhorizon.classic.Faction
 import nz.net.ultraq.redhorizon.classic.graphics.AlphaMask
 import nz.net.ultraq.redhorizon.classic.graphics.FactionAdjustmentMap
-import nz.net.ultraq.redhorizon.graphics.Camera
 import nz.net.ultraq.redhorizon.graphics.Colour
 import nz.net.ultraq.redhorizon.graphics.Window
 import nz.net.ultraq.redhorizon.graphics.imgui.DebugOverlay
 import nz.net.ultraq.redhorizon.graphics.imgui.NodeList
 import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLWindow
 import nz.net.ultraq.redhorizon.input.InputEventHandler
-import nz.net.ultraq.redhorizon.scenegraph.Scene
 import nz.net.ultraq.redhorizon.shooter.engine.GameContext
-import nz.net.ultraq.redhorizon.shooter.engine.GameObject
 import nz.net.ultraq.redhorizon.shooter.engine.GraphicsContext
 import nz.net.ultraq.redhorizon.shooter.engine.GraphicsObject
 import nz.net.ultraq.redhorizon.shooter.utilities.DeltaTimer
-import nz.net.ultraq.redhorizon.shooter.utilities.GridLines
 import nz.net.ultraq.redhorizon.shooter.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.shooter.utilities.ShaderManager
 
@@ -66,22 +62,17 @@ class ShooterGame implements Runnable {
 	private static final int WINDOW_WIDTH = 640
 	private static final int WINDOW_HEIGHT = 400
 
-	private Scene scene
+	private ShooterScene scene
 	private Window window
-	private Camera camera
 	private InputEventHandler inputEventHandler
 	private FactionAdjustmentMap adjustmentMap
 	private AlphaMask alphaMask
 	private AudioDevice audioDevice
-
-	private Player player
-	private GridLines gridLines
+	private ResourceManager resourceManager
+	private ShaderManager shaderManager
 
 	@Override
 	void run() {
-
-		var resourceManager = null
-		var shaderManager = null
 
 		try {
 			// Startup
@@ -90,44 +81,38 @@ class ShooterGame implements Runnable {
 			properties.load(getResourceAsStream('shooter.properties'))
 
 			// Init devices
-			scene = new Scene()
 			window = new OpenGLWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Shooter ${properties.getProperty('version')}")
 				.centerToScreen()
 				.scaleToFit()
 				.withBackgroundColour(Colour.GREY)
 				.withVSync(true)
-			camera = new Camera(WINDOW_WIDTH, WINDOW_HEIGHT, window)
-			scene << camera
 			inputEventHandler = new InputEventHandler()
 				.addInputSource(window)
 			adjustmentMap = new FactionAdjustmentMap(Faction.GOLD)
 			alphaMask = new AlphaMask()
 			shaderManager = new ShaderManager()
-			var graphicsContext = new GraphicsContext(shaderManager, camera, adjustmentMap, alphaMask)
-			var gameContext = new GameContext(inputEventHandler, window, camera, new Rectanglef(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT))
 
 			audioDevice = new OpenALAudioDevice()
 				.withMasterVolume(0.5f)
 
-			// Init game assets
+			// Init scene
 			resourceManager = new ResourceManager('nz/net/ultraq/redhorizon/shooter/')
-			gridLines = new GridLines(new Rectanglef(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT).center(), 24f)
-			scene << gridLines
-			player = new Player(resourceManager)
-			scene << player
+			scene = new ShooterScene(WINDOW_WIDTH, WINDOW_HEIGHT, window, resourceManager)
+			var graphicsContext = new GraphicsContext(shaderManager, scene.camera, adjustmentMap, alphaMask)
+			var gameContext = new GameContext(inputEventHandler, window, scene.camera, new Rectanglef(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT))
 
 			// Game loop
 			logger.debug('Game loop')
 			window
 				.addDebugOverlay(new DebugOverlay()
-					.withCursorTracking(camera))
+					.withCursorTracking(scene.camera))
 				.addNodeList(new NodeList(scene))
 				.show()
+
 			var deltaTimer = new DeltaTimer()
 			while (!window.shouldClose()) {
 				var delta = deltaTimer.deltaTime()
 
-				input(delta)
 				logic(delta, gameContext)
 				render(graphicsContext)
 
@@ -137,11 +122,7 @@ class ShooterGame implements Runnable {
 		finally {
 			// Shutdown
 			logger.debug('Shutdown')
-			scene?.traverse { node ->
-				if (node instanceof AutoCloseable) {
-					node.close()
-				}
-			}
+			scene?.close()
 			resourceManager?.close()
 			shaderManager?.close()
 			audioDevice?.close()
@@ -152,10 +133,11 @@ class ShooterGame implements Runnable {
 	}
 
 	/**
-	 * Process input events.
+	 * Perform the game logic.
 	 */
-	private void input(float delta) {
+	private void logic(float delta, GameContext context) {
 
+		// Game-wide input events
 		if (inputEventHandler.keyPressed(GLFW_KEY_ESCAPE, true)) {
 			window.shouldClose(true)
 		}
@@ -165,18 +147,8 @@ class ShooterGame implements Runnable {
 		if (inputEventHandler.keyPressed(GLFW_KEY_V, true)) {
 			window.toggleVSync()
 		}
-	}
 
-	/**
-	 * Perform the game logic.
-	 */
-	private void logic(float delta, GameContext context) {
-
-		scene.traverse { node ->
-			if (node instanceof GameObject) {
-				node.update(delta, context)
-			}
-		}
+		scene.update(delta, context)
 	}
 
 	/**

@@ -14,34 +14,17 @@
  * limitations under the License.
  */
 
-package nz.net.ultraq.redhorizon.shooter
-
-import nz.net.ultraq.redhorizon.graphics.Sprite
+package nz.net.ultraq.redhorizon.shooter.engine
 
 /**
- * A script for controlling the player sprite's bobbing motion.
+ * A custom class for any script used during the game update phase.
  *
  * @author Emanuel Rabina
  */
+interface GameObjectScript<TGameObject extends GameObject> {
 
-bobbingTimer += delta
-orca.translate(0f, 0.0625f * Math.sin(bobbingTimer) as float, 0f)
-
-// Methods
-// -------
-
-float getBobbingTimer() {
-	return binding.hasVariable('bobbingTimer') ? binding['bobbingTimer'] : 0f
-}
-
-float getDelta() {
-	return binding['delta']
-}
-
-Sprite getOrca() {
-	return binding['orca']
-}
-
-void setBobbingTimer(float bobbingTimer) {
-	binding['bobbingTimer'] = bobbingTimer
+	/**
+	 * Actions to perform when the object is being updated.
+	 */
+	void update(TGameObject gameObject, float delta, GameContext context)
 }

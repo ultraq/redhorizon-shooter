@@ -16,20 +16,40 @@
 
 package nz.net.ultraq.redhorizon.shooter.engine
 
+import nz.net.ultraq.redhorizon.scenegraph.Node
+
 /**
  * Any object in the scene that should be updated periodically.
  *
  * @author Emanuel Rabina
  */
-interface GameObject {
+class GameObject<T extends GameObject> extends Node<T> {
+
+	private String scriptName
 
 	/**
 	 * Called regularly to perform any processing as a response to changes in the
-	 * scene.
+	 * scene.  This default implementation will call the configured script, if
+	 * any.
 	 *
 	 * @param delta
 	 *   Time, in seconds, since the last time this method was called.
 	 * @param context
 	 */
-	void update(float delta, GameContext context)
+	void update(float delta, GameContext context) {
+
+		if (scriptName) {
+			var script = context.scriptEngine().loadScriptClass(scriptName) as GameObjectScript
+			script.update(this, delta, context)
+		}
+	}
+
+	/**
+	 * Use the given script to add behaviour to this object.
+	 */
+	T withScript(String scriptName) {
+
+		this.scriptName = scriptName
+		return (T)this
+	}
 }

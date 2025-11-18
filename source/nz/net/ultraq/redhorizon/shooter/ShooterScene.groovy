@@ -45,6 +45,7 @@ class ShooterScene extends Scene implements AutoCloseable {
 		camera = new Camera(sceneWidth, sceneHeight, window)
 		gridLines = new GridLines(new Rectanglef(0, 0, sceneWidth, sceneHeight).center(), 24f)
 		player = new Player(resourceManager)
+			.withScript('PlayerScript.groovy')
 
 		addChild(camera)
 		addChild(gridLines)

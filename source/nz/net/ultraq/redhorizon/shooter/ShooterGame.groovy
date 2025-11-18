@@ -30,11 +30,11 @@ import nz.net.ultraq.redhorizon.input.InputEventHandler
 import nz.net.ultraq.redhorizon.shooter.engine.GameContext
 import nz.net.ultraq.redhorizon.shooter.engine.GraphicsContext
 import nz.net.ultraq.redhorizon.shooter.engine.GraphicsObject
+import nz.net.ultraq.redhorizon.shooter.engine.ScriptEngine
 import nz.net.ultraq.redhorizon.shooter.utilities.DeltaTimer
 import nz.net.ultraq.redhorizon.shooter.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.shooter.utilities.ShaderManager
 
-import org.joml.primitives.Rectanglef
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import picocli.CommandLine
@@ -99,7 +99,7 @@ class ShooterGame implements Runnable {
 			resourceManager = new ResourceManager('nz/net/ultraq/redhorizon/shooter/')
 			scene = new ShooterScene(WINDOW_WIDTH, WINDOW_HEIGHT, window, resourceManager)
 			var graphicsContext = new GraphicsContext(shaderManager, scene.camera, adjustmentMap, alphaMask)
-			var gameContext = new GameContext(inputEventHandler, window, scene.camera, new Rectanglef(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT))
+			var gameContext = new GameContext(new ScriptEngine('.'), inputEventHandler, scene.camera)
 
 			// Game loop
 			logger.debug('Game loop')

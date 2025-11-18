@@ -17,10 +17,7 @@
 package nz.net.ultraq.redhorizon.shooter.engine
 
 import nz.net.ultraq.redhorizon.graphics.Camera
-import nz.net.ultraq.redhorizon.graphics.Window
 import nz.net.ultraq.redhorizon.input.InputEventHandler
-
-import org.joml.primitives.Rectanglef
 
 import groovy.transform.ImmutableOptions
 
@@ -30,6 +27,6 @@ import groovy.transform.ImmutableOptions
  *
  * @author Emanuel Rabina
  */
-@ImmutableOptions(knownImmutables = ['inputEventHandler', 'window', 'camera', 'worldBounds'])
-record GameContext(InputEventHandler inputEventHandler, Window window, Camera camera, Rectanglef worldBounds) {
+@ImmutableOptions(knownImmutables = ['scriptEngine', 'inputEventHandler', 'camera'])
+record GameContext(ScriptEngine scriptEngine, InputEventHandler inputEventHandler, Camera camera) {
 }

@@ -21,18 +21,18 @@ import nz.net.ultraq.redhorizon.audio.openal.OpenALAudioDevice
 import nz.net.ultraq.redhorizon.classic.Faction
 import nz.net.ultraq.redhorizon.classic.graphics.AlphaMask
 import nz.net.ultraq.redhorizon.classic.graphics.FactionAdjustmentMap
+import nz.net.ultraq.redhorizon.engine.GraphicsObject
+import nz.net.ultraq.redhorizon.engine.ScriptEngine
+import nz.net.ultraq.redhorizon.engine.utilities.DeltaTimer
+import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.graphics.Colour
 import nz.net.ultraq.redhorizon.graphics.Window
 import nz.net.ultraq.redhorizon.graphics.imgui.DebugOverlay
 import nz.net.ultraq.redhorizon.graphics.imgui.NodeList
 import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLWindow
 import nz.net.ultraq.redhorizon.input.InputEventHandler
-import nz.net.ultraq.redhorizon.shooter.engine.GameContext
-import nz.net.ultraq.redhorizon.shooter.engine.GraphicsContext
-import nz.net.ultraq.redhorizon.shooter.engine.GraphicsObject
-import nz.net.ultraq.redhorizon.shooter.engine.ScriptEngine
-import nz.net.ultraq.redhorizon.shooter.utilities.DeltaTimer
-import nz.net.ultraq.redhorizon.shooter.utilities.ResourceManager
+import nz.net.ultraq.redhorizon.shooter.engine.ShooterGameContext
+import nz.net.ultraq.redhorizon.shooter.engine.ShooterGraphicsContext
 import nz.net.ultraq.redhorizon.shooter.utilities.ShaderManager
 
 import org.slf4j.Logger
@@ -47,7 +47,7 @@ import static org.lwjgl.glfw.GLFW.*
  * @author Emanuel Rabina
  */
 @Command(name = 'shooter')
-class ShooterGame implements Runnable {
+class Shooter implements Runnable {
 
 	static {
 		System.setProperty('joml.format', 'false')
@@ -55,14 +55,13 @@ class ShooterGame implements Runnable {
 	}
 
 	static void main(String[] args) {
-		System.exit(new CommandLine(new ShooterGame()).execute(args))
+		System.exit(new CommandLine(new Shooter()).execute(args))
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(ShooterGame)
+	private static final Logger logger = LoggerFactory.getLogger(Shooter)
 	private static final int WINDOW_WIDTH = 640
 	private static final int WINDOW_HEIGHT = 400
 
-	private ShooterScene scene
 	private Window window
 	private InputEventHandler inputEventHandler
 	private FactionAdjustmentMap adjustmentMap
@@ -70,6 +69,7 @@ class ShooterGame implements Runnable {
 	private AudioDevice audioDevice
 	private ResourceManager resourceManager
 	private ShaderManager shaderManager
+	private ShooterScene scene
 
 	@Override
 	void run() {
@@ -98,8 +98,8 @@ class ShooterGame implements Runnable {
 			// Init scene
 			resourceManager = new ResourceManager('nz/net/ultraq/redhorizon/shooter/')
 			scene = new ShooterScene(WINDOW_WIDTH, WINDOW_HEIGHT, window, resourceManager)
-			var graphicsContext = new GraphicsContext(shaderManager, scene.camera, adjustmentMap, alphaMask)
-			var gameContext = new GameContext(new ScriptEngine('.'), inputEventHandler, scene.camera)
+			var graphicsContext = new ShooterGraphicsContext(scene.camera, shaderManager, adjustmentMap, alphaMask)
+			var gameContext = new ShooterGameContext(new ScriptEngine('.'), inputEventHandler, scene.camera)
 
 			// Game loop
 			logger.debug('Game loop')
@@ -135,7 +135,7 @@ class ShooterGame implements Runnable {
 	/**
 	 * Perform the game logic.
 	 */
-	private void logic(float delta, GameContext context) {
+	private void logic(float delta, ShooterGameContext context) {
 
 		// Game-wide input events
 		if (inputEventHandler.keyPressed(GLFW_KEY_ESCAPE, true)) {
@@ -154,7 +154,7 @@ class ShooterGame implements Runnable {
 	/**
 	 * Draw game objects to the screen and keep audio streams running.
 	 */
-	private void render(GraphicsContext graphicsContext) {
+	private void render(ShooterGraphicsContext graphicsContext) {
 
 		window.useWindow { ->
 			// TODO: Group items up by which shader next draws them

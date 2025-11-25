@@ -16,13 +16,14 @@
 
 package nz.net.ultraq.redhorizon.shooter
 
+import nz.net.ultraq.redhorizon.engine.GameObject
+import nz.net.ultraq.redhorizon.engine.GraphicsObject
+import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.graphics.Palette
 import nz.net.ultraq.redhorizon.graphics.Sprite
 import nz.net.ultraq.redhorizon.graphics.SpriteSheet
-import nz.net.ultraq.redhorizon.shooter.engine.GameObject
-import nz.net.ultraq.redhorizon.shooter.engine.GraphicsContext
-import nz.net.ultraq.redhorizon.shooter.engine.GraphicsObject
-import nz.net.ultraq.redhorizon.shooter.utilities.ResourceManager
+import nz.net.ultraq.redhorizon.shooter.engine.ShooterGameContext
+import nz.net.ultraq.redhorizon.shooter.engine.ShooterGraphicsContext
 
 import org.joml.Vector2f
 import org.slf4j.Logger
@@ -33,7 +34,8 @@ import org.slf4j.LoggerFactory
  *
  * @author Emanuel Rabina
  */
-class Player extends GameObject<Player> implements GraphicsObject, AutoCloseable {
+class Player extends GameObject<Player, ShooterGameContext>
+	implements GraphicsObject<ShooterGraphicsContext>, AutoCloseable {
 
 	private static final Logger logger = LoggerFactory.getLogger(Player)
 
@@ -70,11 +72,11 @@ class Player extends GameObject<Player> implements GraphicsObject, AutoCloseable
 		orcaSpriteSheet = resourceManager.loadSpriteSheet('orca.shp')
 		orca = new Sprite(orcaSpriteSheet)
 			.translate(-18f, -12f, 0f)
+			.withName('Orca')
 		shadow = new Sprite(orcaSpriteSheet)
 			.translate(-18f, -36f, 0f)
+			.withName('Shadow')
 
-		orca.name = 'Orca'
-		shadow.name = 'Shadow'
 		addChild(orca)
 		addChild(shadow)
 	}
@@ -87,7 +89,7 @@ class Player extends GameObject<Player> implements GraphicsObject, AutoCloseable
 	}
 
 	@Override
-	void render(GraphicsContext context) {
+	void render(ShooterGraphicsContext context) {
 
 		// NOTE: C&C unit headings were ordered in a counter-clockwise order, the
 		//       reverse from how degrees-based headings are done.

@@ -20,6 +20,7 @@ import nz.net.ultraq.redhorizon.classic.graphics.AlphaMask
 import nz.net.ultraq.redhorizon.classic.graphics.FactionAdjustmentMap
 import nz.net.ultraq.redhorizon.classic.graphics.PalettedSpriteShader
 import nz.net.ultraq.redhorizon.classic.graphics.ShadowShader
+import nz.net.ultraq.redhorizon.engine.GraphicsContext
 import nz.net.ultraq.redhorizon.graphics.Camera
 import nz.net.ultraq.redhorizon.graphics.opengl.BasicShader
 import nz.net.ultraq.redhorizon.shooter.utilities.ShaderManager
@@ -32,8 +33,9 @@ import groovy.transform.ImmutableOptions
  *
  * @author Emanuel Rabina
  */
-@ImmutableOptions(knownImmutables = ['shaderManager', 'camera', 'adjustmentMap', 'alphaMask'])
-record GraphicsContext(ShaderManager shaderManager, Camera camera, FactionAdjustmentMap adjustmentMap, AlphaMask alphaMask) {
+@ImmutableOptions(knownImmutables = ['camera', 'shaderManager', 'adjustmentMap', 'alphaMask'])
+record ShooterGraphicsContext(Camera camera, ShaderManager shaderManager, FactionAdjustmentMap adjustmentMap, AlphaMask alphaMask)
+	implements GraphicsContext {
 
 	BasicShader getBasicShader() {
 		return shaderManager.basicShader

@@ -16,14 +16,14 @@
 
 package nz.net.ultraq.redhorizon.shooter.utilities
 
+import nz.net.ultraq.redhorizon.engine.GraphicsObject
 import nz.net.ultraq.redhorizon.graphics.Colour
 import nz.net.ultraq.redhorizon.graphics.Mesh
 import nz.net.ultraq.redhorizon.graphics.Mesh.Type
 import nz.net.ultraq.redhorizon.graphics.Vertex
 import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLMesh
 import nz.net.ultraq.redhorizon.scenegraph.Node
-import nz.net.ultraq.redhorizon.shooter.engine.GraphicsContext
-import nz.net.ultraq.redhorizon.shooter.engine.GraphicsObject
+import nz.net.ultraq.redhorizon.shooter.engine.ShooterGraphicsContext
 
 import org.joml.Vector3f
 import org.joml.primitives.Rectanglef
@@ -33,7 +33,7 @@ import org.joml.primitives.Rectanglef
  *
  * @author Emanuel Rabina
  */
-class GridLines extends Node<GridLines> implements GraphicsObject, AutoCloseable {
+class GridLines extends Node<GridLines> implements GraphicsObject<ShooterGraphicsContext>, AutoCloseable {
 
 	private static final Colour GRID_LINES_GREY = new Colour('GridLines-Grey', 0.6, 0.6, 0.6)
 	private static final Colour GRID_LINES_DARK_GREY = new Colour('GridLines-DarkGrey', 0.2, 0.2, 0.2)
@@ -88,7 +88,7 @@ class GridLines extends Node<GridLines> implements GraphicsObject, AutoCloseable
 	}
 
 	@Override
-	void render(GraphicsContext context) {
+	void render(ShooterGraphicsContext context) {
 
 		context.basicShader.useShader { shaderContext ->
 			context.camera().update(shaderContext)

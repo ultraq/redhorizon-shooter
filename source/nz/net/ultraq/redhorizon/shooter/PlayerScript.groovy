@@ -16,10 +16,10 @@
 
 package nz.net.ultraq.redhorizon.shooter
 
+import nz.net.ultraq.redhorizon.engine.GameObjectScript
 import nz.net.ultraq.redhorizon.graphics.Camera
 import nz.net.ultraq.redhorizon.input.InputEventHandler
-import nz.net.ultraq.redhorizon.shooter.engine.GameContext
-import nz.net.ultraq.redhorizon.shooter.engine.GameObjectScript
+import nz.net.ultraq.redhorizon.shooter.engine.ShooterGameContext
 
 import org.joml.Vector2f
 import org.joml.Vector3f
@@ -30,10 +30,10 @@ import static org.lwjgl.glfw.GLFW.*
  *
  * @author Emanuel Rabina
  */
-class PlayerScript implements GameObjectScript<Player> {
+class PlayerScript implements GameObjectScript<Player, ShooterGameContext> {
 
 	// TODO: Make these public items into variables that can be controlled by ImGui?
-	static final float MAX_SPEED = 200f
+	static final float MAX_SPEED = 400f
 	static final float TIME_TO_MAX_SPEED_S = 1
 	private static final Vector2f up = new Vector2f(0, 1)
 
@@ -52,7 +52,7 @@ class PlayerScript implements GameObjectScript<Player> {
 	private float accAccelerationTime = 0f
 
 	@Override
-	void update(Player player, float delta, GameContext context) {
+	void update(Player player, float delta, ShooterGameContext context) {
 
 		var inputEventHandler = context.inputEventHandler()
 		updateBobbing(player, delta)
@@ -122,7 +122,7 @@ class PlayerScript implements GameObjectScript<Player> {
 		// Adjust the strength of the force based on acceleration time
 		if (player.accelerating) {
 			var impulseDirectionInRadians = Math.toRadians(impulseDirection)
-			impulse.set(Math.sin(impulseDirectionInRadians), Math.cos(impulseDirectionInRadians)).mul(MAX_SPEED).normalize()
+			impulse.set(Math.sin(impulseDirectionInRadians), Math.cos(impulseDirectionInRadians)).normalize().mul(MAX_SPEED).mul(delta)
 			accAccelerationTime = Math.min((float)(accAccelerationTime + delta), TIME_TO_MAX_SPEED_S)
 		}
 		else {
@@ -131,7 +131,7 @@ class PlayerScript implements GameObjectScript<Player> {
 		}
 
 		// Calculate the velocity from the above
-		player.velocity.lerp(impulse, 2.5f * delta as float)
+		player.velocity.lerp(impulse, 0.5f * delta as float)
 
 		// Adjust position based on velocity
 		if (player.velocity) {

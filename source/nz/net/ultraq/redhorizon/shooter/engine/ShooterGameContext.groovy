@@ -16,15 +16,19 @@
 
 package nz.net.ultraq.redhorizon.shooter.engine
 
+import nz.net.ultraq.redhorizon.engine.GameContext
+import nz.net.ultraq.redhorizon.engine.ScriptEngine
+import nz.net.ultraq.redhorizon.graphics.Camera
+import nz.net.ultraq.redhorizon.input.InputEventHandler
+
+import groovy.transform.ImmutableOptions
+
 /**
- * Any object in a scene that should be rendered.
+ * A collection of objects that are useful for game logic and updating state.
+ * Created so we don't have to pass so much stuff around in constructors.
  *
  * @author Emanuel Rabina
  */
-interface GraphicsObject {
-
-	/**
-	 * Render the element for display.
-	 */
-	void render(GraphicsContext context)
+@ImmutableOptions(knownImmutables = ['scriptEngine', 'inputEventHandler', 'camera'])
+record ShooterGameContext(ScriptEngine scriptEngine, InputEventHandler inputEventHandler, Camera camera) implements GameContext {
 }

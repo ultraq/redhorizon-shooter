@@ -16,13 +16,13 @@
 
 package nz.net.ultraq.redhorizon.shooter
 
+import nz.net.ultraq.redhorizon.engine.GameObject
+import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.graphics.Camera
 import nz.net.ultraq.redhorizon.graphics.Window
 import nz.net.ultraq.redhorizon.scenegraph.Scene
-import nz.net.ultraq.redhorizon.shooter.engine.GameContext
-import nz.net.ultraq.redhorizon.shooter.engine.GameObject
+import nz.net.ultraq.redhorizon.shooter.engine.ShooterGameContext
 import nz.net.ultraq.redhorizon.shooter.utilities.GridLines
-import nz.net.ultraq.redhorizon.shooter.utilities.ResourceManager
 
 import org.joml.primitives.Rectanglef
 
@@ -65,7 +65,7 @@ class ShooterScene extends Scene implements AutoCloseable {
 	/**
 	 * Perform a scene update in the game loop.
 	 */
-	void update(float delta, GameContext context) {
+	void update(float delta, ShooterGameContext context) {
 
 		traverse { node ->
 			if (node instanceof GameObject) {

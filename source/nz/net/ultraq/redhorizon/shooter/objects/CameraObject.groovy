@@ -14,17 +14,27 @@
  * limitations under the License.
  */
 
-package nz.net.ultraq.redhorizon.shooter.engine
+package nz.net.ultraq.redhorizon.shooter.objects
+
+import nz.net.ultraq.redhorizon.graphics.Camera
+import nz.net.ultraq.redhorizon.graphics.Window
+import nz.net.ultraq.redhorizon.shooter.engine.CameraComponent
+import nz.net.ultraq.redhorizon.shooter.engine.GameObject
 
 /**
- * A custom class for any script used during the game update phase.
+ * A game object with just the camera attached.
  *
  * @author Emanuel Rabina
  */
-interface GameObjectScript<T extends GameObject> {
+class CameraObject extends GameObject<CameraObject> {
 
-	/**
-	 * Actions to perform when the object is being updated.
-	 */
-	void update(T gameObject, float delta)
+	final String name = 'Camera'
+	final Camera camera
+
+	CameraObject(int sceneWidth, int sceneHeight, Window window) {
+
+		var cameraComponent = new CameraComponent(sceneWidth, sceneHeight, window)
+		camera = cameraComponent.camera
+		addComponent(cameraComponent)
+	}
 }

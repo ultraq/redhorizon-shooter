@@ -17,16 +17,26 @@
 package nz.net.ultraq.redhorizon.shooter.engine
 
 import nz.net.ultraq.redhorizon.graphics.Camera
-import nz.net.ultraq.redhorizon.input.InputEventHandler
-
-import groovy.transform.ImmutableOptions
+import nz.net.ultraq.redhorizon.graphics.Window
 
 /**
- * A collection of objects that are useful for game logic and updating state.
- * Created so we don't have to pass so much stuff around in constructors.
+ * Adds a camera to an entity.
  *
  * @author Emanuel Rabina
  */
-@ImmutableOptions(knownImmutables = ['scriptEngine', 'inputEventHandler', 'camera'])
-record GameContext(ScriptEngine scriptEngine, InputEventHandler inputEventHandler, Camera camera) {
+class CameraComponent implements Component {
+
+	final Camera camera
+
+	/**
+	 * Constructor, creates a new camera.
+	 */
+	CameraComponent(int width, int height, Window window) {
+
+		camera = new Camera(width, height, window)
+	}
+
+	@Override
+	void update(GameObject gameObject, float delta) {
+	}
 }

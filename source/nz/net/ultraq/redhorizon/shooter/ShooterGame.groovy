@@ -27,7 +27,6 @@ import nz.net.ultraq.redhorizon.graphics.imgui.DebugOverlay
 import nz.net.ultraq.redhorizon.graphics.imgui.NodeList
 import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLWindow
 import nz.net.ultraq.redhorizon.input.InputEventHandler
-import nz.net.ultraq.redhorizon.shooter.engine.GameContext
 import nz.net.ultraq.redhorizon.shooter.engine.GraphicsContext
 import nz.net.ultraq.redhorizon.shooter.engine.GraphicsObject
 import nz.net.ultraq.redhorizon.shooter.engine.ScriptEngine
@@ -69,6 +68,7 @@ class ShooterGame implements Runnable {
 	private AlphaMask alphaMask
 	private AudioDevice audioDevice
 	private ResourceManager resourceManager
+	private ScriptEngine scriptEngine
 	private ShaderManager shaderManager
 
 	@Override
@@ -97,9 +97,9 @@ class ShooterGame implements Runnable {
 
 			// Init scene
 			resourceManager = new ResourceManager('nz/net/ultraq/redhorizon/shooter/')
-			scene = new ShooterScene(WINDOW_WIDTH, WINDOW_HEIGHT, window, resourceManager)
+			scriptEngine = new ScriptEngine('.')
+			scene = new ShooterScene(WINDOW_WIDTH, WINDOW_HEIGHT, window, resourceManager, scriptEngine, inputEventHandler)
 			var graphicsContext = new GraphicsContext(shaderManager, scene.camera, adjustmentMap, alphaMask)
-			var gameContext = new GameContext(new ScriptEngine('.'), inputEventHandler, scene.camera)
 
 			// Game loop
 			logger.debug('Game loop')
@@ -113,7 +113,7 @@ class ShooterGame implements Runnable {
 			while (!window.shouldClose()) {
 				var delta = deltaTimer.deltaTime()
 
-				logic(delta, gameContext)
+				logic(delta)
 				render(graphicsContext)
 
 				Thread.yield()
@@ -135,7 +135,7 @@ class ShooterGame implements Runnable {
 	/**
 	 * Perform the game logic.
 	 */
-	private void logic(float delta, GameContext context) {
+	private void logic(float delta) {
 
 		// Game-wide input events
 		if (inputEventHandler.keyPressed(GLFW_KEY_ESCAPE, true)) {
@@ -148,7 +148,7 @@ class ShooterGame implements Runnable {
 			window.toggleVSync()
 		}
 
-		scene.update(delta, context)
+		scene.update(delta)
 	}
 
 	/**

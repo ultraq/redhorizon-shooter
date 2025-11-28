@@ -16,15 +16,17 @@
 
 package nz.net.ultraq.redhorizon.shooter.engine
 
+import nz.net.ultraq.redhorizon.scenegraph.Visitable
+
 /**
- * A custom class for any script used during the game update phase.
+ * Any reusable behaviour that can be attached to a game object.
  *
  * @author Emanuel Rabina
  */
-interface GameObjectScript<T extends GameObject> {
+interface Component<TGameObject extends GameObject> extends Visitable {
 
 	/**
-	 * Actions to perform when the object is being updated.
+	 * Perform any logic as part of the scene update.
 	 */
-	void update(T gameObject, float delta)
+	void update(TGameObject gameObject, float delta)
 }

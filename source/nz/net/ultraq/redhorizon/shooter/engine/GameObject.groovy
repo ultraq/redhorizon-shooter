@@ -23,33 +23,46 @@ import nz.net.ultraq.redhorizon.scenegraph.Node
  *
  * @author Emanuel Rabina
  */
-class GameObject<T extends GameObject> extends Node<T> {
+class GameObject<T extends GameObject> extends Node<T> implements AutoCloseable {
 
-	private String scriptName
+	private List<Component> components = []
 
 	/**
-	 * Called regularly to perform any processing as a response to changes in the
-	 * scene.  This default implementation will call the configured script, if
-	 * any.
-	 *
-	 * @param delta
-	 *   Time, in seconds, since the last time this method was called.
-	 * @param context
+	 * Add a component to this object.
 	 */
-	void update(float delta, GameContext context) {
+	T addComponent(Component component) {
 
-		if (scriptName) {
-			var script = context.scriptEngine().loadScriptClass(scriptName) as GameObjectScript
-			script.update(this, delta, context)
+		components << component
+		return (T)this
+	}
+
+	@Override
+	void close() {
+
+		components.each { component ->
+			if (component instanceof AutoCloseable) {
+				component.close()
+			}
 		}
 	}
 
 	/**
-	 * Use the given script to add behaviour to this object.
+	 * Return the first component that matches the given predicate.
 	 */
-	T withScript(String scriptName) {
+	Component findComponent(Closure predicate) {
 
-		this.scriptName = scriptName
-		return (T)this
+		return components.find(predicate)
+	}
+
+	/**
+	 * Called regularly to perform any processing as a response to changes in the
+	 * scene.
+	 *
+	 * @param delta
+	 *   Time, in seconds, since the last time this method was called.
+	 */
+	void update(float delta) {
+
+		components*.update(this, delta)
 	}
 }

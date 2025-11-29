@@ -16,12 +16,14 @@
 
 package nz.net.ultraq.redhorizon.shooter
 
+import nz.net.ultraq.redhorizon.graphics.Camera
 import nz.net.ultraq.redhorizon.graphics.Palette
-import nz.net.ultraq.redhorizon.graphics.Sprite
 import nz.net.ultraq.redhorizon.graphics.SpriteSheet
+import nz.net.ultraq.redhorizon.input.InputEventHandler
 import nz.net.ultraq.redhorizon.shooter.engine.GameObject
-import nz.net.ultraq.redhorizon.shooter.engine.GraphicsContext
-import nz.net.ultraq.redhorizon.shooter.engine.GraphicsObject
+import nz.net.ultraq.redhorizon.shooter.engine.ScriptComponent
+import nz.net.ultraq.redhorizon.shooter.engine.ScriptEngine
+import nz.net.ultraq.redhorizon.shooter.engine.SpriteComponent
 import nz.net.ultraq.redhorizon.shooter.utilities.ResourceManager
 
 import org.joml.Vector2f
@@ -33,7 +35,7 @@ import org.slf4j.LoggerFactory
  *
  * @author Emanuel Rabina
  */
-class Player extends GameObject<Player> implements GraphicsObject, AutoCloseable {
+class Player extends GameObject<Player> {
 
 	private static final Logger logger = LoggerFactory.getLogger(Player)
 
@@ -44,8 +46,8 @@ class Player extends GameObject<Player> implements GraphicsObject, AutoCloseable
 	private static final float ROTATION_SPEED = 180f
 
 	// TODO: These should come from the unit data for the orca sprite
-	private static final int headings = 32
-	private static final float headingStep = 360f / headings as float
+	static final int headings = 32
+	static final float headingStep = 360f / headings as float
 
 	final String name = 'Player'
 
@@ -58,56 +60,21 @@ class Player extends GameObject<Player> implements GraphicsObject, AutoCloseable
 	// Rendering
 	private final Palette tdPalette
 	private final SpriteSheet orcaSpriteSheet
-	final Sprite orca
-	final Sprite shadow
 
 	/**
 	 * Constructor, create a new player object.
 	 */
-	Player(ResourceManager resourceManager) {
+	Player(ResourceManager resourceManager, ScriptEngine scriptEngine, Camera camera, InputEventHandler inputEventHandler) {
 
 		tdPalette = resourceManager.loadPalette('temperat-td.pal')
 		orcaSpriteSheet = resourceManager.loadSpriteSheet('orca.shp')
-		orca = new Sprite(orcaSpriteSheet)
+
+		addComponent(new ScriptComponent(scriptEngine, 'PlayerScript.groovy',
+			[camera: camera, inputEventHandler: inputEventHandler]))
+		addComponent(new SpriteComponent('Orca', orcaSpriteSheet)
 			.translate(-18f, -12f, 0f)
-		shadow = new Sprite(orcaSpriteSheet)
-			.translate(-18f, -36f, 0f)
-
-		orca.name = 'Orca'
-		shadow.name = 'Shadow'
-		addChild(orca)
-		addChild(shadow)
-	}
-
-	@Override
-	void close() {
-
-		orca?.close()
-		shadow?.close()
-	}
-
-	@Override
-	void render(GraphicsContext context) {
-
-		// NOTE: C&C unit headings were ordered in a counter-clockwise order, the
-		//       reverse from how degrees-based headings are done.
-		var closestHeading = Math.round(heading / headingStep)
-		var frame = closestHeading ? headings - closestHeading as int : 0
-		if (accelerating) {
-			frame += headings
-		}
-
-		var framePosition = orcaSpriteSheet.getFramePosition(frame)
-		context.shadowShader.useShader { shaderContext ->
-			context.camera().update(shaderContext)
-			shadow.draw(shaderContext, framePosition)
-		}
-		context.palettedSpriteShader.useShader { shaderContext ->
-			context.camera().update(shaderContext)
-			shaderContext.setAdjustmentMap(context.adjustmentMap())
-			shaderContext.setAlphaMask(context.alphaMask())
-			shaderContext.setPalette(tdPalette)
-			orca.draw(shaderContext, framePosition)
-		}
+			.withPalette(tdPalette))
+		addComponent(new SpriteComponent('Shadow', orcaSpriteSheet)
+			.translate(-18f, -36f, 0f))
 	}
 }

@@ -14,19 +14,27 @@
  * limitations under the License.
  */
 
-package nz.net.ultraq.redhorizon.shooter.engine
+package nz.net.ultraq.redhorizon.shooter.objects
 
 import nz.net.ultraq.redhorizon.graphics.Camera
-import nz.net.ultraq.redhorizon.input.InputEventHandler
-
-import groovy.transform.ImmutableOptions
+import nz.net.ultraq.redhorizon.graphics.Window
+import nz.net.ultraq.redhorizon.shooter.engine.CameraComponent
+import nz.net.ultraq.redhorizon.shooter.engine.GameObject
 
 /**
- * A collection of objects that are useful for game logic and updating state.
- * Created so we don't have to pass so much stuff around in constructors.
+ * A game object with just the camera attached.
  *
  * @author Emanuel Rabina
  */
-@ImmutableOptions(knownImmutables = ['scriptEngine', 'inputEventHandler', 'camera'])
-record GameContext(ScriptEngine scriptEngine, InputEventHandler inputEventHandler, Camera camera) {
+class CameraObject extends GameObject<CameraObject> {
+
+	final String name = 'Camera'
+	final Camera camera
+
+	CameraObject(int sceneWidth, int sceneHeight, Window window) {
+
+		var cameraComponent = new CameraComponent(sceneWidth, sceneHeight, window)
+		camera = cameraComponent.camera
+		addComponent(cameraComponent)
+	}
 }

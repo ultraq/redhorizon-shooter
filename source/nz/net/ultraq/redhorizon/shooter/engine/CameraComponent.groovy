@@ -16,15 +16,27 @@
 
 package nz.net.ultraq.redhorizon.shooter.engine
 
+import nz.net.ultraq.redhorizon.graphics.Camera
+import nz.net.ultraq.redhorizon.graphics.Window
+
 /**
- * A custom class for any script used during the game update phase.
+ * Adds a camera to an entity.
  *
  * @author Emanuel Rabina
  */
-interface GameObjectScript<T extends GameObject> {
+class CameraComponent<T extends GameObject> implements Component<T> {
+
+	final Camera camera
 
 	/**
-	 * Actions to perform when the object is being updated.
+	 * Constructor, creates a new camera.
 	 */
-	void update(T gameObject, float delta)
+	CameraComponent(int width, int height, Window window) {
+
+		camera = new Camera(width, height, window)
+	}
+
+	@Override
+	void update(T gameObject, float delta) {
+	}
 }

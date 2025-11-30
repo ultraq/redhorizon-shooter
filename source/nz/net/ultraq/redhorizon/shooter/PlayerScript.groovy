@@ -19,7 +19,6 @@ package nz.net.ultraq.redhorizon.shooter
 import nz.net.ultraq.redhorizon.engine.GameObjectScript
 import nz.net.ultraq.redhorizon.graphics.Camera
 import nz.net.ultraq.redhorizon.input.InputEventHandler
-import nz.net.ultraq.redhorizon.shooter.engine.ShooterGameContext
 
 import org.joml.Vector2f
 import org.joml.Vector3f
@@ -30,12 +29,15 @@ import static org.lwjgl.glfw.GLFW.*
  *
  * @author Emanuel Rabina
  */
-class PlayerScript implements GameObjectScript<Player, ShooterGameContext> {
+class PlayerScript implements GameObjectScript<Player> {
 
 	// TODO: Make these public items into variables that can be controlled by ImGui?
 	static final float MAX_SPEED = 400f
 	static final float TIME_TO_MAX_SPEED_S = 1
 	private static final Vector2f up = new Vector2f(0, 1)
+
+	Camera camera
+	InputEventHandler inputEventHandler
 
 	// Bobbing
 	private float bobbingTimer = 0f
@@ -52,12 +54,11 @@ class PlayerScript implements GameObjectScript<Player, ShooterGameContext> {
 	private float accAccelerationTime = 0f
 
 	@Override
-	void update(Player player, float delta, ShooterGameContext context) {
+	void update(Player player, float delta) {
 
-		var inputEventHandler = context.inputEventHandler()
 		updateBobbing(player, delta)
-		updateHeading(player, inputEventHandler.cursorPosition(), context.camera())
-		updateMovement(player, delta, inputEventHandler)
+		updateHeading(player, delta)
+		updateMovement(player, delta)
 	}
 
 	/**
@@ -74,8 +75,9 @@ class PlayerScript implements GameObjectScript<Player, ShooterGameContext> {
 	/**
 	 * Update player heading and sprite to always face the cursor.
 	 */
-	private void updateHeading(Player player, Vector2f cursorPosition, Camera camera) {
+	private void updateHeading(Player player, float delta) {
 
+		var cursorPosition = inputEventHandler.cursorPosition()
 		if (cursorPosition && cursorPosition != lastCursorPosition) {
 			positionXY.set(player.position)
 			worldCursorPosition.set(camera.unproject(cursorPosition.x(), cursorPosition.y(), unprojectResult))
@@ -89,7 +91,7 @@ class PlayerScript implements GameObjectScript<Player, ShooterGameContext> {
 	/**
 	 * Update player movement and position based on inputs.
 	 */
-	private void updateMovement(Player player, float delta, InputEventHandler inputEventHandler) {
+	private void updateMovement(Player player, float delta) {
 
 		// Set the direction of the movement force based on inputs
 		var impulseDirection = 0f
@@ -135,11 +137,8 @@ class PlayerScript implements GameObjectScript<Player, ShooterGameContext> {
 
 		// Adjust position based on velocity
 		if (player.velocity) {
-			// TODO: Have parent node transform affect children
 			// TODO: Clamp player position to world bounds using Vector2f.min/max
 			player.translate(player.velocity.x, player.velocity.y, 0)
-			player.orca.translate(player.velocity.x, player.velocity.y, 0)
-			player.shadow.translate(player.velocity.x, player.velocity.y, 0)
 		}
 	}
 }

@@ -31,7 +31,6 @@ import nz.net.ultraq.redhorizon.graphics.imgui.DebugOverlay
 import nz.net.ultraq.redhorizon.graphics.imgui.NodeList
 import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLWindow
 import nz.net.ultraq.redhorizon.input.InputEventHandler
-import nz.net.ultraq.redhorizon.shooter.engine.ShooterGameContext
 import nz.net.ultraq.redhorizon.shooter.engine.ShooterGraphicsContext
 import nz.net.ultraq.redhorizon.shooter.utilities.ShaderManager
 
@@ -47,7 +46,7 @@ import static org.lwjgl.glfw.GLFW.*
  * @author Emanuel Rabina
  */
 @Command(name = 'shooter')
-class Shooter implements Runnable {
+class ShooterGame implements Runnable {
 
 	static {
 		System.setProperty('joml.format', 'false')
@@ -55,10 +54,10 @@ class Shooter implements Runnable {
 	}
 
 	static void main(String[] args) {
-		System.exit(new CommandLine(new Shooter()).execute(args))
+		System.exit(new CommandLine(new ShooterGame()).execute(args))
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(Shooter)
+	private static final Logger logger = LoggerFactory.getLogger(ShooterGame)
 	private static final int WINDOW_WIDTH = 640
 	private static final int WINDOW_HEIGHT = 400
 
@@ -69,6 +68,7 @@ class Shooter implements Runnable {
 	private AudioDevice audioDevice
 	private ResourceManager resourceManager
 	private ShaderManager shaderManager
+	private ScriptEngine scriptEngine
 	private ShooterScene scene
 
 	@Override
@@ -97,9 +97,9 @@ class Shooter implements Runnable {
 
 			// Init scene
 			resourceManager = new ResourceManager('nz/net/ultraq/redhorizon/shooter/')
-			scene = new ShooterScene(WINDOW_WIDTH, WINDOW_HEIGHT, window, resourceManager)
+			scriptEngine = new ScriptEngine('.')
+			scene = new ShooterScene(WINDOW_WIDTH, WINDOW_HEIGHT, window, resourceManager, scriptEngine, inputEventHandler)
 			var graphicsContext = new ShooterGraphicsContext(scene.camera, shaderManager, adjustmentMap, alphaMask)
-			var gameContext = new ShooterGameContext(new ScriptEngine('.'), inputEventHandler, scene.camera)
 
 			// Game loop
 			logger.debug('Game loop')
@@ -113,7 +113,7 @@ class Shooter implements Runnable {
 			while (!window.shouldClose()) {
 				var delta = deltaTimer.deltaTime()
 
-				logic(delta, gameContext)
+				logic(delta)
 				render(graphicsContext)
 
 				Thread.yield()
@@ -135,7 +135,7 @@ class Shooter implements Runnable {
 	/**
 	 * Perform the game logic.
 	 */
-	private void logic(float delta, ShooterGameContext context) {
+	private void logic(float delta) {
 
 		// Game-wide input events
 		if (inputEventHandler.keyPressed(GLFW_KEY_ESCAPE, true)) {
@@ -148,7 +148,7 @@ class Shooter implements Runnable {
 			window.toggleVSync()
 		}
 
-		scene.update(delta, context)
+		scene.update(delta)
 	}
 
 	/**

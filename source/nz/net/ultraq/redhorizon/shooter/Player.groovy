@@ -22,7 +22,6 @@ import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.graphics.Palette
 import nz.net.ultraq.redhorizon.graphics.Sprite
 import nz.net.ultraq.redhorizon.graphics.SpriteSheet
-import nz.net.ultraq.redhorizon.shooter.engine.ShooterGameContext
 import nz.net.ultraq.redhorizon.shooter.engine.ShooterGraphicsContext
 
 import org.joml.Vector2f
@@ -34,8 +33,7 @@ import org.slf4j.LoggerFactory
  *
  * @author Emanuel Rabina
  */
-class Player extends GameObject<Player, ShooterGameContext>
-	implements GraphicsObject<ShooterGraphicsContext>, AutoCloseable {
+class Player extends GameObject<Player> implements GraphicsObject<ShooterGraphicsContext>, AutoCloseable {
 
 	private static final Logger logger = LoggerFactory.getLogger(Player)
 

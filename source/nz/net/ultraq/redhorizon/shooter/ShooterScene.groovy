@@ -17,11 +17,12 @@
 package nz.net.ultraq.redhorizon.shooter
 
 import nz.net.ultraq.redhorizon.engine.GameObject
+import nz.net.ultraq.redhorizon.engine.ScriptEngine
 import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.graphics.Camera
 import nz.net.ultraq.redhorizon.graphics.Window
+import nz.net.ultraq.redhorizon.input.InputEventHandler
 import nz.net.ultraq.redhorizon.scenegraph.Scene
-import nz.net.ultraq.redhorizon.shooter.engine.ShooterGameContext
 import nz.net.ultraq.redhorizon.shooter.utilities.GridLines
 
 import org.joml.primitives.Rectanglef
@@ -40,12 +41,13 @@ class ShooterScene extends Scene implements AutoCloseable {
 	/**
 	 * Constructor, create a new scene to the given dimensions.
 	 */
-	ShooterScene(int sceneWidth, int sceneHeight, Window window, ResourceManager resourceManager) {
+	ShooterScene(int sceneWidth, int sceneHeight, Window window, ResourceManager resourceManager,
+		ScriptEngine scriptEngine, InputEventHandler inputEventHandler) {
 
 		camera = new Camera(sceneWidth, sceneHeight, window)
 		gridLines = new GridLines(new Rectanglef(0, 0, sceneWidth, sceneHeight).center(), 24f)
 		player = new Player(resourceManager)
-			.withScript('PlayerScript.groovy')
+			.withScript(scriptEngine, 'PlayerScript.groovy', [camera: camera, inputEventHandler: inputEventHandler])
 
 		addChild(camera)
 		addChild(gridLines)
@@ -65,11 +67,11 @@ class ShooterScene extends Scene implements AutoCloseable {
 	/**
 	 * Perform a scene update in the game loop.
 	 */
-	void update(float delta, ShooterGameContext context) {
+	void update(float delta) {
 
 		traverse { node ->
 			if (node instanceof GameObject) {
-				node.update(delta, context)
+				node.update(delta)
 			}
 		}
 	}

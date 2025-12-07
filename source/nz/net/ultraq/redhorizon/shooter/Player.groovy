@@ -16,13 +16,18 @@
 
 package nz.net.ultraq.redhorizon.shooter
 
-import nz.net.ultraq.redhorizon.engine.GameObject
-import nz.net.ultraq.redhorizon.engine.GraphicsObject
+import nz.net.ultraq.redhorizon.classic.graphics.AlphaMask
+import nz.net.ultraq.redhorizon.classic.graphics.FactionAdjustmentMap
+import nz.net.ultraq.redhorizon.engine.ScriptEngine
 import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
+import nz.net.ultraq.redhorizon.graphics.Camera
 import nz.net.ultraq.redhorizon.graphics.Palette
-import nz.net.ultraq.redhorizon.graphics.Sprite
 import nz.net.ultraq.redhorizon.graphics.SpriteSheet
-import nz.net.ultraq.redhorizon.shooter.engine.ShooterGraphicsContext
+import nz.net.ultraq.redhorizon.input.InputEventHandler
+import nz.net.ultraq.redhorizon.shooter.engine.GameObject
+import nz.net.ultraq.redhorizon.shooter.engine.ScriptComponent
+import nz.net.ultraq.redhorizon.shooter.engine.SpriteComponent
+import nz.net.ultraq.redhorizon.shooter.utilities.ShaderManager
 
 import org.joml.Vector2f
 import org.slf4j.Logger
@@ -33,7 +38,7 @@ import org.slf4j.LoggerFactory
  *
  * @author Emanuel Rabina
  */
-class Player extends GameObject<Player> implements GraphicsObject<ShooterGraphicsContext>, AutoCloseable {
+class Player extends GameObject<Player> {
 
 	private static final Logger logger = LoggerFactory.getLogger(Player)
 
@@ -44,8 +49,8 @@ class Player extends GameObject<Player> implements GraphicsObject<ShooterGraphic
 	private static final float ROTATION_SPEED = 180f
 
 	// TODO: These should come from the unit data for the orca sprite
-	private static final int headings = 32
-	private static final float headingStep = 360f / headings as float
+	static final int headings = 32
+	static final float headingStep = 360f / headings as float
 
 	final String name = 'Player'
 
@@ -58,36 +63,28 @@ class Player extends GameObject<Player> implements GraphicsObject<ShooterGraphic
 	// Rendering
 	private final Palette tdPalette
 	private final SpriteSheet orcaSpriteSheet
-	final Sprite orca
-	final Sprite shadow
+	final Vector2f framePosition = new Vector2f()
 
 	/**
 	 * Constructor, create a new player object.
 	 */
-	Player(ResourceManager resourceManager) {
+	Player(ResourceManager resourceManager, ShaderManager shaderManager, Palette palette, FactionAdjustmentMap adjustmentMap,
+		AlphaMask alphaMask, ScriptEngine scriptEngine, Camera camera, InputEventHandler inputEventHandler) {
 
 		tdPalette = resourceManager.loadPalette('temperat-td.pal')
 		orcaSpriteSheet = resourceManager.loadSpriteSheet('orca.shp')
-		orca = new Sprite(orcaSpriteSheet)
-			.translate(-18f, -12f, 0f)
-			.withName('Orca')
-		shadow = new Sprite(orcaSpriteSheet)
-			.translate(-18f, -36f, 0f)
-			.withName('Shadow')
 
-		addChild(orca)
-		addChild(shadow)
+		addComponent(new ScriptComponent(scriptEngine, 'PlayerScript.groovy',
+			[camera: camera, inputEventHandler: inputEventHandler]))
+		addComponent(new SpriteComponent('Orca', orcaSpriteSheet, shaderManager.palettedSpriteShader, camera, palette,
+			adjustmentMap, alphaMask)
+			.translate(-18f, -12f, 0f))
+		addComponent(new SpriteComponent('Shadow', orcaSpriteSheet, shaderManager.shadowShader, camera)
+			.translate(-18f, -36f, 0f))
 	}
 
 	@Override
-	void close() {
-
-		orca?.close()
-		shadow?.close()
-	}
-
-	@Override
-	void render(ShooterGraphicsContext context) {
+	void render() {
 
 		// NOTE: C&C unit headings were ordered in a counter-clockwise order, the
 		//       reverse from how degrees-based headings are done.
@@ -97,17 +94,8 @@ class Player extends GameObject<Player> implements GraphicsObject<ShooterGraphic
 			frame += headings
 		}
 
-		var framePosition = orcaSpriteSheet.getFramePosition(frame)
-		context.shadowShader.useShader { shaderContext ->
-			context.camera().update(shaderContext)
-			shadow.draw(shaderContext, framePosition)
-		}
-		context.palettedSpriteShader.useShader { shaderContext ->
-			context.camera().update(shaderContext)
-			shaderContext.setAdjustmentMap(context.adjustmentMap())
-			shaderContext.setAlphaMask(context.alphaMask())
-			shaderContext.setPalette(tdPalette)
-			orca.draw(shaderContext, framePosition)
-		}
+		framePosition.set(orcaSpriteSheet.getFramePosition(frame))
+
+		super.render()
 	}
 }

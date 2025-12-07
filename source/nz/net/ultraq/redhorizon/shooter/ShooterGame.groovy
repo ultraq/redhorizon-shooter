@@ -21,7 +21,6 @@ import nz.net.ultraq.redhorizon.audio.openal.OpenALAudioDevice
 import nz.net.ultraq.redhorizon.classic.Faction
 import nz.net.ultraq.redhorizon.classic.graphics.AlphaMask
 import nz.net.ultraq.redhorizon.classic.graphics.FactionAdjustmentMap
-import nz.net.ultraq.redhorizon.engine.GraphicsObject
 import nz.net.ultraq.redhorizon.engine.ScriptEngine
 import nz.net.ultraq.redhorizon.engine.utilities.DeltaTimer
 import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
@@ -31,7 +30,6 @@ import nz.net.ultraq.redhorizon.graphics.imgui.DebugOverlay
 import nz.net.ultraq.redhorizon.graphics.imgui.NodeList
 import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLWindow
 import nz.net.ultraq.redhorizon.input.InputEventHandler
-import nz.net.ultraq.redhorizon.shooter.engine.ShooterGraphicsContext
 import nz.net.ultraq.redhorizon.shooter.utilities.ShaderManager
 
 import org.slf4j.Logger
@@ -98,8 +96,8 @@ class ShooterGame implements Runnable {
 			// Init scene
 			resourceManager = new ResourceManager('nz/net/ultraq/redhorizon/shooter/')
 			scriptEngine = new ScriptEngine('.')
-			scene = new ShooterScene(WINDOW_WIDTH, WINDOW_HEIGHT, window, resourceManager, scriptEngine, inputEventHandler)
-			var graphicsContext = new ShooterGraphicsContext(scene.camera, shaderManager, adjustmentMap, alphaMask)
+			scene = new ShooterScene(WINDOW_WIDTH, WINDOW_HEIGHT, window, resourceManager, shaderManager, adjustmentMap, alphaMask,
+				scriptEngine, inputEventHandler)
 
 			// Game loop
 			logger.debug('Game loop')
@@ -114,7 +112,7 @@ class ShooterGame implements Runnable {
 				var delta = deltaTimer.deltaTime()
 
 				logic(delta)
-				render(graphicsContext)
+				render()
 
 				Thread.yield()
 			}
@@ -154,15 +152,10 @@ class ShooterGame implements Runnable {
 	/**
 	 * Draw game objects to the screen and keep audio streams running.
 	 */
-	private void render(ShooterGraphicsContext graphicsContext) {
+	private void render() {
 
 		window.useWindow { ->
-			// TODO: Group items up by which shader next draws them
-			scene.traverse { node ->
-				if (node instanceof GraphicsObject) {
-					node.render(graphicsContext)
-				}
-			}
+			scene.render()
 		}
 	}
 }

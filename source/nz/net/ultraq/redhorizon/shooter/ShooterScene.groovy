@@ -16,14 +16,18 @@
 
 package nz.net.ultraq.redhorizon.shooter
 
-import nz.net.ultraq.redhorizon.engine.GameObject
+import nz.net.ultraq.redhorizon.classic.graphics.AlphaMask
+import nz.net.ultraq.redhorizon.classic.graphics.FactionAdjustmentMap
 import nz.net.ultraq.redhorizon.engine.ScriptEngine
 import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.graphics.Camera
 import nz.net.ultraq.redhorizon.graphics.Window
 import nz.net.ultraq.redhorizon.input.InputEventHandler
 import nz.net.ultraq.redhorizon.scenegraph.Scene
+import nz.net.ultraq.redhorizon.shooter.engine.GameObject
+import nz.net.ultraq.redhorizon.shooter.objects.CameraObject
 import nz.net.ultraq.redhorizon.shooter.utilities.GridLines
+import nz.net.ultraq.redhorizon.shooter.utilities.ShaderManager
 
 import org.joml.primitives.Rectanglef
 
@@ -34,22 +38,22 @@ import org.joml.primitives.Rectanglef
  */
 class ShooterScene extends Scene implements AutoCloseable {
 
-	final Camera camera
+	final CameraObject cameraObject
 	final GridLines gridLines
 	final Player player
 
 	/**
 	 * Constructor, create a new scene to the given dimensions.
 	 */
-	ShooterScene(int sceneWidth, int sceneHeight, Window window, ResourceManager resourceManager,
-		ScriptEngine scriptEngine, InputEventHandler inputEventHandler) {
+	ShooterScene(int sceneWidth, int sceneHeight, Window window, ResourceManager resourceManager, ShaderManager shaderManager,
+		FactionAdjustmentMap adjustmentMap, AlphaMask alphaMask, ScriptEngine scriptEngine, InputEventHandler inputEventHandler) {
 
-		camera = new Camera(sceneWidth, sceneHeight, window)
-		gridLines = new GridLines(new Rectanglef(0, 0, sceneWidth, sceneHeight).center(), 24f)
-		player = new Player(resourceManager)
-			.withScript(scriptEngine, 'PlayerScript.groovy', [camera: camera, inputEventHandler: inputEventHandler])
+		cameraObject = new CameraObject(sceneWidth, sceneHeight, window)
+		gridLines = new GridLines(new Rectanglef(0, 0, sceneWidth, sceneHeight).center(), 24f, camera, shaderManager.basicShader)
+		player = new Player(resourceManager, shaderManager, resourceManager.loadPalette('temperat-td.pal'), adjustmentMap,
+			alphaMask, scriptEngine, camera, inputEventHandler)
 
-		addChild(camera)
+		addChild(cameraObject)
 		addChild(gridLines)
 		addChild(player)
 	}
@@ -60,6 +64,26 @@ class ShooterScene extends Scene implements AutoCloseable {
 		traverse { node ->
 			if (node instanceof AutoCloseable) {
 				node.close()
+			}
+		}
+	}
+
+	/**
+	 * Locate this scene's camera.
+	 */
+	Camera getCamera() {
+
+		return cameraObject.camera
+	}
+
+	/**
+	 * Draw out all the graphical components of the scene.
+	 */
+	void render() {
+
+		traverse { node ->
+			if (node instanceof GameObject) {
+				node.render()
 			}
 		}
 	}

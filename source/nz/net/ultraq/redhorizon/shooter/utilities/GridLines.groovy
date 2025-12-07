@@ -16,14 +16,14 @@
 
 package nz.net.ultraq.redhorizon.shooter.utilities
 
-import nz.net.ultraq.redhorizon.engine.GraphicsObject
+import nz.net.ultraq.redhorizon.graphics.Camera
 import nz.net.ultraq.redhorizon.graphics.Colour
 import nz.net.ultraq.redhorizon.graphics.Mesh
 import nz.net.ultraq.redhorizon.graphics.Mesh.Type
 import nz.net.ultraq.redhorizon.graphics.Vertex
+import nz.net.ultraq.redhorizon.graphics.opengl.BasicShader
 import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLMesh
-import nz.net.ultraq.redhorizon.scenegraph.Node
-import nz.net.ultraq.redhorizon.shooter.engine.ShooterGraphicsContext
+import nz.net.ultraq.redhorizon.shooter.engine.GameObject
 
 import org.joml.Vector3f
 import org.joml.primitives.Rectanglef
@@ -33,12 +33,14 @@ import org.joml.primitives.Rectanglef
  *
  * @author Emanuel Rabina
  */
-class GridLines extends Node<GridLines> implements GraphicsObject<ShooterGraphicsContext>, AutoCloseable {
+class GridLines extends GameObject<GridLines> implements AutoCloseable {
 
 	private static final Colour GRID_LINES_GREY = new Colour('GridLines-Grey', 0.6, 0.6, 0.6)
 	private static final Colour GRID_LINES_DARK_GREY = new Colour('GridLines-DarkGrey', 0.2, 0.2, 0.2)
 
 	final String name = 'Grid lines'
+	private final Camera camera
+	private final BasicShader basicShader
 	private final Mesh gridLines
 	private final Mesh originLines
 
@@ -46,7 +48,10 @@ class GridLines extends Node<GridLines> implements GraphicsObject<ShooterGraphic
 	 * Constructor, build a set of grid lines for the X and Y axes within the
 	 * bounds specified by {@code range}, for every {@code step} rendered pixels.
 	 */
-	GridLines(Rectanglef range, float step) {
+	GridLines(Rectanglef range, float step, Camera camera, BasicShader basicShader) {
+
+		this.camera = camera
+		this.basicShader = basicShader
 
 		// Alter values so that they line up with the origin
 		var minX = Math.floor(range.minX / step) * step as int
@@ -88,12 +93,12 @@ class GridLines extends Node<GridLines> implements GraphicsObject<ShooterGraphic
 	}
 
 	@Override
-	void render(ShooterGraphicsContext context) {
+	void render() {
 
-		context.basicShader.useShader { shaderContext ->
-			context.camera().update(shaderContext)
-			gridLines.draw(shaderContext)
-			originLines.draw(shaderContext)
+		basicShader.useShader { shaderContext ->
+			camera.render(shaderContext)
+			gridLines.render(shaderContext)
+			originLines.render(shaderContext)
 		}
 	}
 }

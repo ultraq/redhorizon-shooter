@@ -19,6 +19,7 @@ package nz.net.ultraq.redhorizon.shooter
 import nz.net.ultraq.redhorizon.engine.GameObjectScript
 import nz.net.ultraq.redhorizon.graphics.Camera
 import nz.net.ultraq.redhorizon.input.InputEventHandler
+import nz.net.ultraq.redhorizon.shooter.engine.SpriteComponent
 
 import org.joml.Vector2f
 import org.joml.Vector3f
@@ -68,7 +69,8 @@ class PlayerScript implements GameObjectScript<Player> {
 
 		if (player.flying) {
 			bobbingTimer += delta
-			player.orca.translate(0f, 0.0625f * Math.sin(bobbingTimer) as float, 0f)
+			var orcaSprite = player.findComponent { it.name == 'Orca' } as SpriteComponent
+			orcaSprite.translate(0f, 0.0625f * Math.sin(bobbingTimer) as float, 0f)
 		}
 	}
 

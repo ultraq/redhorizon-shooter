@@ -71,6 +71,14 @@ class GameObject<T extends GameObject> extends nz.net.ultraq.redhorizon.engine.G
 	}
 
 	/**
+	 * Return all components that match the given predicate.
+	 */
+	List<Component> findComponents(Closure predicate) {
+
+		return components.findAll(predicate)
+	}
+
+	/**
 	 * Render each of the graphics component in this game object.
 	 */
 	void render() {

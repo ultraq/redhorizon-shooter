@@ -21,6 +21,7 @@ import nz.net.ultraq.redhorizon.classic.graphics.FactionAdjustmentMap
 import nz.net.ultraq.redhorizon.engine.ScriptEngine
 import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.graphics.Camera
+import nz.net.ultraq.redhorizon.graphics.Palette
 import nz.net.ultraq.redhorizon.graphics.Window
 import nz.net.ultraq.redhorizon.input.InputEventHandler
 import nz.net.ultraq.redhorizon.scenegraph.Scene
@@ -40,18 +41,22 @@ class ShooterScene extends Scene implements AutoCloseable {
 
 	final CameraObject cameraObject
 	final GridLines gridLines
+	final Palette palette
 	final Player player
 
 	/**
 	 * Constructor, create a new scene to the given dimensions.
 	 */
-	ShooterScene(int sceneWidth, int sceneHeight, Window window, ResourceManager resourceManager, ShaderManager shaderManager,
-		FactionAdjustmentMap adjustmentMap, AlphaMask alphaMask, ScriptEngine scriptEngine, InputEventHandler inputEventHandler) {
+	ShooterScene(int sceneWidth, int sceneHeight, Window window, ResourceManager resourceManager,
+		ShaderManager shaderManager, FactionAdjustmentMap adjustmentMap, AlphaMask alphaMask, ScriptEngine scriptEngine,
+		InputEventHandler inputEventHandler) {
 
 		cameraObject = new CameraObject(sceneWidth, sceneHeight, window)
-		gridLines = new GridLines(new Rectanglef(0, 0, sceneWidth, sceneHeight).center(), 24f, camera, shaderManager.basicShader)
-		player = new Player(resourceManager, shaderManager, resourceManager.loadPalette('temperat-td.pal'), adjustmentMap,
-			alphaMask, scriptEngine, camera, inputEventHandler)
+		gridLines = new GridLines(new Rectanglef(0, 0, sceneWidth, sceneHeight).center(), 24f, camera,
+			shaderManager.basicShader)
+		palette = resourceManager.loadPalette('temperat-td.pal')
+		player = new Player(sceneWidth, sceneHeight, resourceManager, shaderManager, palette, adjustmentMap, alphaMask,
+			scriptEngine, camera, inputEventHandler)
 
 		addChild(cameraObject)
 		addChild(gridLines)

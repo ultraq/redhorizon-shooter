@@ -22,7 +22,6 @@ import nz.net.ultraq.redhorizon.engine.ScriptEngine
 import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.graphics.Camera
 import nz.net.ultraq.redhorizon.graphics.Palette
-import nz.net.ultraq.redhorizon.graphics.SpriteSheet
 import nz.net.ultraq.redhorizon.input.InputEventHandler
 import nz.net.ultraq.redhorizon.shooter.engine.GameObject
 import nz.net.ultraq.redhorizon.shooter.engine.ScriptComponent
@@ -49,53 +48,37 @@ class Player extends GameObject<Player> {
 	private static final float ROTATION_SPEED = 180f
 
 	// TODO: These should come from the unit data for the orca sprite
-	static final int headings = 32
-	static final float headingStep = 360f / headings as float
+	final int headings = 32
+	final float headingStep = 360f / headings as float
 
 	final String name = 'Player'
 
 	// Player properties adjustable by scripts
+	// TODO: These can be moved into their own components if other objects need them
 	boolean flying = true
 	float heading = 25f
 	boolean accelerating = false
 	final Vector2f velocity = new Vector2f()
 
-	// Rendering
-	private final Palette tdPalette
-	private final SpriteSheet orcaSpriteSheet
-	final Vector2f framePosition = new Vector2f()
-
 	/**
 	 * Constructor, create a new player object.
 	 */
-	Player(ResourceManager resourceManager, ShaderManager shaderManager, Palette palette, FactionAdjustmentMap adjustmentMap,
-		AlphaMask alphaMask, ScriptEngine scriptEngine, Camera camera, InputEventHandler inputEventHandler) {
+	Player(int sceneWidth, int sceneHeight, ResourceManager resourceManager, ShaderManager shaderManager, Palette palette,
+		FactionAdjustmentMap adjustmentMap, AlphaMask alphaMask, ScriptEngine scriptEngine, Camera camera,
+		InputEventHandler inputEventHandler) {
 
-		tdPalette = resourceManager.loadPalette('temperat-td.pal')
-		orcaSpriteSheet = resourceManager.loadSpriteSheet('orca.shp')
-
-		addComponent(new ScriptComponent(scriptEngine, 'PlayerScript.groovy',
-			[camera: camera, inputEventHandler: inputEventHandler]))
+		var orcaSpriteSheet = resourceManager.loadSpriteSheet('orca.shp')
 		addComponent(new SpriteComponent('Orca', orcaSpriteSheet, shaderManager.palettedSpriteShader, camera, palette,
 			adjustmentMap, alphaMask)
 			.translate(-18f, -12f, 0f))
 		addComponent(new SpriteComponent('Shadow', orcaSpriteSheet, shaderManager.shadowShader, camera)
 			.translate(-18f, -36f, 0f))
-	}
 
-	@Override
-	void render() {
-
-		// NOTE: C&C unit headings were ordered in a counter-clockwise order, the
-		//       reverse from how degrees-based headings are done.
-		var closestHeading = Math.round(heading / headingStep)
-		var frame = closestHeading ? headings - closestHeading as int : 0
-		if (accelerating) {
-			frame += headings
-		}
-
-		framePosition.set(orcaSpriteSheet.getFramePosition(frame))
-
-		super.render()
+		addComponent(new ScriptComponent(scriptEngine, 'PlayerScript.groovy', [
+			camera: camera,
+			inputEventHandler: inputEventHandler,
+			worldBoundsMin: new Vector2f(-sceneWidth / 2f as float, -sceneHeight / 2f as float),
+			worldBoundsMax: new Vector2f(sceneWidth / 2f as float, sceneHeight / 2f as float)
+		]))
 	}
 }

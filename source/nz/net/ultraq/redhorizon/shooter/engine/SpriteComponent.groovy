@@ -25,9 +25,9 @@ import nz.net.ultraq.redhorizon.graphics.SceneShaderContext
 import nz.net.ultraq.redhorizon.graphics.Shader
 import nz.net.ultraq.redhorizon.graphics.Sprite
 import nz.net.ultraq.redhorizon.graphics.SpriteSheet
-import nz.net.ultraq.redhorizon.shooter.Player
 
 import org.joml.Matrix4f
+import org.joml.Vector2f
 
 /**
  * A component for adding a {@link Sprite} to an entity.
@@ -38,8 +38,9 @@ class SpriteComponent extends GraphicsComponent implements AutoCloseable {
 
 	final String name
 	final Sprite sprite
+	final Vector2f framePosition = new Vector2f()
 	final Matrix4f transform = new Matrix4f()
-	private final SpriteSheet spriteSheet
+	final SpriteSheet spriteSheet
 	private final Shader<SceneShaderContext> shader
 	private final Camera camera
 	private final Palette palette
@@ -76,7 +77,6 @@ class SpriteComponent extends GraphicsComponent implements AutoCloseable {
 	@Override
 	void render() {
 
-		var player = parent as Player
 		shader.useShader { shaderContext ->
 			camera.render(shaderContext)
 			if (shaderContext instanceof PalettedSpriteShaderContext) {
@@ -84,7 +84,7 @@ class SpriteComponent extends GraphicsComponent implements AutoCloseable {
 				shaderContext.setAdjustmentMap(adjustmentMap)
 				shaderContext.setAlphaMask(alphaMask)
 			}
-			sprite.render(shaderContext, globalTransform.set(player.transform).mul(transform), player.framePosition)
+			sprite.render(shaderContext, globalTransform.set(parent.transform).mul(transform), framePosition)
 		}
 	}
 

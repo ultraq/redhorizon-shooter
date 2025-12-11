@@ -39,6 +39,8 @@ class PlayerScript implements GameObjectScript<Player> {
 
 	Camera camera
 	InputEventHandler inputEventHandler
+	Vector2f worldBoundsMin
+	Vector2f worldBoundsMax
 
 	// Bobbing
 	private float bobbingTimer = 0f
@@ -53,6 +55,7 @@ class PlayerScript implements GameObjectScript<Player> {
 	// Movement
 	private Vector2f impulse = new Vector2f()
 	private float accAccelerationTime = 0f
+	private Vector2f updatedPosition = new Vector2f()
 
 	@Override
 	void update(Player player, float delta) {
@@ -60,6 +63,7 @@ class PlayerScript implements GameObjectScript<Player> {
 		updateBobbing(player, delta)
 		updateHeading(player, delta)
 		updateMovement(player, delta)
+		updateFramePosition(player, delta)
 	}
 
 	/**
@@ -71,6 +75,25 @@ class PlayerScript implements GameObjectScript<Player> {
 			bobbingTimer += delta
 			var orcaSprite = player.findComponent { it.name == 'Orca' } as SpriteComponent
 			orcaSprite.translate(0f, 0.0625f * Math.sin(bobbingTimer) as float, 0f)
+		}
+	}
+
+	/**
+	 * Adjust the selected sprite frame in each of the player's sprite components.
+	 */
+	private void updateFramePosition(Player player, float delta) {
+
+		// NOTE: C&C unit headings were ordered in a counter-clockwise order, the
+		//       reverse from how degrees-based headings are done.
+		var closestHeading = Math.round(player.heading / player.headingStep)
+		var frame = closestHeading ? player.headings - closestHeading as int : 0
+		if (player.accelerating) {
+			frame += player.headings
+		}
+
+		player.findComponents { it instanceof SpriteComponent }.each { component ->
+			var spriteComponent = component as SpriteComponent
+			spriteComponent.framePosition.set(spriteComponent.spriteSheet.getFramePosition(frame))
 		}
 	}
 
@@ -139,8 +162,8 @@ class PlayerScript implements GameObjectScript<Player> {
 
 		// Adjust position based on velocity
 		if (player.velocity) {
-			// TODO: Clamp player position to world bounds using Vector2f.min/max
-			player.translate(player.velocity.x, player.velocity.y, 0)
+			updatedPosition.set(player.position).add(player.velocity).min(worldBoundsMax).max(worldBoundsMin)
+			player.setPosition(updatedPosition.x(), updatedPosition.y(), 0)
 		}
 	}
 }

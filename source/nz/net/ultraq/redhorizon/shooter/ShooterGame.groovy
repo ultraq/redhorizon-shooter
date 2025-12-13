@@ -21,7 +21,6 @@ import nz.net.ultraq.redhorizon.audio.openal.OpenALAudioDevice
 import nz.net.ultraq.redhorizon.classic.Faction
 import nz.net.ultraq.redhorizon.classic.graphics.AlphaMask
 import nz.net.ultraq.redhorizon.classic.graphics.FactionAdjustmentMap
-import nz.net.ultraq.redhorizon.engine.ScriptEngine
 import nz.net.ultraq.redhorizon.engine.utilities.DeltaTimer
 import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.graphics.Colour
@@ -30,6 +29,7 @@ import nz.net.ultraq.redhorizon.graphics.imgui.DebugOverlay
 import nz.net.ultraq.redhorizon.graphics.imgui.NodeList
 import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLWindow
 import nz.net.ultraq.redhorizon.input.InputEventHandler
+import nz.net.ultraq.redhorizon.shooter.engine.ScriptEngine
 import nz.net.ultraq.redhorizon.shooter.utilities.ShaderManager
 
 import org.slf4j.Logger
@@ -102,9 +102,9 @@ class ShooterGame implements Runnable {
 			// Game loop
 			logger.debug('Game loop')
 			window
-				.addDebugOverlay(new DebugOverlay()
+				.addImGuiComponent(new DebugOverlay()
 					.withCursorTracking(scene.camera))
-				.addNodeList(new NodeList(scene))
+				.addImGuiComponent(new NodeList(scene))
 				.show()
 
 			var deltaTimer = new DeltaTimer()

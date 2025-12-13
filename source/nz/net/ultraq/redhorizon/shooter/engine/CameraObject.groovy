@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package nz.net.ultraq.redhorizon.shooter.objects
+package nz.net.ultraq.redhorizon.shooter.engine
 
 import nz.net.ultraq.redhorizon.graphics.Camera
 import nz.net.ultraq.redhorizon.graphics.Window
-import nz.net.ultraq.redhorizon.shooter.engine.CameraComponent
-import nz.net.ultraq.redhorizon.shooter.engine.GameObject
 
 /**
  * A game object with just the camera attached.

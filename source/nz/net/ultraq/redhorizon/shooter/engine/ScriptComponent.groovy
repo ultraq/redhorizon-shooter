@@ -15,10 +15,6 @@
  */
 
 package nz.net.ultraq.redhorizon.shooter.engine
-
-import nz.net.ultraq.redhorizon.engine.GameObjectScript
-import nz.net.ultraq.redhorizon.engine.ScriptEngine
-
 /**
  * Perform the logic written in the provided game object script.
  *
@@ -26,6 +22,7 @@ import nz.net.ultraq.redhorizon.engine.ScriptEngine
  */
 class ScriptComponent<TGameObject extends GameObject> extends GameLogicComponent<TGameObject> {
 
+	final String name = "ScriptComponent - ${scriptName}"
 	private final ScriptEngine scriptEngine
 	private final String scriptName
 	private final Map<String, Object> extraProperties
@@ -39,12 +36,6 @@ class ScriptComponent<TGameObject extends GameObject> extends GameLogicComponent
 		this.scriptEngine = scriptEngine
 		this.scriptName = scriptName
 		this.extraProperties = extraProperties
-	}
-
-	@Override
-	String getName() {
-
-		return "ScriptComponent - ${scriptName}"
 	}
 
 	@Override

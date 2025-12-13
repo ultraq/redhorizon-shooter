@@ -18,15 +18,15 @@ package nz.net.ultraq.redhorizon.shooter
 
 import nz.net.ultraq.redhorizon.classic.graphics.AlphaMask
 import nz.net.ultraq.redhorizon.classic.graphics.FactionAdjustmentMap
-import nz.net.ultraq.redhorizon.engine.ScriptEngine
 import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.graphics.Camera
 import nz.net.ultraq.redhorizon.graphics.Palette
 import nz.net.ultraq.redhorizon.graphics.Window
 import nz.net.ultraq.redhorizon.input.InputEventHandler
 import nz.net.ultraq.redhorizon.scenegraph.Scene
+import nz.net.ultraq.redhorizon.shooter.engine.CameraObject
 import nz.net.ultraq.redhorizon.shooter.engine.GameObject
-import nz.net.ultraq.redhorizon.shooter.objects.CameraObject
+import nz.net.ultraq.redhorizon.shooter.engine.ScriptEngine
 import nz.net.ultraq.redhorizon.shooter.utilities.GridLines
 import nz.net.ultraq.redhorizon.shooter.utilities.ShaderManager
 

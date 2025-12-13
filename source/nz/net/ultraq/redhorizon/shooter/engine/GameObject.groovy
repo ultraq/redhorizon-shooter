@@ -16,12 +16,14 @@
 
 package nz.net.ultraq.redhorizon.shooter.engine
 
+import nz.net.ultraq.redhorizon.scenegraph.Node
+
 /**
  * Any object in the scene that should be updated periodically.
  *
  * @author Emanuel Rabina
  */
-class GameObject<T extends GameObject> extends nz.net.ultraq.redhorizon.engine.GameObject<T> implements AutoCloseable {
+class GameObject<T extends GameObject> extends Node<T> implements AutoCloseable {
 
 	private List<Component> components = []
 	private List<GameLogicComponent> gameLogicComponents = []

@@ -19,12 +19,12 @@ package nz.net.ultraq.redhorizon.shooter.engine
 import nz.net.ultraq.redhorizon.classic.graphics.AlphaMask
 import nz.net.ultraq.redhorizon.classic.graphics.FactionAdjustmentMap
 import nz.net.ultraq.redhorizon.classic.graphics.PalettedSpriteShader.PalettedSpriteShaderContext
-import nz.net.ultraq.redhorizon.graphics.Camera
 import nz.net.ultraq.redhorizon.graphics.Palette
 import nz.net.ultraq.redhorizon.graphics.SceneShaderContext
 import nz.net.ultraq.redhorizon.graphics.Shader
 import nz.net.ultraq.redhorizon.graphics.Sprite
 import nz.net.ultraq.redhorizon.graphics.SpriteSheet
+import nz.net.ultraq.redhorizon.shooter.ShooterScene
 
 import org.joml.Matrix4f
 import org.joml.Vector2f
@@ -42,7 +42,6 @@ class SpriteComponent extends GraphicsComponent implements AutoCloseable {
 	final Matrix4f transform = new Matrix4f()
 	final SpriteSheet spriteSheet
 	private final Shader<SceneShaderContext> shader
-	private final Camera camera
 	private final Palette palette
 	private final FactionAdjustmentMap adjustmentMap
 	private final AlphaMask alphaMask
@@ -51,13 +50,12 @@ class SpriteComponent extends GraphicsComponent implements AutoCloseable {
 	/**
 	 * Constructor, use the given sprite sheet for the sprite.
 	 */
-	SpriteComponent(String name, SpriteSheet spriteSheet, Shader shader, Camera camera, Palette palette = null,
+	SpriteComponent(String name, SpriteSheet spriteSheet, Shader shader, Palette palette = null,
 		FactionAdjustmentMap adjustmentMap = null, AlphaMask alphaMask = null) {
 
 		this.name = name
 		this.spriteSheet = spriteSheet
 		this.shader = shader
-		this.camera = camera
 		this.palette = palette
 		this.adjustmentMap = adjustmentMap
 		this.alphaMask = alphaMask
@@ -77,8 +75,14 @@ class SpriteComponent extends GraphicsComponent implements AutoCloseable {
 	@Override
 	void render() {
 
+		var cameraObject = ((ShooterScene)parent.scene).camera
 		shader.useShader { shaderContext ->
-			camera.render(shaderContext)
+
+			// TODO: Pass a renderer object to this method which will batch up all the
+			//       commands and order them more nicely so we don't have to do this
+			//       camera updating for every object!
+			cameraObject.camera.render(shaderContext, cameraObject.transform)
+
 			if (shaderContext instanceof PalettedSpriteShaderContext) {
 				shaderContext.setPalette(palette)
 				shaderContext.setAdjustmentMap(adjustmentMap)

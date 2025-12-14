@@ -19,7 +19,6 @@ package nz.net.ultraq.redhorizon.shooter
 import nz.net.ultraq.redhorizon.classic.graphics.AlphaMask
 import nz.net.ultraq.redhorizon.classic.graphics.FactionAdjustmentMap
 import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
-import nz.net.ultraq.redhorizon.graphics.Camera
 import nz.net.ultraq.redhorizon.graphics.Palette
 import nz.net.ultraq.redhorizon.graphics.Window
 import nz.net.ultraq.redhorizon.input.InputEventHandler
@@ -39,7 +38,7 @@ import org.joml.primitives.Rectanglef
  */
 class ShooterScene extends Scene implements AutoCloseable {
 
-	final CameraObject cameraObject
+	final CameraObject camera
 	final GridLines gridLines
 	final Palette palette
 	final Player player
@@ -51,14 +50,13 @@ class ShooterScene extends Scene implements AutoCloseable {
 		ShaderManager shaderManager, FactionAdjustmentMap adjustmentMap, AlphaMask alphaMask, ScriptEngine scriptEngine,
 		InputEventHandler inputEventHandler) {
 
-		cameraObject = new CameraObject(sceneWidth, sceneHeight, window)
-		gridLines = new GridLines(new Rectanglef(0, 0, sceneWidth, sceneHeight).center(), 24f, camera,
-			shaderManager.basicShader)
+		camera = new CameraObject(sceneWidth, sceneHeight, window)
+		gridLines = new GridLines(new Rectanglef(0, 0, sceneWidth, sceneHeight).center(), 24f, shaderManager.basicShader)
 		palette = resourceManager.loadPalette('temperat-td.pal')
 		player = new Player(sceneWidth, sceneHeight, resourceManager, shaderManager, palette, adjustmentMap, alphaMask,
-			scriptEngine, camera, inputEventHandler)
+			scriptEngine, inputEventHandler)
 
-		addChild(cameraObject)
+		addChild(camera)
 		addChild(gridLines)
 		addChild(player)
 	}
@@ -71,14 +69,6 @@ class ShooterScene extends Scene implements AutoCloseable {
 				node.close()
 			}
 		}
-	}
-
-	/**
-	 * Locate this scene's camera.
-	 */
-	Camera getCamera() {
-
-		return cameraObject.camera
 	}
 
 	/**

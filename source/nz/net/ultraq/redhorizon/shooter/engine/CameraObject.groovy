@@ -17,7 +17,10 @@
 package nz.net.ultraq.redhorizon.shooter.engine
 
 import nz.net.ultraq.redhorizon.graphics.Camera
+import nz.net.ultraq.redhorizon.graphics.SceneShaderContext
 import nz.net.ultraq.redhorizon.graphics.Window
+
+import org.joml.Vector3f
 
 /**
  * A game object with just the camera attached.
@@ -29,8 +32,27 @@ class CameraObject extends GameObject<CameraObject> {
 	final String name = 'Camera'
 	final Camera camera
 
+	/**
+	 * Constructor, adds a camera component to this object.
+	 */
 	CameraObject(int sceneWidth, int sceneHeight, Window window) {
 
-		camera = new CameraComponent(sceneWidth, sceneHeight, window).camera
+		camera = addAndReturnComponent(new CameraComponent(sceneWidth, sceneHeight, window)).camera
+	}
+
+	/**
+	 * Updates rendering with the camera state.
+	 */
+	void render(SceneShaderContext sceneShaderContext) {
+
+		camera.render(sceneShaderContext, transform)
+	}
+
+	/**
+	 * Convert a set of window coordinates to world coordinates.
+	 */
+	Vector3f unproject(float winX, float winY, Vector3f result) {
+
+		return camera.unproject(winX, winY, transform, result)
 	}
 }

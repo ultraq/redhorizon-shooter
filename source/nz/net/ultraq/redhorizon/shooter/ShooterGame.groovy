@@ -103,7 +103,7 @@ class ShooterGame implements Runnable {
 			logger.debug('Game loop')
 			window
 				.addImGuiComponent(new DebugOverlay()
-					.withCursorTracking(scene.camera))
+					.withCursorTracking(scene.camera.camera, scene.camera.transform))
 				.addImGuiComponent(new NodeList(scene))
 				.show()
 

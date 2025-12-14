@@ -16,7 +16,6 @@
 
 package nz.net.ultraq.redhorizon.shooter
 
-import nz.net.ultraq.redhorizon.graphics.Camera
 import nz.net.ultraq.redhorizon.input.InputEventHandler
 import nz.net.ultraq.redhorizon.shooter.engine.GameObjectScript
 import nz.net.ultraq.redhorizon.shooter.engine.SpriteComponent
@@ -37,7 +36,6 @@ class PlayerScript implements GameObjectScript<Player> {
 	static final float TIME_TO_MAX_SPEED_S = 1
 	private static final Vector2f up = new Vector2f(0, 1)
 
-	Camera camera
 	InputEventHandler inputEventHandler
 	Vector2f worldBoundsMin
 	Vector2f worldBoundsMax
@@ -104,6 +102,7 @@ class PlayerScript implements GameObjectScript<Player> {
 
 		var cursorPosition = inputEventHandler.cursorPosition()
 		if (cursorPosition && cursorPosition != lastCursorPosition) {
+			var camera = ((ShooterScene)player.scene).camera
 			positionXY.set(player.position)
 			worldCursorPosition.set(camera.unproject(cursorPosition.x(), cursorPosition.y(), unprojectResult))
 			worldCursorPosition.sub(positionXY, headingToCursor)

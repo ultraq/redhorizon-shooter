@@ -15,6 +15,7 @@
  */
 
 package nz.net.ultraq.redhorizon.shooter.engine
+
 /**
  * A component for adding graphics to an entity.
  *

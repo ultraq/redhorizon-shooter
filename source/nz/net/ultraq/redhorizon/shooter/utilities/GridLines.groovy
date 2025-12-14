@@ -16,13 +16,13 @@
 
 package nz.net.ultraq.redhorizon.shooter.utilities
 
-import nz.net.ultraq.redhorizon.graphics.Camera
 import nz.net.ultraq.redhorizon.graphics.Colour
 import nz.net.ultraq.redhorizon.graphics.Mesh
 import nz.net.ultraq.redhorizon.graphics.Mesh.Type
 import nz.net.ultraq.redhorizon.graphics.Vertex
 import nz.net.ultraq.redhorizon.graphics.opengl.BasicShader
 import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLMesh
+import nz.net.ultraq.redhorizon.shooter.ShooterScene
 import nz.net.ultraq.redhorizon.shooter.engine.GameObject
 
 import org.joml.Vector3f
@@ -39,7 +39,6 @@ class GridLines extends GameObject<GridLines> implements AutoCloseable {
 	private static final Colour GRID_LINES_DARK_GREY = new Colour('GridLines-DarkGrey', 0.2, 0.2, 0.2)
 
 	final String name = 'Grid lines'
-	private final Camera camera
 	private final BasicShader basicShader
 	private final Mesh gridLines
 	private final Mesh originLines
@@ -48,9 +47,8 @@ class GridLines extends GameObject<GridLines> implements AutoCloseable {
 	 * Constructor, build a set of grid lines for the X and Y axes within the
 	 * bounds specified by {@code range}, for every {@code step} rendered pixels.
 	 */
-	GridLines(Rectanglef range, float step, Camera camera, BasicShader basicShader) {
+	GridLines(Rectanglef range, float step, BasicShader basicShader) {
 
-		this.camera = camera
 		this.basicShader = basicShader
 
 		// Alter values so that they line up with the origin
@@ -95,6 +93,7 @@ class GridLines extends GameObject<GridLines> implements AutoCloseable {
 	@Override
 	void render() {
 
+		var camera = ((ShooterScene)scene).camera
 		basicShader.useShader { shaderContext ->
 			camera.render(shaderContext)
 			gridLines.render(shaderContext)

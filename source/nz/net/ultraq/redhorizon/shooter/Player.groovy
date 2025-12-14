@@ -19,7 +19,6 @@ package nz.net.ultraq.redhorizon.shooter
 import nz.net.ultraq.redhorizon.classic.graphics.AlphaMask
 import nz.net.ultraq.redhorizon.classic.graphics.FactionAdjustmentMap
 import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
-import nz.net.ultraq.redhorizon.graphics.Camera
 import nz.net.ultraq.redhorizon.graphics.Palette
 import nz.net.ultraq.redhorizon.input.InputEventHandler
 import nz.net.ultraq.redhorizon.shooter.engine.GameObject
@@ -64,18 +63,17 @@ class Player extends GameObject<Player> {
 	 * Constructor, create a new player object.
 	 */
 	Player(int sceneWidth, int sceneHeight, ResourceManager resourceManager, ShaderManager shaderManager, Palette palette,
-		FactionAdjustmentMap adjustmentMap, AlphaMask alphaMask, ScriptEngine scriptEngine, Camera camera,
+		FactionAdjustmentMap adjustmentMap, AlphaMask alphaMask, ScriptEngine scriptEngine,
 		InputEventHandler inputEventHandler) {
 
 		var orcaSpriteSheet = resourceManager.loadSpriteSheet('orca.shp')
-		addComponent(new SpriteComponent('Orca', orcaSpriteSheet, shaderManager.palettedSpriteShader, camera, palette,
+		addComponent(new SpriteComponent('Orca', orcaSpriteSheet, shaderManager.palettedSpriteShader, palette,
 			adjustmentMap, alphaMask)
 			.translate(-18f, -12f, 0f))
-		addComponent(new SpriteComponent('Shadow', orcaSpriteSheet, shaderManager.shadowShader, camera)
+		addComponent(new SpriteComponent('Shadow', orcaSpriteSheet, shaderManager.shadowShader)
 			.translate(-18f, -36f, 0f))
 
 		addComponent(new ScriptComponent(scriptEngine, 'PlayerScript.groovy', [
-			camera: camera,
 			inputEventHandler: inputEventHandler,
 			worldBoundsMin: new Vector2f(-sceneWidth / 2f as float, -sceneHeight / 2f as float),
 			worldBoundsMax: new Vector2f(sceneWidth / 2f as float, sceneHeight / 2f as float)

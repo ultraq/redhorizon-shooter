@@ -97,6 +97,6 @@ class GameObject<T extends GameObject> extends Node<T> implements AutoCloseable 
 	 */
 	void update(float delta) {
 
-		gameLogicComponents*.update(this, delta)
+		gameLogicComponents*.update(delta)
 	}
 }

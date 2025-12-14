@@ -15,12 +15,13 @@
  */
 
 package nz.net.ultraq.redhorizon.shooter.engine
+
 /**
  * Perform the logic written in the provided game object script.
  *
  * @author Emanuel Rabina
  */
-class ScriptComponent<TGameObject extends GameObject> extends GameLogicComponent<TGameObject> {
+class ScriptComponent extends GameLogicComponent {
 
 	final String name = "ScriptComponent - ${scriptName}"
 	private final ScriptEngine scriptEngine
@@ -39,12 +40,13 @@ class ScriptComponent<TGameObject extends GameObject> extends GameLogicComponent
 	}
 
 	@Override
-	void update(TGameObject gameObject, float delta) {
+	void update(float delta) {
 
-		var script = scriptEngine.loadScriptClass(scriptName) as GameObjectScript<TGameObject>
+		var script = scriptEngine.loadScriptClass(scriptName) as GameObjectScript
+		script.gameObject = parent
 		extraProperties.each { key, value ->
 			script[key] = value
 		}
-		script.update(gameObject, delta)
+		script.update(delta)
 	}
 }

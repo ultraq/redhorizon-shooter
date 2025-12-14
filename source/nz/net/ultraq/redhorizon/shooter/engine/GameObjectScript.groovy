@@ -21,10 +21,20 @@ package nz.net.ultraq.redhorizon.shooter.engine
  *
  * @author Emanuel Rabina
  */
-interface GameObjectScript<TGameObject extends GameObject> {
+abstract class GameObjectScript {
+
+	protected GameObject gameObject
+
+	/**
+	 * Set the game object this script is attached to.
+	 */
+	void setGameObject(GameObject gameObject) {
+
+		this.gameObject = gameObject
+	}
 
 	/**
 	 * Actions to perform when the object is being updated.
 	 */
-	void update(TGameObject gameObject, float delta)
+	abstract void update(float delta)
 }

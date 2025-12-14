@@ -76,9 +76,9 @@ class Player extends GameObject<Player> implements AutoCloseable {
 		var orcaSpriteSheet = resourceManager.loadSpriteSheet('orca.shp')
 		addComponent(new SpriteComponent('Orca', orcaSpriteSheet, shaderManager.palettedSpriteShader, palette,
 			adjustmentMap, alphaMask)
-			.translate(-18f, -12f, 0f))
+			.translate(-18f, 12f, 0f))
 		addComponent(new SpriteComponent('Shadow', orcaSpriteSheet, shaderManager.shadowShader)
-			.translate(-18f, -36f, 0f))
+			.translate(-18f, -12f, 0f))
 
 		addComponent(new ScriptComponent(scriptEngine, 'PlayerScript.groovy', [
 			inputEventHandler: inputEventHandler,

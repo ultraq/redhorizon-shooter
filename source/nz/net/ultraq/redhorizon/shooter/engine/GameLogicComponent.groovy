@@ -21,10 +21,10 @@ package nz.net.ultraq.redhorizon.shooter.engine
  *
  * @author Emanuel Rabina
  */
-abstract class GameLogicComponent<TGameObject extends GameObject> extends Component {
+abstract class GameLogicComponent extends Component {
 
 	/**
 	 * Perform any logic as part of the scene update.
 	 */
-	abstract void update(TGameObject gameObject, float delta)
+	abstract void update(float delta)
 }

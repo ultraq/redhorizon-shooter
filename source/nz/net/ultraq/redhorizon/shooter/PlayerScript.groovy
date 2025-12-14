@@ -29,7 +29,7 @@ import static org.lwjgl.glfw.GLFW.*
  *
  * @author Emanuel Rabina
  */
-class PlayerScript implements GameObjectScript<Player> {
+class PlayerScript extends GameObjectScript {
 
 	// TODO: Make these public items into variables that can be controlled by ImGui?
 	static final float MAX_SPEED = 400f
@@ -55,19 +55,26 @@ class PlayerScript implements GameObjectScript<Player> {
 	private float accAccelerationTime = 0f
 	private Vector2f updatedPosition = new Vector2f()
 
-	@Override
-	void update(Player player, float delta) {
+	/**
+	 * Alias for `gameObject`.
+	 */
+	Player getPlayer() {
+		return gameObject as Player
+	}
 
-		updateBobbing(player, delta)
-		updateHeading(player, delta)
-		updateMovement(player, delta)
-		updateFramePosition(player, delta)
+	@Override
+	void update(float delta) {
+
+		updateBobbing(delta)
+		updateHeading(delta)
+		updateMovement(delta)
+		updateFramePosition(delta)
 	}
 
 	/**
 	 * Adjust player position to simulate an aircraft bobbing up and down.
 	 */
-	private void updateBobbing(Player player, float delta) {
+	private void updateBobbing(float delta) {
 
 		if (player.flying) {
 			bobbingTimer += delta
@@ -79,7 +86,7 @@ class PlayerScript implements GameObjectScript<Player> {
 	/**
 	 * Adjust the selected sprite frame in each of the player's sprite components.
 	 */
-	private void updateFramePosition(Player player, float delta) {
+	private void updateFramePosition(float delta) {
 
 		// NOTE: C&C unit headings were ordered in a counter-clockwise order, the
 		//       reverse from how degrees-based headings are done.
@@ -98,7 +105,7 @@ class PlayerScript implements GameObjectScript<Player> {
 	/**
 	 * Update player heading and sprite to always face the cursor.
 	 */
-	private void updateHeading(Player player, float delta) {
+	private void updateHeading(float delta) {
 
 		var cursorPosition = inputEventHandler.cursorPosition()
 		if (cursorPosition && cursorPosition != lastCursorPosition) {
@@ -115,7 +122,7 @@ class PlayerScript implements GameObjectScript<Player> {
 	/**
 	 * Update player movement and position based on inputs.
 	 */
-	private void updateMovement(Player player, float delta) {
+	private void updateMovement(float delta) {
 
 		// Set the direction of the movement force based on inputs
 		var impulseDirection = 0f

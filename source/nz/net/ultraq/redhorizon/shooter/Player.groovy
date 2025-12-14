@@ -16,6 +16,7 @@
 
 package nz.net.ultraq.redhorizon.shooter
 
+import nz.net.ultraq.redhorizon.classic.Faction
 import nz.net.ultraq.redhorizon.classic.graphics.AlphaMask
 import nz.net.ultraq.redhorizon.classic.graphics.FactionAdjustmentMap
 import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
@@ -36,7 +37,7 @@ import org.slf4j.LoggerFactory
  *
  * @author Emanuel Rabina
  */
-class Player extends GameObject<Player> {
+class Player extends GameObject<Player> implements AutoCloseable {
 
 	private static final Logger logger = LoggerFactory.getLogger(Player)
 
@@ -59,12 +60,18 @@ class Player extends GameObject<Player> {
 	boolean accelerating = false
 	final Vector2f velocity = new Vector2f()
 
+	// TODO: If needing to share, these could be components too
+	private final FactionAdjustmentMap adjustmentMap
+	private final AlphaMask alphaMask
+
 	/**
 	 * Constructor, create a new player object.
 	 */
 	Player(int sceneWidth, int sceneHeight, ResourceManager resourceManager, ShaderManager shaderManager, Palette palette,
-		FactionAdjustmentMap adjustmentMap, AlphaMask alphaMask, ScriptEngine scriptEngine,
-		InputEventHandler inputEventHandler) {
+		ScriptEngine scriptEngine, InputEventHandler inputEventHandler) {
+
+		adjustmentMap = new FactionAdjustmentMap(Faction.GOLD)
+		alphaMask = new AlphaMask()
 
 		var orcaSpriteSheet = resourceManager.loadSpriteSheet('orca.shp')
 		addComponent(new SpriteComponent('Orca', orcaSpriteSheet, shaderManager.palettedSpriteShader, palette,
@@ -78,5 +85,13 @@ class Player extends GameObject<Player> {
 			worldBoundsMin: new Vector2f(-sceneWidth / 2f as float, -sceneHeight / 2f as float),
 			worldBoundsMax: new Vector2f(sceneWidth / 2f as float, sceneHeight / 2f as float)
 		]))
+	}
+
+	@Override
+	void close() {
+
+		super.close()
+		adjustmentMap.close()
+		alphaMask.close()
 	}
 }

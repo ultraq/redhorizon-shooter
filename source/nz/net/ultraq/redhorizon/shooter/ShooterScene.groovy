@@ -16,8 +16,6 @@
 
 package nz.net.ultraq.redhorizon.shooter
 
-import nz.net.ultraq.redhorizon.classic.graphics.AlphaMask
-import nz.net.ultraq.redhorizon.classic.graphics.FactionAdjustmentMap
 import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.graphics.Palette
 import nz.net.ultraq.redhorizon.graphics.Window
@@ -47,14 +45,12 @@ class ShooterScene extends Scene implements AutoCloseable {
 	 * Constructor, create a new scene to the given dimensions.
 	 */
 	ShooterScene(int sceneWidth, int sceneHeight, Window window, ResourceManager resourceManager,
-		ShaderManager shaderManager, FactionAdjustmentMap adjustmentMap, AlphaMask alphaMask, ScriptEngine scriptEngine,
-		InputEventHandler inputEventHandler) {
+		ShaderManager shaderManager, ScriptEngine scriptEngine, InputEventHandler inputEventHandler) {
 
 		camera = new CameraObject(sceneWidth, sceneHeight, window)
 		gridLines = new GridLines(new Rectanglef(0, 0, sceneWidth, sceneHeight).center(), 24f, shaderManager.basicShader)
 		palette = resourceManager.loadPalette('temperat-td.pal')
-		player = new Player(sceneWidth, sceneHeight, resourceManager, shaderManager, palette, adjustmentMap, alphaMask,
-			scriptEngine, inputEventHandler)
+		player = new Player(sceneWidth, sceneHeight, resourceManager, shaderManager, palette, scriptEngine, inputEventHandler)
 
 		addChild(camera)
 		addChild(gridLines)

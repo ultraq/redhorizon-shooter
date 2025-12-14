@@ -18,9 +18,6 @@ package nz.net.ultraq.redhorizon.shooter
 
 import nz.net.ultraq.redhorizon.audio.AudioDevice
 import nz.net.ultraq.redhorizon.audio.openal.OpenALAudioDevice
-import nz.net.ultraq.redhorizon.classic.Faction
-import nz.net.ultraq.redhorizon.classic.graphics.AlphaMask
-import nz.net.ultraq.redhorizon.classic.graphics.FactionAdjustmentMap
 import nz.net.ultraq.redhorizon.engine.utilities.DeltaTimer
 import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.graphics.Colour
@@ -61,8 +58,6 @@ class ShooterGame implements Runnable {
 
 	private Window window
 	private InputEventHandler inputEventHandler
-	private FactionAdjustmentMap adjustmentMap
-	private AlphaMask alphaMask
 	private AudioDevice audioDevice
 	private ResourceManager resourceManager
 	private ShaderManager shaderManager
@@ -86,8 +81,6 @@ class ShooterGame implements Runnable {
 				.withVSync(true)
 			inputEventHandler = new InputEventHandler()
 				.addInputSource(window)
-			adjustmentMap = new FactionAdjustmentMap(Faction.GOLD)
-			alphaMask = new AlphaMask()
 			shaderManager = new ShaderManager()
 
 			audioDevice = new OpenALAudioDevice()
@@ -96,8 +89,8 @@ class ShooterGame implements Runnable {
 			// Init scene
 			resourceManager = new ResourceManager('nz/net/ultraq/redhorizon/shooter/')
 			scriptEngine = new ScriptEngine('.')
-			scene = new ShooterScene(WINDOW_WIDTH, WINDOW_HEIGHT, window, resourceManager, shaderManager, adjustmentMap, alphaMask,
-				scriptEngine, inputEventHandler)
+			scene = new ShooterScene(WINDOW_WIDTH, WINDOW_HEIGHT, window, resourceManager, shaderManager, scriptEngine,
+				inputEventHandler)
 
 			// Game loop
 			logger.debug('Game loop')
@@ -124,8 +117,6 @@ class ShooterGame implements Runnable {
 			resourceManager?.close()
 			shaderManager?.close()
 			audioDevice?.close()
-			alphaMask?.close()
-			adjustmentMap?.close()
 			window?.close()
 		}
 	}

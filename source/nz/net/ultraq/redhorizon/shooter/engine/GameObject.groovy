@@ -68,9 +68,9 @@ class GameObject<T extends GameObject> extends Node<T> implements AutoCloseable 
 	/**
 	 * Return the first component that matches the given predicate.
 	 */
-	Component findComponent(Closure predicate) {
+	<T extends Component> T findComponent(Closure predicate) {
 
-		return components.find(predicate)
+		return (T)components.find(predicate)
 	}
 
 	/**

@@ -79,7 +79,8 @@ class PlayerScript extends GameObjectScript {
 		if (player.flying) {
 			bobbingTimer += delta
 			var orcaSprite = player.findComponent { it.name == 'Orca' } as SpriteComponent
-			orcaSprite.translate(0f, 0.0625f * Math.sin(bobbingTimer) as float, 0f)
+			var position = orcaSprite.position
+			orcaSprite.setPosition(position.x(), 12f + (Math.sin(bobbingTimer) * 8) as float, position.z())
 		}
 	}
 

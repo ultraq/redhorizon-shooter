@@ -27,6 +27,8 @@ import nz.net.ultraq.redhorizon.graphics.SpriteSheet
 
 import org.joml.Matrix4f
 import org.joml.Vector2f
+import org.joml.Vector3f
+import org.joml.Vector3fc
 
 /**
  * A component for adding a {@link Sprite} to an entity.
@@ -45,6 +47,7 @@ class SpriteComponent extends GraphicsComponent implements AutoCloseable {
 	private final FactionAdjustmentMap adjustmentMap
 	private final AlphaMask alphaMask
 	private final Matrix4f globalTransform = new Matrix4f()
+	private final Vector3f _position = new Vector3f()
 
 	/**
 	 * Constructor, use the given sprite sheet for the sprite.
@@ -69,6 +72,14 @@ class SpriteComponent extends GraphicsComponent implements AutoCloseable {
 	}
 
 	/**
+	 * Return the local position of the sprite component.
+	 */
+	Vector3fc getPosition() {
+
+		return transform.getTranslation(_position)
+	}
+
+	/**
 	 * Render the sprite.
 	 */
 	@Override
@@ -80,6 +91,14 @@ class SpriteComponent extends GraphicsComponent implements AutoCloseable {
 			shaderContext.setAlphaMask(alphaMask)
 		}
 		sprite.render(shaderContext, globalTransform.set(parent.transform).mul(transform), framePosition)
+	}
+
+	/**
+	 * Update the local position of the sprite component.
+	 */
+	void setPosition(float x, float y, float z) {
+
+		transform.setTranslation(x, y, z)
 	}
 
 	/**

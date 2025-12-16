@@ -16,6 +16,8 @@
 
 package nz.net.ultraq.redhorizon.shooter.engine
 
+import nz.net.ultraq.redhorizon.engine.ScriptEngine
+
 /**
  * Perform the logic written in the provided game object script.
  *

@@ -18,6 +18,7 @@ package nz.net.ultraq.redhorizon.shooter
 
 import nz.net.ultraq.redhorizon.classic.graphics.PalettedSpriteShader
 import nz.net.ultraq.redhorizon.classic.graphics.ShadowShader
+import nz.net.ultraq.redhorizon.engine.ScriptEngine
 import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.graphics.Palette
 import nz.net.ultraq.redhorizon.graphics.SceneShaderContext
@@ -29,7 +30,6 @@ import nz.net.ultraq.redhorizon.scenegraph.Scene
 import nz.net.ultraq.redhorizon.shooter.engine.CameraObject
 import nz.net.ultraq.redhorizon.shooter.engine.GameObject
 import nz.net.ultraq.redhorizon.shooter.engine.GraphicsComponent
-import nz.net.ultraq.redhorizon.shooter.engine.ScriptEngine
 import nz.net.ultraq.redhorizon.shooter.utilities.GridLines
 
 import org.joml.primitives.Rectanglef

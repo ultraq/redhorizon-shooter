@@ -28,6 +28,7 @@ import nz.net.ultraq.redhorizon.shooter.engine.ScriptEngine
 import nz.net.ultraq.redhorizon.shooter.engine.SpriteComponent
 import nz.net.ultraq.redhorizon.shooter.utilities.ShaderManager
 
+import com.google.inject.Injector
 import org.joml.Vector2f
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -67,8 +68,12 @@ class Player extends GameObject<Player> implements AutoCloseable {
 	/**
 	 * Constructor, create a new player object.
 	 */
-	Player(int sceneWidth, int sceneHeight, ResourceManager resourceManager, ShaderManager shaderManager, Palette palette,
-		ScriptEngine scriptEngine, InputEventHandler inputEventHandler) {
+	Player(int sceneWidth, int sceneHeight, Palette palette, Injector injector) {
+
+		var resourceManager = injector.getInstance(ResourceManager)
+		var shaderManager = injector.getInstance(ShaderManager)
+		var scriptEngine = injector.getInstance(ScriptEngine)
+		var inputEventHandler = injector.getInstance(InputEventHandler)
 
 		adjustmentMap = new FactionAdjustmentMap(Faction.GOLD)
 		alphaMask = new AlphaMask()

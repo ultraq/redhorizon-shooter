@@ -20,6 +20,7 @@ import nz.net.ultraq.redhorizon.graphics.Camera
 import nz.net.ultraq.redhorizon.graphics.SceneShaderContext
 import nz.net.ultraq.redhorizon.graphics.Window
 
+import com.google.inject.Injector
 import org.joml.Vector3f
 
 /**
@@ -35,9 +36,11 @@ class CameraObject extends GameObject<CameraObject> {
 	/**
 	 * Constructor, adds a camera component to this object.
 	 */
-	CameraObject(int sceneWidth, int sceneHeight, Window window) {
+	CameraObject(int sceneWidth, int sceneHeight, Injector injector) {
 
-		camera = addAndReturnComponent(new CameraComponent(sceneWidth, sceneHeight, window)).camera
+		camera = addAndReturnComponent(
+			new CameraComponent(sceneWidth, sceneHeight, injector.getInstance(Window))
+		).camera
 	}
 
 	/**

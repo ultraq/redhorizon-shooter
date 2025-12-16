@@ -18,15 +18,13 @@ package nz.net.ultraq.redhorizon.shooter
 
 import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.graphics.Palette
-import nz.net.ultraq.redhorizon.graphics.Window
-import nz.net.ultraq.redhorizon.input.InputEventHandler
 import nz.net.ultraq.redhorizon.scenegraph.Scene
 import nz.net.ultraq.redhorizon.shooter.engine.CameraObject
 import nz.net.ultraq.redhorizon.shooter.engine.GameObject
-import nz.net.ultraq.redhorizon.shooter.engine.ScriptEngine
 import nz.net.ultraq.redhorizon.shooter.utilities.GridLines
 import nz.net.ultraq.redhorizon.shooter.utilities.ShaderManager
 
+import com.google.inject.Injector
 import org.joml.primitives.Rectanglef
 
 /**
@@ -44,13 +42,15 @@ class ShooterScene extends Scene implements AutoCloseable {
 	/**
 	 * Constructor, create a new scene to the given dimensions.
 	 */
-	ShooterScene(int sceneWidth, int sceneHeight, Window window, ResourceManager resourceManager,
-		ShaderManager shaderManager, ScriptEngine scriptEngine, InputEventHandler inputEventHandler) {
+	ShooterScene(int sceneWidth, int sceneHeight, Injector injector) {
 
-		camera = new CameraObject(sceneWidth, sceneHeight, window)
+		var shaderManager = injector.getInstance(ShaderManager)
+		var resourceManager = injector.getInstance(ResourceManager)
+
+		camera = new CameraObject(sceneWidth, sceneHeight, injector)
 		gridLines = new GridLines(new Rectanglef(0, 0, sceneWidth, sceneHeight).center(), 24f, shaderManager.basicShader)
 		palette = resourceManager.loadPalette('temperat-td.pal')
-		player = new Player(sceneWidth, sceneHeight, resourceManager, shaderManager, palette, scriptEngine, inputEventHandler)
+		player = new Player(sceneWidth, sceneHeight, palette, injector)
 
 		addChild(camera)
 		addChild(gridLines)

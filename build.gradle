@@ -33,6 +33,7 @@ configure {
 		.withSourceDirectory('source')
 			.withDependencies() {
 				implementation 'ch.qos.logback:logback-classic:1.5.18'
+				implementation 'com.google.inject:guice:7.0.0'
 				implementation 'info.picocli:picocli:4.7.7'
 				implementation 'nz.net.ultraq:event-horizon:0.3.2'
 				implementation 'nz.net.ultraq.groovy:groovy-extensions:3.2.1'

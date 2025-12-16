@@ -25,6 +25,7 @@ import nz.net.ultraq.redhorizon.graphics.imgui.DebugOverlay
 import nz.net.ultraq.redhorizon.graphics.imgui.NodeList
 import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLWindow
 import nz.net.ultraq.redhorizon.input.InputEventHandler
+import nz.net.ultraq.redhorizon.shooter.engine.ScriptEngine
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -56,6 +57,7 @@ class ShooterGame implements Runnable {
 	private Window window
 	private InputEventHandler inputEventHandler
 	private AudioDevice audioDevice
+	private ScriptEngine scriptEngine
 	private ShooterScene scene
 
 	@Override
@@ -75,12 +77,12 @@ class ShooterGame implements Runnable {
 				.withVSync(true)
 			inputEventHandler = new InputEventHandler()
 				.addInputSource(window)
-
 			audioDevice = new OpenALAudioDevice()
 				.withMasterVolume(0.5f)
+			scriptEngine = new ScriptEngine('.')
 
 			// Init scene
-			scene = new ShooterScene(WINDOW_WIDTH, WINDOW_HEIGHT, window, inputEventHandler)
+			scene = new ShooterScene(WINDOW_WIDTH, WINDOW_HEIGHT, window, inputEventHandler, scriptEngine)
 
 			// Game loop
 			logger.debug('Game loop')

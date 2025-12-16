@@ -47,7 +47,6 @@ class ShooterScene extends Scene implements AutoCloseable {
 	final Player player
 
 	private final ResourceManager resourceManager
-	private final ScriptEngine scriptEngine
 
 	/**
 	 * A collection of shaders in this manager in the order in which objects in
@@ -58,10 +57,10 @@ class ShooterScene extends Scene implements AutoCloseable {
 	/**
 	 * Constructor, create a new scene to the given dimensions.
 	 */
-	ShooterScene(int sceneWidth, int sceneHeight, Window window, InputEventHandler inputEventHandler) {
+	ShooterScene(int sceneWidth, int sceneHeight, Window window, InputEventHandler inputEventHandler,
+		ScriptEngine scriptEngine) {
 
 		resourceManager = new ResourceManager('nz/net/ultraq/redhorizon/shooter/')
-		scriptEngine = new ScriptEngine('.')
 
 		var basicShader = new BasicShader()
 		shaders.addAll(basicShader, new ShadowShader(), new PalettedSpriteShader())

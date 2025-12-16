@@ -16,23 +16,36 @@
 
 package nz.net.ultraq.redhorizon.shooter.engine
 
+import nz.net.ultraq.redhorizon.graphics.Mesh
+import nz.net.ultraq.redhorizon.graphics.Mesh.Type
 import nz.net.ultraq.redhorizon.graphics.SceneShaderContext
 import nz.net.ultraq.redhorizon.graphics.Shader
+import nz.net.ultraq.redhorizon.graphics.Vertex
+import nz.net.ultraq.redhorizon.graphics.opengl.BasicShader
+import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLMesh
 
 /**
- * A component for adding graphics to an entity.
- *
  * @author Emanuel Rabina
  */
-abstract class GraphicsComponent extends Component {
+class MeshComponent extends GraphicsComponent {
+
+	final String name
+	final Class<Shader> shaderClass = BasicShader
+	private final Mesh mesh
 
 	/**
-	 * Return the shader used for rendering this component.
+	 * Constructor, configure this mesh component.
 	 */
-	abstract Class<Shader> getShaderClass()
+	MeshComponent(String name, Type type, Vertex[] vertices) {
 
-	/**
-	 * Render this component for the current shader context.
-	 */
-	abstract void render(SceneShaderContext shaderContext)
+		this.name = name
+
+		mesh = new OpenGLMesh(type, vertices)
+	}
+
+	@Override
+	void render(SceneShaderContext shaderContext) {
+
+		mesh.render(shaderContext, null, parent.transform)
+	}
 }

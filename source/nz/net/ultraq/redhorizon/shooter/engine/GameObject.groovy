@@ -16,6 +16,7 @@
 
 package nz.net.ultraq.redhorizon.shooter.engine
 
+import nz.net.ultraq.redhorizon.graphics.SceneShaderContext
 import nz.net.ultraq.redhorizon.scenegraph.Node
 
 /**
@@ -75,17 +76,17 @@ class GameObject<T extends GameObject> extends Node<T> implements AutoCloseable 
 	/**
 	 * Return all components that match the given predicate.
 	 */
-	List<Component> findComponents(Closure predicate) {
+	<T extends Component> List<T> findComponents(Closure predicate) {
 
-		return components.findAll(predicate)
+		return (List<T>)components.findAll(predicate)
 	}
 
 	/**
 	 * Render each of the graphics component in this game object.
 	 */
-	void render() {
+	void render(SceneShaderContext sceneShaderContext) {
 
-		graphicsComponents*.render()
+		graphicsComponents*.render(sceneShaderContext)
 	}
 
 	/**

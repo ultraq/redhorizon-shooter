@@ -17,13 +17,10 @@
 package nz.net.ultraq.redhorizon.shooter.utilities
 
 import nz.net.ultraq.redhorizon.graphics.Colour
-import nz.net.ultraq.redhorizon.graphics.Mesh
 import nz.net.ultraq.redhorizon.graphics.Mesh.Type
 import nz.net.ultraq.redhorizon.graphics.Vertex
-import nz.net.ultraq.redhorizon.graphics.opengl.BasicShader
-import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLMesh
-import nz.net.ultraq.redhorizon.shooter.ShooterScene
 import nz.net.ultraq.redhorizon.shooter.engine.GameObject
+import nz.net.ultraq.redhorizon.shooter.engine.MeshComponent
 
 import org.joml.Vector3f
 import org.joml.primitives.Rectanglef
@@ -39,17 +36,12 @@ class GridLines extends GameObject<GridLines> implements AutoCloseable {
 	private static final Colour GRID_LINES_DARK_GREY = new Colour('GridLines-DarkGrey', 0.2, 0.2, 0.2)
 
 	final String name = 'Grid lines'
-	private final BasicShader basicShader
-	private final Mesh gridLines
-	private final Mesh originLines
 
 	/**
 	 * Constructor, build a set of grid lines for the X and Y axes within the
 	 * bounds specified by {@code range}, for every {@code step} rendered pixels.
 	 */
-	GridLines(Rectanglef range, float step, BasicShader basicShader) {
-
-		this.basicShader = basicShader
+	GridLines(Rectanglef range, float step) {
 
 		// Alter values so that they line up with the origin
 		var minX = Math.floor(range.minX / step) * step as int
@@ -67,37 +59,16 @@ class GridLines extends GameObject<GridLines> implements AutoCloseable {
 			}
 		}
 
-		gridLines = new OpenGLMesh(Type.LINES,
+		addComponent(new MeshComponent('Dividers', Type.LINES,
 			lines.collect { line ->
 				return new Vertex(line, GRID_LINES_GREY)
-			} as Vertex[]
-		)
-
-		originLines = new OpenGLMesh(Type.LINES,
+			} as Vertex[]))
+		addComponent(new MeshComponent('Origin', Type.LINES,
 			new Vertex[]{
 				new Vertex(new Vector3f(range.minX, 0, 0), GRID_LINES_DARK_GREY),
 				new Vertex(new Vector3f(range.maxX, 0, 0), GRID_LINES_DARK_GREY),
 				new Vertex(new Vector3f(0, range.minX, 0), GRID_LINES_DARK_GREY),
 				new Vertex(new Vector3f(0, range.maxX, 0), GRID_LINES_DARK_GREY)
-			}
-		)
-	}
-
-	@Override
-	void close() {
-
-		gridLines.close()
-		originLines.close()
-	}
-
-	@Override
-	void render() {
-
-		var camera = ((ShooterScene)scene).camera
-		basicShader.useShader { shaderContext ->
-			camera.render(shaderContext)
-			gridLines.render(shaderContext)
-			originLines.render(shaderContext)
-		}
+			}))
 	}
 }

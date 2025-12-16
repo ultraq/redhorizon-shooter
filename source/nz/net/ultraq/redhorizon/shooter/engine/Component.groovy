@@ -18,8 +18,6 @@ package nz.net.ultraq.redhorizon.shooter.engine
 
 import nz.net.ultraq.redhorizon.scenegraph.Visitable
 
-import org.joml.Matrix4fc
-
 /**
  * Any reusable behaviour that can be attached to a game object.
  *
@@ -33,12 +31,4 @@ abstract class Component implements Visitable {
 	 * Return a name for this component.
 	 */
 	abstract String getName()
-
-	/**
-	 * Return the transform from the game object this component is attached to.
-	 */
-	Matrix4fc getTransform() {
-
-		return parent.transform
-	}
 }

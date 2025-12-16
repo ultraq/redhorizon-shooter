@@ -16,16 +16,21 @@
 
 package nz.net.ultraq.redhorizon.shooter
 
+import nz.net.ultraq.redhorizon.classic.graphics.PalettedSpriteShader
+import nz.net.ultraq.redhorizon.classic.graphics.ShadowShader
 import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.graphics.Palette
+import nz.net.ultraq.redhorizon.graphics.SceneShaderContext
+import nz.net.ultraq.redhorizon.graphics.Shader
 import nz.net.ultraq.redhorizon.graphics.Window
+import nz.net.ultraq.redhorizon.graphics.opengl.BasicShader
 import nz.net.ultraq.redhorizon.input.InputEventHandler
 import nz.net.ultraq.redhorizon.scenegraph.Scene
 import nz.net.ultraq.redhorizon.shooter.engine.CameraObject
 import nz.net.ultraq.redhorizon.shooter.engine.GameObject
+import nz.net.ultraq.redhorizon.shooter.engine.GraphicsComponent
 import nz.net.ultraq.redhorizon.shooter.engine.ScriptEngine
 import nz.net.ultraq.redhorizon.shooter.utilities.GridLines
-import nz.net.ultraq.redhorizon.shooter.utilities.ShaderManager
 
 import org.joml.primitives.Rectanglef
 
@@ -41,16 +46,30 @@ class ShooterScene extends Scene implements AutoCloseable {
 	final Palette palette
 	final Player player
 
+	private final ResourceManager resourceManager
+	private final ScriptEngine scriptEngine
+
+	/**
+	 * A collection of shaders in this manager in the order in which objects in
+	 * the scene should be grouped for rendering.
+	 */
+	private final List<Shader<? extends SceneShaderContext>> shaders = new ArrayList<>()
+
 	/**
 	 * Constructor, create a new scene to the given dimensions.
 	 */
-	ShooterScene(int sceneWidth, int sceneHeight, Window window, ResourceManager resourceManager,
-		ShaderManager shaderManager, ScriptEngine scriptEngine, InputEventHandler inputEventHandler) {
+	ShooterScene(int sceneWidth, int sceneHeight, Window window, InputEventHandler inputEventHandler) {
+
+		resourceManager = new ResourceManager('nz/net/ultraq/redhorizon/shooter/')
+		scriptEngine = new ScriptEngine('.')
+
+		var basicShader = new BasicShader()
+		shaders.addAll(basicShader, new ShadowShader(), new PalettedSpriteShader())
 
 		camera = new CameraObject(sceneWidth, sceneHeight, window)
-		gridLines = new GridLines(new Rectanglef(0, 0, sceneWidth, sceneHeight).center(), 24f, shaderManager.basicShader)
+		gridLines = new GridLines(new Rectanglef(0, 0, sceneWidth, sceneHeight).center(), 24f)
 		palette = resourceManager.loadPalette('temperat-td.pal')
-		player = new Player(sceneWidth, sceneHeight, resourceManager, shaderManager, palette, scriptEngine, inputEventHandler)
+		player = new Player(sceneWidth, sceneHeight, resourceManager, palette, scriptEngine, inputEventHandler)
 
 		addChild(camera)
 		addChild(gridLines)
@@ -65,6 +84,8 @@ class ShooterScene extends Scene implements AutoCloseable {
 				node.close()
 			}
 		}
+		shaders*.close()
+		resourceManager.close()
 	}
 
 	/**
@@ -72,9 +93,22 @@ class ShooterScene extends Scene implements AutoCloseable {
 	 */
 	void render() {
 
+		var graphicsComponents = new ArrayList<GraphicsComponent>()
 		traverse { node ->
 			if (node instanceof GameObject) {
-				node.render()
+				// TODO: Create an allocation-free method of finding objects components
+				graphicsComponents.addAll(node.findComponents { it instanceof GraphicsComponent })
+			}
+		}
+		// TODO: Create an allocation-free method of grouping objects
+		var groupedComponents = graphicsComponents.groupBy { it.shaderClass }
+
+		shaders.each { shader ->
+			shader.useShader { shaderContext ->
+				camera.render(shaderContext)
+				groupedComponents[shader.class].each { component ->
+					component.render(shaderContext)
+				}
 			}
 		}
 	}

@@ -19,6 +19,8 @@ package nz.net.ultraq.redhorizon.shooter
 import nz.net.ultraq.redhorizon.classic.Faction
 import nz.net.ultraq.redhorizon.classic.graphics.AlphaMask
 import nz.net.ultraq.redhorizon.classic.graphics.FactionAdjustmentMap
+import nz.net.ultraq.redhorizon.classic.graphics.PalettedSpriteShader
+import nz.net.ultraq.redhorizon.classic.graphics.ShadowShader
 import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.graphics.Palette
 import nz.net.ultraq.redhorizon.input.InputEventHandler
@@ -26,7 +28,6 @@ import nz.net.ultraq.redhorizon.shooter.engine.GameObject
 import nz.net.ultraq.redhorizon.shooter.engine.ScriptComponent
 import nz.net.ultraq.redhorizon.shooter.engine.ScriptEngine
 import nz.net.ultraq.redhorizon.shooter.engine.SpriteComponent
-import nz.net.ultraq.redhorizon.shooter.utilities.ShaderManager
 
 import org.joml.Vector2f
 import org.slf4j.Logger
@@ -67,17 +68,16 @@ class Player extends GameObject<Player> implements AutoCloseable {
 	/**
 	 * Constructor, create a new player object.
 	 */
-	Player(int sceneWidth, int sceneHeight, ResourceManager resourceManager, ShaderManager shaderManager, Palette palette,
-		ScriptEngine scriptEngine, InputEventHandler inputEventHandler) {
+	Player(int sceneWidth, int sceneHeight, ResourceManager resourceManager, Palette palette, ScriptEngine scriptEngine,
+		InputEventHandler inputEventHandler) {
 
 		adjustmentMap = new FactionAdjustmentMap(Faction.GOLD)
 		alphaMask = new AlphaMask()
 
 		var orcaSpriteSheet = resourceManager.loadSpriteSheet('orca.shp')
-		addComponent(new SpriteComponent('Orca', orcaSpriteSheet, shaderManager.palettedSpriteShader, palette,
-			adjustmentMap, alphaMask)
+		addComponent(new SpriteComponent('Orca', orcaSpriteSheet, PalettedSpriteShader, palette, adjustmentMap, alphaMask)
 			.translate(-18f, 12f, 0f))
-		addComponent(new SpriteComponent('Shadow', orcaSpriteSheet, shaderManager.shadowShader)
+		addComponent(new SpriteComponent('Shadow', orcaSpriteSheet, ShadowShader)
 			.translate(-18f, -12f, 0f))
 
 		addComponent(new ScriptComponent(scriptEngine, 'PlayerScript.groovy', [

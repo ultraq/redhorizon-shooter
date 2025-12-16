@@ -19,15 +19,12 @@ package nz.net.ultraq.redhorizon.shooter
 import nz.net.ultraq.redhorizon.audio.AudioDevice
 import nz.net.ultraq.redhorizon.audio.openal.OpenALAudioDevice
 import nz.net.ultraq.redhorizon.engine.utilities.DeltaTimer
-import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.graphics.Colour
 import nz.net.ultraq.redhorizon.graphics.Window
 import nz.net.ultraq.redhorizon.graphics.imgui.DebugOverlay
 import nz.net.ultraq.redhorizon.graphics.imgui.NodeList
 import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLWindow
 import nz.net.ultraq.redhorizon.input.InputEventHandler
-import nz.net.ultraq.redhorizon.shooter.engine.ScriptEngine
-import nz.net.ultraq.redhorizon.shooter.utilities.ShaderManager
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -59,9 +56,6 @@ class ShooterGame implements Runnable {
 	private Window window
 	private InputEventHandler inputEventHandler
 	private AudioDevice audioDevice
-	private ResourceManager resourceManager
-	private ShaderManager shaderManager
-	private ScriptEngine scriptEngine
 	private ShooterScene scene
 
 	@Override
@@ -81,16 +75,12 @@ class ShooterGame implements Runnable {
 				.withVSync(true)
 			inputEventHandler = new InputEventHandler()
 				.addInputSource(window)
-			shaderManager = new ShaderManager()
 
 			audioDevice = new OpenALAudioDevice()
 				.withMasterVolume(0.5f)
 
 			// Init scene
-			resourceManager = new ResourceManager('nz/net/ultraq/redhorizon/shooter/')
-			scriptEngine = new ScriptEngine('.')
-			scene = new ShooterScene(WINDOW_WIDTH, WINDOW_HEIGHT, window, resourceManager, shaderManager, scriptEngine,
-				inputEventHandler)
+			scene = new ShooterScene(WINDOW_WIDTH, WINDOW_HEIGHT, window, inputEventHandler)
 
 			// Game loop
 			logger.debug('Game loop')
@@ -114,8 +104,6 @@ class ShooterGame implements Runnable {
 			// Shutdown
 			logger.debug('Shutdown')
 			scene?.close()
-			resourceManager?.close()
-			shaderManager?.close()
 			audioDevice?.close()
 			window?.close()
 		}

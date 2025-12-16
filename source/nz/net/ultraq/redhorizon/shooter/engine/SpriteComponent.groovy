@@ -24,7 +24,6 @@ import nz.net.ultraq.redhorizon.graphics.SceneShaderContext
 import nz.net.ultraq.redhorizon.graphics.Shader
 import nz.net.ultraq.redhorizon.graphics.Sprite
 import nz.net.ultraq.redhorizon.graphics.SpriteSheet
-import nz.net.ultraq.redhorizon.shooter.ShooterScene
 
 import org.joml.Matrix4f
 import org.joml.Vector2f
@@ -41,7 +40,7 @@ class SpriteComponent extends GraphicsComponent implements AutoCloseable {
 	final Vector2f framePosition = new Vector2f()
 	final Matrix4f transform = new Matrix4f()
 	final SpriteSheet spriteSheet
-	private final Shader<SceneShaderContext> shader
+	final Class<Shader> shaderClass
 	private final Palette palette
 	private final FactionAdjustmentMap adjustmentMap
 	private final AlphaMask alphaMask
@@ -50,12 +49,12 @@ class SpriteComponent extends GraphicsComponent implements AutoCloseable {
 	/**
 	 * Constructor, use the given sprite sheet for the sprite.
 	 */
-	SpriteComponent(String name, SpriteSheet spriteSheet, Shader shader, Palette palette = null,
+	SpriteComponent(String name, SpriteSheet spriteSheet, Class<Shader> shaderClass, Palette palette = null,
 		FactionAdjustmentMap adjustmentMap = null, AlphaMask alphaMask = null) {
 
 		this.name = name
 		this.spriteSheet = spriteSheet
-		this.shader = shader
+		this.shaderClass = shaderClass
 		this.palette = palette
 		this.adjustmentMap = adjustmentMap
 		this.alphaMask = alphaMask
@@ -73,23 +72,14 @@ class SpriteComponent extends GraphicsComponent implements AutoCloseable {
 	 * Render the sprite.
 	 */
 	@Override
-	void render() {
+	void render(SceneShaderContext shaderContext) {
 
-		var cameraObject = ((ShooterScene)parent.scene).camera
-		shader.useShader { shaderContext ->
-
-			// TODO: Pass a renderer object to this method which will batch up all the
-			//       commands and order them more nicely so we don't have to do this
-			//       camera updating for every object!
-			cameraObject.camera.render(shaderContext, cameraObject.transform)
-
-			if (shaderContext instanceof PalettedSpriteShaderContext) {
-				shaderContext.setPalette(palette)
-				shaderContext.setAdjustmentMap(adjustmentMap)
-				shaderContext.setAlphaMask(alphaMask)
-			}
-			sprite.render(shaderContext, globalTransform.set(parent.transform).mul(transform), framePosition)
+		if (shaderContext instanceof PalettedSpriteShaderContext) {
+			shaderContext.setPalette(palette)
+			shaderContext.setAdjustmentMap(adjustmentMap)
+			shaderContext.setAlphaMask(alphaMask)
 		}
+		sprite.render(shaderContext, globalTransform.set(parent.transform).mul(transform), framePosition)
 	}
 
 	/**

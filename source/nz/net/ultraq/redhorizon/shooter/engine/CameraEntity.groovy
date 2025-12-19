@@ -23,19 +23,19 @@ import nz.net.ultraq.redhorizon.graphics.Window
 import org.joml.Vector3f
 
 /**
- * A game object with just the camera attached.
+ * An entity with just the camera attached.
  *
  * @author Emanuel Rabina
  */
-class CameraObject extends GameObject<CameraObject> {
+class CameraEntity extends Entity<CameraEntity> {
 
 	final String name = 'Camera'
 	final Camera camera
 
 	/**
-	 * Constructor, adds a camera component to this object.
+	 * Constructor, bakes a camera component into this entity.
 	 */
-	CameraObject(int sceneWidth, int sceneHeight, Window window) {
+	CameraEntity(int sceneWidth, int sceneHeight, Window window) {
 
 		camera = addAndReturnComponent(new CameraComponent(sceneWidth, sceneHeight, window)).camera
 	}

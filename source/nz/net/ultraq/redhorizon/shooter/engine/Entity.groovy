@@ -24,30 +24,22 @@ import nz.net.ultraq.redhorizon.scenegraph.Node
  *
  * @author Emanuel Rabina
  */
-class GameObject<T extends GameObject> extends Node<T> implements AutoCloseable {
+class Entity<T extends Entity> extends Node<T> implements AutoCloseable {
 
 	private List<Component> components = []
-	private List<GameLogicComponent> gameLogicComponents = []
-	private List<GraphicsComponent> graphicsComponents = []
 
 	/**
-	 * Add a component to this object.
+	 * Add a component to this entity.
 	 */
 	T addComponent(Component component) {
 
 		components << component
-		if (component instanceof GameLogicComponent) {
-			gameLogicComponents << component
-		}
-		else if (component instanceof GraphicsComponent) {
-			graphicsComponents << component
-		}
 		component.parent = this
 		return (T)this
 	}
 
 	/**
-	 * Add a component to this object, and return the component.
+	 * Add a component to this entity, and return the component.
 	 */
 	<TComponent extends Component> TComponent addAndReturnComponent(TComponent component) {
 
@@ -82,11 +74,15 @@ class GameObject<T extends GameObject> extends Node<T> implements AutoCloseable 
 	}
 
 	/**
-	 * Render each of the graphics component in this game object.
+	 * Render each of the graphics component in this entity.
 	 */
 	void render(SceneShaderContext sceneShaderContext) {
 
-		graphicsComponents*.render(sceneShaderContext)
+		components.each { component ->
+			if (component instanceof GraphicsComponent) {
+				component.render(sceneShaderContext)
+			}
+		}
 	}
 
 	/**
@@ -98,6 +94,10 @@ class GameObject<T extends GameObject> extends Node<T> implements AutoCloseable 
 	 */
 	void update(float delta) {
 
-		gameLogicComponents*.update(delta)
+		components.each { component ->
+			if (component instanceof GameLogicComponent) {
+				component.update(delta)
+			}
+		}
 	}
 }

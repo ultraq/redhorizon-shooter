@@ -19,7 +19,7 @@ package nz.net.ultraq.redhorizon.shooter.engine
 import nz.net.ultraq.redhorizon.engine.ScriptEngine
 
 /**
- * Perform the logic written in the provided game object script.
+ * Perform the logic written in the provided entity script.
  *
  * @author Emanuel Rabina
  */
@@ -44,8 +44,8 @@ class ScriptComponent extends GameLogicComponent {
 	@Override
 	void update(float delta) {
 
-		var script = scriptEngine.loadScriptClass(scriptName) as GameObjectScript
-		script.gameObject = parent
+		var script = scriptEngine.loadScriptClass(scriptName) as EntityScript
+		script.entity = parent
 		extraProperties.each { key, value ->
 			script[key] = value
 		}

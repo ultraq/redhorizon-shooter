@@ -19,7 +19,7 @@ package nz.net.ultraq.redhorizon.shooter.utilities
 import nz.net.ultraq.redhorizon.graphics.Colour
 import nz.net.ultraq.redhorizon.graphics.Mesh.Type
 import nz.net.ultraq.redhorizon.graphics.Vertex
-import nz.net.ultraq.redhorizon.shooter.engine.GameObject
+import nz.net.ultraq.redhorizon.shooter.engine.Entity
 import nz.net.ultraq.redhorizon.shooter.engine.MeshComponent
 
 import org.joml.Vector3f
@@ -30,7 +30,7 @@ import org.joml.primitives.Rectanglef
  *
  * @author Emanuel Rabina
  */
-class GridLines extends GameObject<GridLines> implements AutoCloseable {
+class GridLines extends Entity<GridLines> implements AutoCloseable {
 
 	private static final Colour GRID_LINES_GREY = new Colour('GridLines-Grey', 0.6, 0.6, 0.6)
 	private static final Colour GRID_LINES_DARK_GREY = new Colour('GridLines-DarkGrey', 0.2, 0.2, 0.2)

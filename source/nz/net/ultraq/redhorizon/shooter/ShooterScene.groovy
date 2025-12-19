@@ -27,8 +27,8 @@ import nz.net.ultraq.redhorizon.graphics.Window
 import nz.net.ultraq.redhorizon.graphics.opengl.BasicShader
 import nz.net.ultraq.redhorizon.input.InputEventHandler
 import nz.net.ultraq.redhorizon.scenegraph.Scene
-import nz.net.ultraq.redhorizon.shooter.engine.CameraObject
-import nz.net.ultraq.redhorizon.shooter.engine.GameObject
+import nz.net.ultraq.redhorizon.shooter.engine.CameraEntity
+import nz.net.ultraq.redhorizon.shooter.engine.Entity
 import nz.net.ultraq.redhorizon.shooter.engine.GraphicsComponent
 import nz.net.ultraq.redhorizon.shooter.utilities.GridLines
 
@@ -41,7 +41,7 @@ import org.joml.primitives.Rectanglef
  */
 class ShooterScene extends Scene implements AutoCloseable {
 
-	final CameraObject camera
+	final CameraEntity camera
 	final GridLines gridLines
 	final Palette palette
 	final Player player
@@ -65,7 +65,7 @@ class ShooterScene extends Scene implements AutoCloseable {
 		var basicShader = new BasicShader()
 		shaders.addAll(basicShader, new ShadowShader(), new PalettedSpriteShader())
 
-		camera = new CameraObject(sceneWidth, sceneHeight, window)
+		camera = new CameraEntity(sceneWidth, sceneHeight, window)
 		gridLines = new GridLines(new Rectanglef(0, 0, sceneWidth, sceneHeight).center(), 24f)
 		palette = resourceManager.loadPalette('temperat-td.pal')
 		player = new Player(sceneWidth, sceneHeight, resourceManager, palette, scriptEngine, inputEventHandler)
@@ -94,7 +94,7 @@ class ShooterScene extends Scene implements AutoCloseable {
 
 		var graphicsComponents = new ArrayList<GraphicsComponent>()
 		traverse { node ->
-			if (node instanceof GameObject) {
+			if (node instanceof Entity) {
 				// TODO: Create an allocation-free method of finding objects components
 				graphicsComponents.addAll(node.findComponents { it instanceof GraphicsComponent })
 			}
@@ -118,7 +118,7 @@ class ShooterScene extends Scene implements AutoCloseable {
 	void update(float delta) {
 
 		traverse { node ->
-			if (node instanceof GameObject) {
+			if (node instanceof Entity) {
 				node.update(delta)
 			}
 		}

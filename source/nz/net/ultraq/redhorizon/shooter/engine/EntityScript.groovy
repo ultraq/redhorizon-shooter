@@ -21,20 +21,20 @@ package nz.net.ultraq.redhorizon.shooter.engine
  *
  * @author Emanuel Rabina
  */
-abstract class GameObjectScript {
+abstract class EntityScript {
 
-	protected GameObject gameObject
+	protected Entity entity
 
 	/**
-	 * Set the game object this script is attached to.
+	 * Set the entity this script is attached to.
 	 */
-	void setGameObject(GameObject gameObject) {
+	void setEntity(Entity entity) {
 
-		this.gameObject = gameObject
+		this.entity = entity
 	}
 
 	/**
-	 * Actions to perform when the object is being updated.
+	 * Actions to perform when the entity is being updated.
 	 */
 	abstract void update(float delta)
 }

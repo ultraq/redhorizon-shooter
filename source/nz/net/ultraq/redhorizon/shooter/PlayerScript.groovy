@@ -17,7 +17,7 @@
 package nz.net.ultraq.redhorizon.shooter
 
 import nz.net.ultraq.redhorizon.input.InputEventHandler
-import nz.net.ultraq.redhorizon.shooter.engine.GameObjectScript
+import nz.net.ultraq.redhorizon.shooter.engine.EntityScript
 import nz.net.ultraq.redhorizon.shooter.engine.SpriteComponent
 
 import org.joml.Vector2f
@@ -29,7 +29,7 @@ import static org.lwjgl.glfw.GLFW.*
  *
  * @author Emanuel Rabina
  */
-class PlayerScript extends GameObjectScript {
+class PlayerScript extends EntityScript {
 
 	// TODO: Make these public items into variables that can be controlled by ImGui?
 	static final float MAX_SPEED = 400f
@@ -59,7 +59,7 @@ class PlayerScript extends GameObjectScript {
 	 * Alias for `gameObject`.
 	 */
 	Player getPlayer() {
-		return gameObject as Player
+		return entity as Player
 	}
 
 	@Override

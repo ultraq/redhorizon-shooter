@@ -25,7 +25,7 @@ import nz.net.ultraq.redhorizon.engine.ScriptEngine
 import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.graphics.Palette
 import nz.net.ultraq.redhorizon.input.InputEventHandler
-import nz.net.ultraq.redhorizon.shooter.engine.GameObject
+import nz.net.ultraq.redhorizon.shooter.engine.Entity
 import nz.net.ultraq.redhorizon.shooter.engine.ScriptComponent
 import nz.net.ultraq.redhorizon.shooter.engine.SpriteComponent
 
@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory
  *
  * @author Emanuel Rabina
  */
-class Player extends GameObject<Player> implements AutoCloseable {
+class Player extends Entity<Player> implements AutoCloseable {
 
 	private static final Logger logger = LoggerFactory.getLogger(Player)
 

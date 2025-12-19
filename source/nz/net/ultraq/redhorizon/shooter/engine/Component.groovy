@@ -19,13 +19,13 @@ package nz.net.ultraq.redhorizon.shooter.engine
 import nz.net.ultraq.redhorizon.scenegraph.Visitable
 
 /**
- * Any reusable behaviour that can be attached to a game object.
+ * Any reusable behaviour that can be attached to an entity.
  *
  * @author Emanuel Rabina
  */
 abstract class Component implements Visitable {
 
-	GameObject parent
+	Entity parent
 
 	/**
 	 * Return a name for this component.

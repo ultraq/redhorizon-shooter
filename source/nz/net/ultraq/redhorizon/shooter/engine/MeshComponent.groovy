@@ -29,7 +29,7 @@ import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLMesh
  *
  * @author Emanuel Rabina
  */
-class MeshComponent extends GraphicsComponent<MeshComponent, SceneShaderContext> {
+class MeshComponent extends GraphicsComponent<MeshComponent, SceneShaderContext> implements AutoCloseable {
 
 	final Class<? extends Shader> shaderClass = BasicShader
 	private final Mesh mesh
@@ -40,6 +40,12 @@ class MeshComponent extends GraphicsComponent<MeshComponent, SceneShaderContext>
 	MeshComponent(Type type, Vertex[] vertices) {
 
 		mesh = new OpenGLMesh(type, vertices)
+	}
+
+	@Override
+	void close() {
+
+		mesh.close()
 	}
 
 	@Override

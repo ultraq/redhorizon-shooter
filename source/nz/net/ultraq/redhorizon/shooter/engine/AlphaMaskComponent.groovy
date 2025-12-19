@@ -16,24 +16,28 @@
 
 package nz.net.ultraq.redhorizon.shooter.engine
 
-import nz.net.ultraq.redhorizon.graphics.SceneShaderContext
+import nz.net.ultraq.redhorizon.classic.graphics.AlphaMask
+import nz.net.ultraq.redhorizon.classic.graphics.PalettedSpriteShader
+import nz.net.ultraq.redhorizon.classic.graphics.PalettedSpriteShader.PalettedSpriteShaderContext
 import nz.net.ultraq.redhorizon.graphics.Shader
 
+import groovy.transform.TupleConstructor
+
 /**
- * A component for adding graphics to an entity.
+ * A palette-based component for adjusting the alpha values of the current
+ * palette.
  *
  * @author Emanuel Rabina
  */
-abstract class GraphicsComponent<C extends GraphicsComponent, SC extends SceneShaderContext>
-	extends Component<C> {
+@TupleConstructor(defaults = false, includes = ['alphaMask'])
+class AlphaMaskComponent extends GraphicsComponent<AlphaMaskComponent, PalettedSpriteShaderContext> {
 
-	/**
-	 * Return the shader used for rendering this component.
-	 */
-	abstract Class<? extends Shader> getShaderClass()
+	final Class<? extends Shader> shaderClass = PalettedSpriteShader
+	final AlphaMask alphaMask
 
-	/**
-	 * Render this component for the current shader context.
-	 */
-	abstract void render(SC shaderContext)
+	@Override
+	void render(PalettedSpriteShaderContext shaderContext) {
+
+		shaderContext.setAlphaMask(alphaMask)
+	}
 }

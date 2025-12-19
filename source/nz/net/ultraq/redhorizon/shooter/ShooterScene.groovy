@@ -16,20 +16,22 @@
 
 package nz.net.ultraq.redhorizon.shooter
 
+import nz.net.ultraq.redhorizon.classic.graphics.AlphaMask
 import nz.net.ultraq.redhorizon.classic.graphics.PalettedSpriteShader
 import nz.net.ultraq.redhorizon.classic.graphics.ShadowShader
 import nz.net.ultraq.redhorizon.engine.ScriptEngine
 import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
-import nz.net.ultraq.redhorizon.graphics.Palette
 import nz.net.ultraq.redhorizon.graphics.SceneShaderContext
 import nz.net.ultraq.redhorizon.graphics.Shader
 import nz.net.ultraq.redhorizon.graphics.Window
 import nz.net.ultraq.redhorizon.graphics.opengl.BasicShader
 import nz.net.ultraq.redhorizon.input.InputEventHandler
 import nz.net.ultraq.redhorizon.scenegraph.Scene
+import nz.net.ultraq.redhorizon.shooter.engine.AlphaMaskComponent
 import nz.net.ultraq.redhorizon.shooter.engine.CameraEntity
 import nz.net.ultraq.redhorizon.shooter.engine.Entity
 import nz.net.ultraq.redhorizon.shooter.engine.GraphicsComponent
+import nz.net.ultraq.redhorizon.shooter.engine.PaletteComponent
 import nz.net.ultraq.redhorizon.shooter.utilities.GridLines
 
 import org.joml.primitives.Rectanglef
@@ -42,10 +44,6 @@ import org.joml.primitives.Rectanglef
 class ShooterScene extends Scene implements AutoCloseable {
 
 	final CameraEntity camera
-	final GridLines gridLines
-	final Palette palette
-	final Player player
-
 	private final ResourceManager resourceManager
 
 	/**
@@ -61,18 +59,16 @@ class ShooterScene extends Scene implements AutoCloseable {
 		ScriptEngine scriptEngine) {
 
 		resourceManager = new ResourceManager('nz/net/ultraq/redhorizon/shooter/')
-
-		var basicShader = new BasicShader()
-		shaders.addAll(basicShader, new ShadowShader(), new PalettedSpriteShader())
-
+		shaders.addAll(new BasicShader(), new ShadowShader(), new PalettedSpriteShader())
 		camera = new CameraEntity(sceneWidth, sceneHeight, window)
-		gridLines = new GridLines(new Rectanglef(0, 0, sceneWidth, sceneHeight).center(), 24f)
-		palette = resourceManager.loadPalette('temperat-td.pal')
-		player = new Player(sceneWidth, sceneHeight, resourceManager, palette, scriptEngine, inputEventHandler)
 
 		addChild(camera)
-		addChild(gridLines)
-		addChild(player)
+		addChild(new GridLines(new Rectanglef(0, 0, sceneWidth, sceneHeight).center(), 24f))
+		addChild(new Entity()
+			.addComponent(new PaletteComponent(resourceManager.loadPalette('temperat-td.pal')))
+			.addComponent(new AlphaMaskComponent(new AlphaMask()))
+			.withName('Palette & alpha mask'))
+		addChild(new Player(sceneWidth, sceneHeight, resourceManager, scriptEngine, inputEventHandler))
 	}
 
 	@Override

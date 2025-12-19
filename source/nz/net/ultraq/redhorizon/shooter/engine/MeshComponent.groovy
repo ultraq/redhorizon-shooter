@@ -25,11 +25,13 @@ import nz.net.ultraq.redhorizon.graphics.opengl.BasicShader
 import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLMesh
 
 /**
+ * A component for adding a plain mesh to an entity.
+ *
  * @author Emanuel Rabina
  */
-class MeshComponent extends GraphicsComponent<MeshComponent> {
+class MeshComponent extends GraphicsComponent<MeshComponent, SceneShaderContext> {
 
-	final Class<Shader> shaderClass = BasicShader
+	final Class<? extends Shader> shaderClass = BasicShader
 	private final Mesh mesh
 
 	/**

@@ -16,7 +16,6 @@
 
 package nz.net.ultraq.redhorizon.shooter
 
-import nz.net.ultraq.redhorizon.classic.graphics.AlphaMask
 import nz.net.ultraq.redhorizon.classic.graphics.PalettedSpriteShader
 import nz.net.ultraq.redhorizon.classic.graphics.ShadowShader
 import nz.net.ultraq.redhorizon.engine.ScriptEngine
@@ -66,7 +65,7 @@ class ShooterScene extends Scene implements AutoCloseable {
 		addChild(new GridLines(new Rectanglef(0, 0, sceneWidth, sceneHeight).center(), 24f))
 		addChild(new Entity()
 			.addComponent(new PaletteComponent(resourceManager.loadPalette('temperat-td.pal')))
-			.addComponent(new AlphaMaskComponent(new AlphaMask()))
+			.addComponent(new AlphaMaskComponent())
 			.withName('Palette & alpha mask'))
 		addChild(new Player(sceneWidth, sceneHeight, resourceManager, scriptEngine, inputEventHandler))
 	}

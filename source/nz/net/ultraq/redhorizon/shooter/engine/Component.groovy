@@ -19,6 +19,8 @@ package nz.net.ultraq.redhorizon.shooter.engine
 import nz.net.ultraq.redhorizon.scenegraph.Named
 import nz.net.ultraq.redhorizon.scenegraph.Visitable
 
+import groovy.transform.Memoized
+
 /**
  * Any reusable behaviour that can be attached to an entity.
  *
@@ -27,4 +29,16 @@ import nz.net.ultraq.redhorizon.scenegraph.Visitable
 abstract class Component<T extends Component> implements Named<T>, Visitable {
 
 	Entity parent
+
+	@Override
+	@Memoized
+	String getName() {
+
+		if (hasCustomName()) {
+			return Named.super.getName()
+		}
+
+		var sentenceCaseName = this.class.simpleName.replaceAll('([A-Z])', ' $1')
+		return sentenceCaseName.substring(0, sentenceCaseName.lastIndexOf(' ')).trim()
+	}
 }

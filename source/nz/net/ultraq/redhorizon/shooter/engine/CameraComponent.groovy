@@ -24,7 +24,7 @@ import nz.net.ultraq.redhorizon.graphics.Window
  *
  * @author Emanuel Rabina
  */
-class CameraComponent extends Component {
+class CameraComponent extends Component<CameraComponent> {
 
 	final String name = 'Camera'
 	final Camera camera

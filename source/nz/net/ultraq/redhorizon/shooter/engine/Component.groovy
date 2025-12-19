@@ -16,6 +16,7 @@
 
 package nz.net.ultraq.redhorizon.shooter.engine
 
+import nz.net.ultraq.redhorizon.scenegraph.Named
 import nz.net.ultraq.redhorizon.scenegraph.Visitable
 
 /**
@@ -23,12 +24,7 @@ import nz.net.ultraq.redhorizon.scenegraph.Visitable
  *
  * @author Emanuel Rabina
  */
-abstract class Component implements Visitable {
+abstract class Component<T extends Component> implements Named<T>, Visitable {
 
 	Entity parent
-
-	/**
-	 * Return a name for this component.
-	 */
-	abstract String getName()
 }

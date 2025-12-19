@@ -18,6 +18,7 @@ package nz.net.ultraq.redhorizon.shooter.engine
 
 import nz.net.ultraq.redhorizon.graphics.SceneShaderContext
 import nz.net.ultraq.redhorizon.scenegraph.Node
+import nz.net.ultraq.redhorizon.scenegraph.SceneVisitor
 
 /**
  * Any object in the scene that should be updated periodically.
@@ -83,6 +84,16 @@ class Entity<T extends Entity> extends Node<T> implements AutoCloseable {
 				component.render(sceneShaderContext)
 			}
 		}
+	}
+
+	@Override
+	void traverse(SceneVisitor visitor) {
+
+		visitor.visit(this)
+		components.each { component ->
+			visitor.visit(component)
+		}
+		children*.traverse(visitor)
 	}
 
 	/**

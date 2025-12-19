@@ -35,7 +35,7 @@ import org.joml.Vector3fc
  *
  * @author Emanuel Rabina
  */
-class SpriteComponent extends GraphicsComponent implements AutoCloseable {
+class SpriteComponent extends GraphicsComponent<SpriteComponent> implements AutoCloseable {
 
 	final String name
 	final Sprite sprite

@@ -24,7 +24,7 @@ import nz.net.ultraq.redhorizon.graphics.Shader
  *
  * @author Emanuel Rabina
  */
-abstract class GraphicsComponent extends Component {
+abstract class GraphicsComponent<T extends GraphicsComponent> extends Component<T> {
 
 	/**
 	 * Return the shader used for rendering this component.

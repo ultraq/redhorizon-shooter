@@ -27,18 +27,15 @@ import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLMesh
 /**
  * @author Emanuel Rabina
  */
-class MeshComponent extends GraphicsComponent {
+class MeshComponent extends GraphicsComponent<MeshComponent> {
 
-	final String name
 	final Class<Shader> shaderClass = BasicShader
 	private final Mesh mesh
 
 	/**
 	 * Constructor, configure this mesh component.
 	 */
-	MeshComponent(String name, Type type, Vertex[] vertices) {
-
-		this.name = name
+	MeshComponent(Type type, Vertex[] vertices) {
 
 		mesh = new OpenGLMesh(type, vertices)
 	}

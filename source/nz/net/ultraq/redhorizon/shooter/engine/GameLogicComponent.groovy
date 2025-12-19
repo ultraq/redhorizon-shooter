@@ -21,7 +21,7 @@ package nz.net.ultraq.redhorizon.shooter.engine
  *
  * @author Emanuel Rabina
  */
-abstract class GameLogicComponent extends Component {
+abstract class GameLogicComponent<T extends GameLogicComponent> extends Component<T> {
 
 	/**
 	 * Perform any logic as part of the scene update.

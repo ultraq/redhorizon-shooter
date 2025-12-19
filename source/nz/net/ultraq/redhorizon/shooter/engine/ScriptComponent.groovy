@@ -23,7 +23,7 @@ import nz.net.ultraq.redhorizon.engine.ScriptEngine
  *
  * @author Emanuel Rabina
  */
-class ScriptComponent extends GameLogicComponent {
+class ScriptComponent extends GameLogicComponent<ScriptComponent> {
 
 	final String name = "ScriptComponent - ${scriptName}"
 	private final ScriptEngine scriptEngine

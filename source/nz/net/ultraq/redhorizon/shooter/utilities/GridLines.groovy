@@ -59,16 +59,16 @@ class GridLines extends Entity<GridLines> implements AutoCloseable {
 			}
 		}
 
-		addComponent(new MeshComponent('Dividers', Type.LINES,
-			lines.collect { line ->
-				return new Vertex(line, GRID_LINES_GREY)
-			} as Vertex[]))
-		addComponent(new MeshComponent('Origin', Type.LINES,
-			new Vertex[]{
-				new Vertex(new Vector3f(range.minX, 0, 0), GRID_LINES_DARK_GREY),
-				new Vertex(new Vector3f(range.maxX, 0, 0), GRID_LINES_DARK_GREY),
-				new Vertex(new Vector3f(0, range.minX, 0), GRID_LINES_DARK_GREY),
-				new Vertex(new Vector3f(0, range.maxX, 0), GRID_LINES_DARK_GREY)
-			}))
+		addComponent(new MeshComponent(Type.LINES, lines.collect { line ->
+			return new Vertex(line, GRID_LINES_GREY)
+		} as Vertex[])
+			.withName('Dividers'))
+		addComponent(new MeshComponent(Type.LINES, new Vertex[]{
+			new Vertex(new Vector3f(range.minX, 0, 0), GRID_LINES_DARK_GREY),
+			new Vertex(new Vector3f(range.maxX, 0, 0), GRID_LINES_DARK_GREY),
+			new Vertex(new Vector3f(0, range.minX, 0), GRID_LINES_DARK_GREY),
+			new Vertex(new Vector3f(0, range.maxX, 0), GRID_LINES_DARK_GREY)
+		})
+			.withName('Origin'))
 	}
 }

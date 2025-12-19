@@ -33,7 +33,6 @@ import org.joml.Vector3fc
  */
 class SpriteComponent extends GraphicsComponent<SpriteComponent, SceneShaderContext> implements AutoCloseable {
 
-	final String name
 	final Sprite sprite
 	final Vector2f framePosition = new Vector2f()
 	final Matrix4f transform = new Matrix4f()
@@ -45,9 +44,8 @@ class SpriteComponent extends GraphicsComponent<SpriteComponent, SceneShaderCont
 	/**
 	 * Constructor, use the given sprite sheet for the sprite.
 	 */
-	SpriteComponent(String name, SpriteSheet spriteSheet, Class<? extends Shader> shaderClass) {
+	SpriteComponent(SpriteSheet spriteSheet, Class<? extends Shader> shaderClass) {
 
-		this.name = name
 		this.spriteSheet = spriteSheet
 		this.shaderClass = shaderClass
 

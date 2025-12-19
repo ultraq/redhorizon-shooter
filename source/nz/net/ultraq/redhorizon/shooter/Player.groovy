@@ -66,10 +66,12 @@ class Player extends Entity<Player> implements AutoCloseable {
 			.withName('Faction - Gold'))
 
 		var orcaSpriteSheet = resourceManager.loadSpriteSheet('orca.shp')
-		addComponent(new SpriteComponent('Orca', orcaSpriteSheet, PalettedSpriteShader)
-			.translate(-18f, 12f, 0f))
-		addComponent(new SpriteComponent('Shadow', orcaSpriteSheet, ShadowShader)
-			.translate(-18f, -12f, 0f))
+		addComponent(new SpriteComponent(orcaSpriteSheet, PalettedSpriteShader)
+			.translate(-18f, 12f, 0f)
+			.withName('Orca'))
+		addComponent(new SpriteComponent(orcaSpriteSheet, ShadowShader)
+			.translate(-18f, -12f, 0f)
+			.withName('Shadow'))
 
 		addComponent(new ScriptComponent(scriptEngine, 'PlayerScript.groovy', [
 			inputEventHandler: inputEventHandler,

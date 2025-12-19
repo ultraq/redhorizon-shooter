@@ -21,19 +21,22 @@ import nz.net.ultraq.redhorizon.classic.graphics.PalettedSpriteShader
 import nz.net.ultraq.redhorizon.classic.graphics.PalettedSpriteShader.PalettedSpriteShaderContext
 import nz.net.ultraq.redhorizon.graphics.Shader
 
-import groovy.transform.TupleConstructor
-
 /**
  * A palette-based component for adjusting the alpha values of the current
  * palette.
  *
  * @author Emanuel Rabina
  */
-@TupleConstructor(defaults = false, includes = ['alphaMask'])
-class AlphaMaskComponent extends GraphicsComponent<AlphaMaskComponent, PalettedSpriteShaderContext> {
+class AlphaMaskComponent extends GraphicsComponent<AlphaMaskComponent, PalettedSpriteShaderContext> implements AutoCloseable {
 
 	final Class<? extends Shader> shaderClass = PalettedSpriteShader
-	final AlphaMask alphaMask
+	final AlphaMask alphaMask = new AlphaMask()
+
+	@Override
+	void close() {
+
+		alphaMask.close()
+	}
 
 	@Override
 	void render(PalettedSpriteShaderContext shaderContext) {

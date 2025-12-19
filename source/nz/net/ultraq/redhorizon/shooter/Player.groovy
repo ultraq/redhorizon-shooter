@@ -17,7 +17,6 @@
 package nz.net.ultraq.redhorizon.shooter
 
 import nz.net.ultraq.redhorizon.classic.Faction
-import nz.net.ultraq.redhorizon.classic.graphics.FactionAdjustmentMap
 import nz.net.ultraq.redhorizon.classic.graphics.PalettedSpriteShader
 import nz.net.ultraq.redhorizon.classic.graphics.ShadowShader
 import nz.net.ultraq.redhorizon.engine.ScriptEngine
@@ -62,7 +61,7 @@ class Player extends Entity<Player> implements AutoCloseable {
 	Player(int sceneWidth, int sceneHeight, ResourceManager resourceManager, ScriptEngine scriptEngine,
 		InputEventHandler inputEventHandler) {
 
-		addComponent(new FactionComponent(new FactionAdjustmentMap(Faction.GOLD))
+		addComponent(new FactionComponent(Faction.GOLD)
 			.withName('Faction - Gold'))
 
 		var orcaSpriteSheet = resourceManager.loadSpriteSheet('orca.shp')

@@ -16,23 +16,35 @@
 
 package nz.net.ultraq.redhorizon.shooter.engine
 
+import nz.net.ultraq.redhorizon.classic.Faction
 import nz.net.ultraq.redhorizon.classic.graphics.FactionAdjustmentMap
 import nz.net.ultraq.redhorizon.classic.graphics.PalettedSpriteShader
 import nz.net.ultraq.redhorizon.classic.graphics.PalettedSpriteShader.PalettedSpriteShaderContext
 import nz.net.ultraq.redhorizon.graphics.Shader
-
-import groovy.transform.TupleConstructor
 
 /**
  * A palette component for adjusting the colours of a sprite.
  *
  * @author Emanuel Rabina
  */
-@TupleConstructor(defaults = false, includes = ['adjustmentMap'])
-class FactionComponent extends GraphicsComponent<FactionComponent, PalettedSpriteShaderContext> {
+class FactionComponent extends GraphicsComponent<FactionComponent, PalettedSpriteShaderContext> implements AutoCloseable {
 
 	final Class<? extends Shader> shaderClass = PalettedSpriteShader
 	final FactionAdjustmentMap adjustmentMap
+
+	/**
+	 * Constructor, sets which faction this component is for.
+	 */
+	FactionComponent(Faction faction) {
+
+		adjustmentMap = new FactionAdjustmentMap(faction)
+	}
+
+	@Override
+	void close() {
+
+		adjustmentMap.close()
+	}
 
 	@Override
 	void render(PalettedSpriteShaderContext shaderContext) {

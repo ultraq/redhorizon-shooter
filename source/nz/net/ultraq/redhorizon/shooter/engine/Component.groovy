@@ -38,7 +38,7 @@ abstract class Component<T extends Component> implements Named<T>, Visitable {
 			return Named.super.getName()
 		}
 
-		var sentenceCaseName = this.class.simpleName.replaceAll('([A-Z])', ' $1')
-		return sentenceCaseName.substring(0, sentenceCaseName.lastIndexOf(' ')).trim()
+		var sentenceCaseName = this.class.simpleName.toSentenceCase()
+		return sentenceCaseName.substring(0, sentenceCaseName.lastIndexOf(' '))
 	}
 }

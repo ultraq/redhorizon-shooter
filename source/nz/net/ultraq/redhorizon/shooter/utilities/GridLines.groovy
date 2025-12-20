@@ -16,11 +16,11 @@
 
 package nz.net.ultraq.redhorizon.shooter.utilities
 
+import nz.net.ultraq.redhorizon.engine.Entity
+import nz.net.ultraq.redhorizon.engine.graphics.MeshComponent
 import nz.net.ultraq.redhorizon.graphics.Colour
 import nz.net.ultraq.redhorizon.graphics.Mesh.Type
 import nz.net.ultraq.redhorizon.graphics.Vertex
-import nz.net.ultraq.redhorizon.shooter.engine.Entity
-import nz.net.ultraq.redhorizon.shooter.engine.MeshComponent
 
 import org.joml.Vector3f
 import org.joml.primitives.Rectanglef

@@ -16,9 +16,9 @@
 
 package nz.net.ultraq.redhorizon.shooter
 
+import nz.net.ultraq.redhorizon.engine.graphics.SpriteComponent
+import nz.net.ultraq.redhorizon.engine.scripts.EntityScript
 import nz.net.ultraq.redhorizon.input.InputEventHandler
-import nz.net.ultraq.redhorizon.shooter.engine.EntityScript
-import nz.net.ultraq.redhorizon.shooter.engine.SpriteComponent
 
 import org.joml.Vector2f
 import org.joml.Vector3f

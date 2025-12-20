@@ -17,15 +17,15 @@
 package nz.net.ultraq.redhorizon.shooter
 
 import nz.net.ultraq.redhorizon.classic.Faction
+import nz.net.ultraq.redhorizon.classic.graphics.FactionComponent
 import nz.net.ultraq.redhorizon.classic.graphics.PalettedSpriteShader
 import nz.net.ultraq.redhorizon.classic.graphics.ShadowShader
-import nz.net.ultraq.redhorizon.engine.ScriptEngine
+import nz.net.ultraq.redhorizon.engine.Entity
+import nz.net.ultraq.redhorizon.engine.graphics.SpriteComponent
+import nz.net.ultraq.redhorizon.engine.scripts.ScriptComponent
+import nz.net.ultraq.redhorizon.engine.scripts.ScriptEngine
 import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.input.InputEventHandler
-import nz.net.ultraq.redhorizon.shooter.engine.Entity
-import nz.net.ultraq.redhorizon.shooter.engine.FactionComponent
-import nz.net.ultraq.redhorizon.shooter.engine.ScriptComponent
-import nz.net.ultraq.redhorizon.shooter.engine.SpriteComponent
 
 import org.joml.Vector2f
 

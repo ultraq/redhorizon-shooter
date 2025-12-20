@@ -16,9 +16,15 @@
 
 package nz.net.ultraq.redhorizon.shooter
 
+import nz.net.ultraq.redhorizon.classic.graphics.AlphaMaskComponent
+import nz.net.ultraq.redhorizon.classic.graphics.PaletteComponent
 import nz.net.ultraq.redhorizon.classic.graphics.PalettedSpriteShader
 import nz.net.ultraq.redhorizon.classic.graphics.ShadowShader
-import nz.net.ultraq.redhorizon.engine.ScriptEngine
+import nz.net.ultraq.redhorizon.engine.Entity
+import nz.net.ultraq.redhorizon.engine.graphics.CameraEntity
+import nz.net.ultraq.redhorizon.engine.graphics.GraphicsComponent
+import nz.net.ultraq.redhorizon.engine.scripts.GameLogicComponent
+import nz.net.ultraq.redhorizon.engine.scripts.ScriptEngine
 import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.graphics.SceneShaderContext
 import nz.net.ultraq.redhorizon.graphics.Shader
@@ -26,11 +32,6 @@ import nz.net.ultraq.redhorizon.graphics.Window
 import nz.net.ultraq.redhorizon.graphics.opengl.BasicShader
 import nz.net.ultraq.redhorizon.input.InputEventHandler
 import nz.net.ultraq.redhorizon.scenegraph.Scene
-import nz.net.ultraq.redhorizon.shooter.engine.AlphaMaskComponent
-import nz.net.ultraq.redhorizon.shooter.engine.CameraEntity
-import nz.net.ultraq.redhorizon.shooter.engine.Entity
-import nz.net.ultraq.redhorizon.shooter.engine.GraphicsComponent
-import nz.net.ultraq.redhorizon.shooter.engine.PaletteComponent
 import nz.net.ultraq.redhorizon.shooter.utilities.GridLines
 
 import org.joml.primitives.Rectanglef
@@ -112,10 +113,15 @@ class ShooterScene extends Scene implements AutoCloseable {
 	 */
 	void update(float delta) {
 
+		// TODO: Similar to above, these look like they should be the "S" part of ECS
+		var gameLogicComponents = new ArrayList<GameLogicComponent>()
 		traverse { node ->
 			if (node instanceof Entity) {
-				node.update(delta)
+				gameLogicComponents.addAll(node.findComponents { it instanceof GameLogicComponent })
 			}
+		}
+		gameLogicComponents.each { component ->
+			component.update(delta)
 		}
 	}
 }

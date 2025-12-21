@@ -29,20 +29,20 @@ configure {
 		.useJavaVersion(25)
 		.useMavenCentralRepositories()
 		.configureSource()
-		.expand('**/*.properties', [version: version])
-		.withSourceDirectory('source')
+			.expand('**/*.properties', [version: version])
+			.withSourceDirectory('source')
 			.withDependencies() {
 				implementation 'ch.qos.logback:logback-classic:1.5.18'
 				implementation 'info.picocli:picocli:4.7.7'
 				implementation 'nz.net.ultraq:event-horizon:0.3.2'
 				implementation 'nz.net.ultraq.groovy:groovy-extensions:3.3.0-SNAPSHOT'
 				implementation 'nz.net.ultraq.groovy:joml-extensions:0.1.6'
-				implementation 'nz.net.ultraq.redhorizon:redhorizon-audio:0.40.6-SNAPSHOT'
-				implementation 'nz.net.ultraq.redhorizon:redhorizon-classic:0.40.6-SNAPSHOT'
-				implementation 'nz.net.ultraq.redhorizon:redhorizon-engine:0.40.6-SNAPSHOT'
-				implementation 'nz.net.ultraq.redhorizon:redhorizon-graphics:0.40.6-SNAPSHOT'
-				implementation 'nz.net.ultraq.redhorizon:redhorizon-input:0.40.6-SNAPSHOT'
-				implementation 'nz.net.ultraq.redhorizon:redhorizon-scenegraph:0.40.6-SNAPSHOT'
+				implementation 'nz.net.ultraq.redhorizon:redhorizon-audio:0.41.0-SNAPSHOT'
+				implementation 'nz.net.ultraq.redhorizon:redhorizon-classic:0.41.0-SNAPSHOT'
+				implementation 'nz.net.ultraq.redhorizon:redhorizon-engine:0.41.0-SNAPSHOT'
+				implementation 'nz.net.ultraq.redhorizon:redhorizon-graphics:0.41.0-SNAPSHOT'
+				implementation 'nz.net.ultraq.redhorizon:redhorizon-input:0.41.0-SNAPSHOT'
+				implementation 'nz.net.ultraq.redhorizon:redhorizon-scenegraph:0.41.0-SNAPSHOT'
 				implementation 'org.apache.groovy:groovy:4.0.29'
 				implementation 'org.joml:joml:1.10.8'
 				implementation 'org.joml:joml-primitives:1.10.0'

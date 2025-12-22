@@ -23,13 +23,14 @@ import nz.net.ultraq.redhorizon.classic.graphics.ShadowShader
 import nz.net.ultraq.redhorizon.engine.Entity
 import nz.net.ultraq.redhorizon.engine.graphics.CameraEntity
 import nz.net.ultraq.redhorizon.engine.graphics.GraphicsComponent
+import nz.net.ultraq.redhorizon.engine.graphics.GridLinesEntity
 import nz.net.ultraq.redhorizon.engine.scripts.GameLogicComponent
+import nz.net.ultraq.redhorizon.graphics.Colour
 import nz.net.ultraq.redhorizon.graphics.SceneShaderContext
 import nz.net.ultraq.redhorizon.graphics.Shader
 import nz.net.ultraq.redhorizon.graphics.Window
 import nz.net.ultraq.redhorizon.graphics.opengl.BasicShader
 import nz.net.ultraq.redhorizon.scenegraph.Scene
-import nz.net.ultraq.redhorizon.shooter.utilities.GridLines
 import static nz.net.ultraq.redhorizon.shooter.ScopedValues.RESOURCE_MANAGER
 
 import org.joml.primitives.Rectanglef
@@ -40,6 +41,9 @@ import org.joml.primitives.Rectanglef
  * @author Emanuel Rabina
  */
 class ShooterScene extends Scene implements AutoCloseable {
+
+	private static final Colour GRID_LINES_ORIGIN = new Colour('GridLines-Origin', 0.2, 0.2, 0.2)
+	private static final Colour GRID_LINES_DIVIDERS = new Colour('GridLines-Dividers', 0.6, 0.6, 0.6)
 
 	final int sceneWidth
 	final int sceneHeight
@@ -63,7 +67,8 @@ class ShooterScene extends Scene implements AutoCloseable {
 		camera = new CameraEntity(sceneWidth, sceneHeight, window)
 
 		addChild(camera)
-		addChild(new GridLines(new Rectanglef(0, 0, sceneWidth, sceneHeight).center(), 24f))
+		addChild(new GridLinesEntity(new Rectanglef(0, 0, sceneWidth, sceneHeight).center(), 24f,
+			GRID_LINES_ORIGIN, GRID_LINES_DIVIDERS))
 
 		var resourceManager = RESOURCE_MANAGER.get()
 		addChild(new Entity()

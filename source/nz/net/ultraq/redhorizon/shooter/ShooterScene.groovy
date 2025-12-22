@@ -24,15 +24,13 @@ import nz.net.ultraq.redhorizon.engine.Entity
 import nz.net.ultraq.redhorizon.engine.graphics.CameraEntity
 import nz.net.ultraq.redhorizon.engine.graphics.GraphicsComponent
 import nz.net.ultraq.redhorizon.engine.scripts.GameLogicComponent
-import nz.net.ultraq.redhorizon.engine.scripts.ScriptEngine
-import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.graphics.SceneShaderContext
 import nz.net.ultraq.redhorizon.graphics.Shader
 import nz.net.ultraq.redhorizon.graphics.Window
 import nz.net.ultraq.redhorizon.graphics.opengl.BasicShader
-import nz.net.ultraq.redhorizon.input.InputEventHandler
 import nz.net.ultraq.redhorizon.scenegraph.Scene
 import nz.net.ultraq.redhorizon.shooter.utilities.GridLines
+import static nz.net.ultraq.redhorizon.shooter.ScopedValues.RESOURCE_MANAGER
 
 import org.joml.primitives.Rectanglef
 
@@ -43,8 +41,9 @@ import org.joml.primitives.Rectanglef
  */
 class ShooterScene extends Scene implements AutoCloseable {
 
+	final int sceneWidth
+	final int sceneHeight
 	final CameraEntity camera
-	private final ResourceManager resourceManager
 
 	/**
 	 * A collection of shaders in this manager in the order in which objects in
@@ -55,20 +54,23 @@ class ShooterScene extends Scene implements AutoCloseable {
 	/**
 	 * Constructor, create a new scene to the given dimensions.
 	 */
-	ShooterScene(int sceneWidth, int sceneHeight, Window window, InputEventHandler inputEventHandler,
-		ScriptEngine scriptEngine) {
+	ShooterScene(int sceneWidth, int sceneHeight, Window window) {
 
-		resourceManager = new ResourceManager('nz/net/ultraq/redhorizon/shooter/')
+		this.sceneWidth = sceneWidth
+		this.sceneHeight = sceneHeight
+
 		shaders.addAll(new BasicShader(), new ShadowShader(), new PalettedSpriteShader())
 		camera = new CameraEntity(sceneWidth, sceneHeight, window)
 
 		addChild(camera)
 		addChild(new GridLines(new Rectanglef(0, 0, sceneWidth, sceneHeight).center(), 24f))
+
+		var resourceManager = RESOURCE_MANAGER.get()
 		addChild(new Entity()
 			.addComponent(new PaletteComponent(resourceManager.loadPalette('temperat-td.pal')))
 			.addComponent(new AlphaMaskComponent())
 			.withName('Palette & alpha mask'))
-		addChild(new Player(sceneWidth, sceneHeight, resourceManager, scriptEngine, inputEventHandler))
+		addChild(new Player())
 	}
 
 	@Override
@@ -80,7 +82,6 @@ class ShooterScene extends Scene implements AutoCloseable {
 			}
 		}
 		shaders*.close()
-		resourceManager.close()
 	}
 
 	/**

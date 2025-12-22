@@ -21,6 +21,7 @@ import nz.net.ultraq.redhorizon.audio.openal.OpenALAudioDevice
 import nz.net.ultraq.redhorizon.engine.graphics.imgui.NodeList
 import nz.net.ultraq.redhorizon.engine.scripts.ScriptEngine
 import nz.net.ultraq.redhorizon.engine.utilities.DeltaTimer
+import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.graphics.Colour
 import nz.net.ultraq.redhorizon.graphics.Window
 import nz.net.ultraq.redhorizon.graphics.imgui.DebugOverlay
@@ -39,7 +40,7 @@ import static org.lwjgl.glfw.GLFW.*
  * @author Emanuel Rabina
  */
 @Command(name = 'shooter')
-class ShooterGame implements Runnable {
+class Shooter implements Runnable {
 
 	static {
 		System.setProperty('joml.format', 'false')
@@ -47,16 +48,17 @@ class ShooterGame implements Runnable {
 	}
 
 	static void main(String[] args) {
-		System.exit(new CommandLine(new ShooterGame()).execute(args))
+		System.exit(new CommandLine(new Shooter()).execute(args))
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(ShooterGame)
+	private static final Logger logger = LoggerFactory.getLogger(Shooter)
 	private static final int WINDOW_WIDTH = 640
 	private static final int WINDOW_HEIGHT = 400
 
 	private Window window
 	private InputEventHandler inputEventHandler
 	private AudioDevice audioDevice
+	private ResourceManager resourceManager
 	private ScriptEngine scriptEngine
 	private ShooterScene scene
 
@@ -79,33 +81,42 @@ class ShooterGame implements Runnable {
 				.addInputSource(window)
 			audioDevice = new OpenALAudioDevice()
 				.withMasterVolume(0.5f)
+			resourceManager = new ResourceManager('nz/net/ultraq/redhorizon/shooter/')
 			scriptEngine = new ScriptEngine('.')
 
-			// Init scene
-			scene = new ShooterScene(WINDOW_WIDTH, WINDOW_HEIGHT, window, inputEventHandler, scriptEngine)
+			ScopedValue
+				.where(ScopedValues.INPUT_EVENT_HANDLER, inputEventHandler)
+				.where(ScopedValues.RESOURCE_MANAGER, resourceManager)
+				.where(ScopedValues.SCRIPT_ENGINE, scriptEngine)
+				.run(() -> {
 
-			// Game loop
-			logger.debug('Game loop')
-			window
-				.addImGuiComponent(new DebugOverlay()
-					.withCursorTracking(scene.camera.camera, scene.camera.transform))
-				.addImGuiComponent(new NodeList(scene))
-				.show()
+					// Init scene
+					scene = new ShooterScene(WINDOW_WIDTH, WINDOW_HEIGHT, window)
 
-			var deltaTimer = new DeltaTimer()
-			while (!window.shouldClose()) {
-				var delta = deltaTimer.deltaTime()
+					// Game loop
+					logger.debug('Game loop')
+					window
+						.addImGuiComponent(new DebugOverlay()
+							.withCursorTracking(scene.camera.camera, scene.camera.transform))
+						.addImGuiComponent(new NodeList(scene))
+						.show()
 
-				logic(delta)
-				render()
+					var deltaTimer = new DeltaTimer()
+					while (!window.shouldClose()) {
+						var delta = deltaTimer.deltaTime()
 
-				Thread.yield()
-			}
+						logic(delta)
+						render()
+
+						Thread.yield()
+					}
+				})
 		}
 		finally {
 			// Shutdown
 			logger.debug('Shutdown')
 			scene?.close()
+			resourceManager?.close()
 			audioDevice?.close()
 			window?.close()
 		}

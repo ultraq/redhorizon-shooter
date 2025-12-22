@@ -19,6 +19,7 @@ package nz.net.ultraq.redhorizon.shooter
 import nz.net.ultraq.redhorizon.engine.graphics.SpriteComponent
 import nz.net.ultraq.redhorizon.engine.scripts.EntityScript
 import nz.net.ultraq.redhorizon.input.InputEventHandler
+import static nz.net.ultraq.redhorizon.shooter.ScopedValues.INPUT_EVENT_HANDLER
 
 import org.joml.Vector2f
 import org.joml.Vector3f
@@ -36,9 +37,11 @@ class PlayerScript extends EntityScript {
 	static final float TIME_TO_MAX_SPEED_S = 1
 	private static final Vector2f up = new Vector2f(0, 1)
 
-	InputEventHandler inputEventHandler
-	Vector2f worldBoundsMin
-	Vector2f worldBoundsMax
+	// TODO: Scoped values could be set up using @Inject 🤔
+	private final InputEventHandler inputEventHandler
+
+	private Vector2f worldBoundsMin
+	private Vector2f worldBoundsMax
 
 	// Bobbing
 	private float bobbingTimer = 0f
@@ -56,10 +59,26 @@ class PlayerScript extends EntityScript {
 	private Vector2f updatedPosition = new Vector2f()
 
 	/**
+	 * Constructor, set up script with scoped values.
+	 */
+	PlayerScript() {
+
+		inputEventHandler = INPUT_EVENT_HANDLER.get()
+	}
+
+	/**
 	 * Alias for `gameObject`.
 	 */
 	Player getPlayer() {
 		return entity as Player
+	}
+
+	@Override
+	void init() {
+
+		var scene = player.scene as ShooterScene
+		worldBoundsMin = new Vector2f(-scene.sceneWidth / 2f as float, -scene.sceneHeight / 2f as float)
+		worldBoundsMax = new Vector2f(scene.sceneWidth / 2f as float, scene.sceneHeight / 2f as float)
 	}
 
 	@Override

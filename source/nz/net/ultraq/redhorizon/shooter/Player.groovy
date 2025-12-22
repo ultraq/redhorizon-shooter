@@ -23,9 +23,7 @@ import nz.net.ultraq.redhorizon.classic.graphics.ShadowShader
 import nz.net.ultraq.redhorizon.engine.Entity
 import nz.net.ultraq.redhorizon.engine.graphics.SpriteComponent
 import nz.net.ultraq.redhorizon.engine.scripts.ScriptComponent
-import nz.net.ultraq.redhorizon.engine.scripts.ScriptEngine
-import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
-import nz.net.ultraq.redhorizon.input.InputEventHandler
+import static nz.net.ultraq.redhorizon.shooter.ScopedValues.*
 
 import org.joml.Vector2f
 
@@ -58,8 +56,10 @@ class Player extends Entity<Player> implements AutoCloseable {
 	/**
 	 * Constructor, create a new player object.
 	 */
-	Player(int sceneWidth, int sceneHeight, ResourceManager resourceManager, ScriptEngine scriptEngine,
-		InputEventHandler inputEventHandler) {
+	Player() {
+
+		var resourceManager = RESOURCE_MANAGER.get()
+		var scriptEngine = SCRIPT_ENGINE.get()
 
 		addComponent(new FactionComponent(Faction.GOLD)
 			.withName('Faction - Gold'))
@@ -72,10 +72,6 @@ class Player extends Entity<Player> implements AutoCloseable {
 			.translate(-18f, -12f, 0f)
 			.withName('Shadow'))
 
-		addComponent(new ScriptComponent(scriptEngine, 'PlayerScript.groovy', [
-			inputEventHandler: inputEventHandler,
-			worldBoundsMin: new Vector2f(-sceneWidth / 2f as float, -sceneHeight / 2f as float),
-			worldBoundsMax: new Vector2f(sceneWidth / 2f as float, sceneHeight / 2f as float)
-		]))
+		addComponent(new ScriptComponent(scriptEngine, 'PlayerScript.groovy'))
 	}
 }

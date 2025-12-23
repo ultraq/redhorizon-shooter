@@ -47,7 +47,6 @@ class PlayerScript extends EntityScript {
 	private float bobbingTimer = 0f
 
 	// Heading/rotation
-	private Vector2f lastCursorPosition = new Vector2f()
 	private Vector3f unprojectResult = new Vector3f()
 	private Vector2f worldCursorPosition = new Vector2f()
 	private Vector2f positionXY = new Vector2f()
@@ -55,7 +54,6 @@ class PlayerScript extends EntityScript {
 
 	// Movement
 	private Vector2f impulse = new Vector2f()
-	private float accAccelerationTime = 0f
 	private Vector2f updatedPosition = new Vector2f()
 
 	/**
@@ -128,14 +126,12 @@ class PlayerScript extends EntityScript {
 	private void updateHeading(float delta) {
 
 		var cursorPosition = inputEventHandler.cursorPosition()
-		if (cursorPosition && cursorPosition != lastCursorPosition) {
+		if (cursorPosition) {
 			var camera = ((ShooterScene)player.scene).camera
 			positionXY.set(player.position)
 			worldCursorPosition.set(camera.unproject(cursorPosition.x(), cursorPosition.y(), unprojectResult))
 			worldCursorPosition.sub(positionXY, headingToCursor)
 			player.heading = Math.wrap(Math.toDegrees(headingToCursor.angle(up)) as float, 0f, 360f)
-
-			lastCursorPosition.set(cursorPosition)
 		}
 	}
 
@@ -149,15 +145,15 @@ class PlayerScript extends EntityScript {
 		if (inputEventHandler.keyPressed(GLFW_KEY_W)) {
 			impulseDirection =
 				inputEventHandler.keyPressed(GLFW_KEY_A) ? Math.wrapToCircle((float)(player.heading - 45f)) :
-					inputEventHandler.keyPressed(GLFW_KEY_D) ? Math.wrapToCircle((float)(player.heading + 45f)) :
-						player.heading
+				inputEventHandler.keyPressed(GLFW_KEY_D) ? Math.wrapToCircle((float)(player.heading + 45f)) :
+				player.heading
 			player.accelerating = true
 		}
 		else if (inputEventHandler.keyPressed(GLFW_KEY_S)) {
 			impulseDirection =
 				inputEventHandler.keyPressed(GLFW_KEY_A) ? Math.wrapToCircle((float)(player.heading - 135f)) :
-					inputEventHandler.keyPressed(GLFW_KEY_D) ? Math.wrapToCircle((float)(player.heading + 135f)) :
-						player.heading + 180f
+				inputEventHandler.keyPressed(GLFW_KEY_D) ? Math.wrapToCircle((float)(player.heading + 135f)) :
+				player.heading + 180f
 			player.accelerating = true
 		}
 		else if (inputEventHandler.keyPressed(GLFW_KEY_A)) {
@@ -176,11 +172,9 @@ class PlayerScript extends EntityScript {
 		if (player.accelerating) {
 			var impulseDirectionInRadians = Math.toRadians(impulseDirection)
 			impulse.set(Math.sin(impulseDirectionInRadians), Math.cos(impulseDirectionInRadians)).normalize().mul(MAX_SPEED).mul(delta)
-			accAccelerationTime = Math.min((float)(accAccelerationTime + delta), TIME_TO_MAX_SPEED_S)
 		}
 		else {
 			impulse.set(0f, 0f)
-			accAccelerationTime = Math.max((float)(accAccelerationTime - delta), 0f)
 		}
 
 		// Calculate the velocity from the above

@@ -28,6 +28,7 @@ import nz.net.ultraq.redhorizon.graphics.imgui.DebugOverlay
 import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLWindow
 import nz.net.ultraq.redhorizon.input.InputEventHandler
 
+import org.lwjgl.system.Configuration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import picocli.CommandLine
@@ -44,7 +45,7 @@ class Shooter implements Runnable {
 
 	static {
 		System.setProperty('joml.format', 'false')
-		System.setProperty('org.lwjgl.system.stackSize', '10240')
+		Configuration.STACK_SIZE.set(10240)
 	}
 
 	static void main(String[] args) {

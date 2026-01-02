@@ -18,22 +18,40 @@ package nz.net.ultraq.redhorizon.shooter
 
 import nz.net.ultraq.redhorizon.audio.AudioDevice
 import nz.net.ultraq.redhorizon.audio.openal.OpenALAudioDevice
+import nz.net.ultraq.redhorizon.classic.graphics.PalettedSpriteShader
+import nz.net.ultraq.redhorizon.classic.graphics.ShadowShader
+import nz.net.ultraq.redhorizon.engine.Engine
+import nz.net.ultraq.redhorizon.engine.Entity
+import nz.net.ultraq.redhorizon.engine.graphics.GraphicsSystem
+import nz.net.ultraq.redhorizon.engine.graphics.imgui.ImGuiDebugComponent
+import nz.net.ultraq.redhorizon.engine.graphics.imgui.LogPanel
 import nz.net.ultraq.redhorizon.engine.graphics.imgui.NodeList
+import nz.net.ultraq.redhorizon.engine.input.InputSystem
+import nz.net.ultraq.redhorizon.engine.physics.CollisionSystem
+import nz.net.ultraq.redhorizon.engine.scene.SceneChangesSystem
 import nz.net.ultraq.redhorizon.engine.scripts.ScriptEngine
+import nz.net.ultraq.redhorizon.engine.scripts.ScriptSystem
 import nz.net.ultraq.redhorizon.engine.utilities.DeltaTimer
 import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
 import nz.net.ultraq.redhorizon.graphics.Colour
+import nz.net.ultraq.redhorizon.graphics.Framebuffer
+import nz.net.ultraq.redhorizon.graphics.SceneShaderContext
+import nz.net.ultraq.redhorizon.graphics.Shader
 import nz.net.ultraq.redhorizon.graphics.Window
 import nz.net.ultraq.redhorizon.graphics.imgui.DebugOverlay
+import nz.net.ultraq.redhorizon.graphics.opengl.BasicShader
+import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLFramebuffer
 import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLWindow
 import nz.net.ultraq.redhorizon.input.InputEventHandler
+import nz.net.ultraq.redhorizon.shooter.debug.DebugCollisionOutlineSystem
+import nz.net.ultraq.redhorizon.shooter.debug.DebugEverythingBinding
+import nz.net.ultraq.redhorizon.shooter.debug.DebugLinesBinding
 
 import org.lwjgl.system.Configuration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import picocli.CommandLine
 import picocli.CommandLine.Command
-import static org.lwjgl.glfw.GLFW.*
 
 /**
  * Entry point to the Shooter game.
@@ -57,10 +75,10 @@ class Shooter implements Runnable {
 	private static final int WINDOW_HEIGHT = 400
 
 	private Window window
-	private InputEventHandler inputEventHandler
+	private Framebuffer framebuffer
+	private Shader<SceneShaderContext>[] shaders
 	private AudioDevice audioDevice
 	private ResourceManager resourceManager
-	private ScriptEngine scriptEngine
 	private ShooterScene scene
 
 	@Override
@@ -78,40 +96,59 @@ class Shooter implements Runnable {
 				.scaleToFit()
 				.withBackgroundColour(Colour.GREY)
 				.withVSync(true)
-			inputEventHandler = new InputEventHandler()
-				.addInputSource(window)
+			framebuffer = new OpenGLFramebuffer(WINDOW_WIDTH, WINDOW_HEIGHT)
+			shaders = [new BasicShader(), new ShadowShader(), new PalettedSpriteShader()]
 			audioDevice = new OpenALAudioDevice()
 				.withMasterVolume(0.5f)
 			resourceManager = new ResourceManager('nz/net/ultraq/redhorizon/shooter/')
-			scriptEngine = new ScriptEngine('.')
+			var inputEventHandler = new InputEventHandler()
+				.addInputSource(window)
+				.addEscapeToCloseBinding(window)
+				.addVSyncBinding(window)
 
 			ScopedValue
-				.where(ScopedValues.INPUT_EVENT_HANDLER, inputEventHandler)
+				.where(ScopedValues.WINDOW, window)
 				.where(ScopedValues.RESOURCE_MANAGER, resourceManager)
-				.where(ScopedValues.SCRIPT_ENGINE, scriptEngine)
-				.run(() -> {
+				.run { ->
 
 					// Init scene
-					scene = new ShooterScene(WINDOW_WIDTH, WINDOW_HEIGHT, window)
+					scene = new ShooterScene(WINDOW_WIDTH, WINDOW_HEIGHT, window).tap {
+						var debugOverlayComponent = new ImGuiDebugComponent(new DebugOverlay()
+							.withCursorTracking(camera.camera, camera.transform, this.window)).disable()
+						var nodeListComponent = new ImGuiDebugComponent(new NodeList(it)).disable()
+						var logPanelComponent = new ImGuiDebugComponent(new LogPanel()).disable()
+						addChild(new Entity()
+							.addComponent(debugOverlayComponent)
+							.addComponent(nodeListComponent)
+							.addComponent(logPanelComponent)
+							.withName('Debug UI'))
+
+						var debugLinesBinding = new DebugLinesBinding(it)
+						var debugEverythingBinding = new DebugEverythingBinding(
+							[debugOverlayComponent, nodeListComponent, logPanelComponent], debugLinesBinding)
+						inputEventHandler
+							.addImGuiDebugBindings([debugOverlayComponent], [nodeListComponent, logPanelComponent])
+							.addInputBinding(debugLinesBinding)
+							.addInputBinding(debugEverythingBinding)
+					}
+					var engine = new Engine()
+						.addSystem(new InputSystem(inputEventHandler))
+						.addSystem(new DebugCollisionOutlineSystem())
+						.addSystem(new ScriptSystem(new ScriptEngine('source/nz/net/ultraq/redhorizon/shooter/'), inputEventHandler))
+						.addSystem(new CollisionSystem())
+						.addSystem(new GraphicsSystem(window, framebuffer, shaders))
+						.addSystem(new SceneChangesSystem())
+						.withScene(scene)
 
 					// Game loop
 					logger.debug('Game loop')
-					window
-						.addImGuiComponent(new DebugOverlay()
-							.withCursorTracking(scene.camera.camera, scene.camera.transform))
-						.addImGuiComponent(new NodeList(scene))
-						.show()
-
+					window.show()
 					var deltaTimer = new DeltaTimer()
 					while (!window.shouldClose()) {
-						var delta = deltaTimer.deltaTime()
-
-						logic(delta)
-						render()
-
+						engine.update(deltaTimer.deltaTime())
 						Thread.yield()
 					}
-				})
+				}
 		}
 		finally {
 			// Shutdown
@@ -119,36 +156,9 @@ class Shooter implements Runnable {
 			scene?.close()
 			resourceManager?.close()
 			audioDevice?.close()
+			shaders?.each { it.close() }
+			framebuffer?.close()
 			window?.close()
-		}
-	}
-
-	/**
-	 * Perform the game logic.
-	 */
-	private void logic(float delta) {
-
-		// Game-wide input events
-		if (inputEventHandler.keyPressed(GLFW_KEY_ESCAPE, true)) {
-			window.shouldClose(true)
-		}
-		if (inputEventHandler.keyPressed(GLFW_KEY_I, true)) {
-			window.toggleImGuiWindows()
-		}
-		if (inputEventHandler.keyPressed(GLFW_KEY_V, true)) {
-			window.toggleVSync()
-		}
-
-		scene.update(delta)
-	}
-
-	/**
-	 * Draw game objects to the screen and keep audio streams running.
-	 */
-	private void render() {
-
-		window.useWindow { ->
-			scene.render()
 		}
 	}
 }

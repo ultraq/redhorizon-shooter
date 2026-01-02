@@ -18,8 +18,6 @@ package nz.net.ultraq.redhorizon.shooter
 
 import nz.net.ultraq.redhorizon.engine.graphics.SpriteComponent
 import nz.net.ultraq.redhorizon.engine.scripts.EntityScript
-import nz.net.ultraq.redhorizon.input.InputEventHandler
-import static nz.net.ultraq.redhorizon.shooter.ScopedValues.INPUT_EVENT_HANDLER
 
 import org.joml.Vector2f
 import org.joml.Vector3f
@@ -30,15 +28,12 @@ import static org.lwjgl.glfw.GLFW.*
  *
  * @author Emanuel Rabina
  */
-class PlayerScript extends EntityScript {
+class PlayerScript extends EntityScript<Player> {
 
 	// TODO: Make these public items into variables that can be controlled by ImGui?
 	static final float MAX_SPEED = 400f
 	static final float TIME_TO_MAX_SPEED_S = 1
 	private static final Vector2f up = new Vector2f(0, 1)
-
-	// TODO: Scoped values could be set up using @Inject 🤔
-	private final InputEventHandler inputEventHandler
 
 	private Vector2f worldBoundsMin
 	private Vector2f worldBoundsMax
@@ -56,34 +51,19 @@ class PlayerScript extends EntityScript {
 	private Vector2f impulse = new Vector2f()
 	private Vector2f updatedPosition = new Vector2f()
 
-	/**
-	 * Constructor, set up script with scoped values.
-	 */
-	PlayerScript() {
-
-		inputEventHandler = INPUT_EVENT_HANDLER.get()
-	}
-
-	/**
-	 * Alias for `gameObject`.
-	 */
-	Player getPlayer() {
-		return entity as Player
-	}
-
 	@Override
 	void init() {
 
-		var scene = player.scene as ShooterScene
-		worldBoundsMin = new Vector2f(-scene.sceneWidth / 2f as float, -scene.sceneHeight / 2f as float)
-		worldBoundsMax = new Vector2f(scene.sceneWidth / 2f as float, scene.sceneHeight / 2f as float)
+		var scene = entity.scene as ShooterScene
+		worldBoundsMin = new Vector2f(-scene.width / 2f as float, -scene.height / 2f as float)
+		worldBoundsMax = new Vector2f(scene.width / 2f as float, scene.height / 2f as float)
 	}
 
 	@Override
 	void update(float delta) {
 
 		updateBobbing(delta)
-		updateHeading(delta)
+		updateHeading()
 		updateMovement(delta)
 		updateFramePosition(delta)
 	}
@@ -93,11 +73,11 @@ class PlayerScript extends EntityScript {
 	 */
 	private void updateBobbing(float delta) {
 
-		if (player.flying) {
+		if (entity.flying) {
 			bobbingTimer += delta
-			var orcaSprite = player.findComponent { it.name == 'Orca' } as SpriteComponent
+			var orcaSprite = entity.findComponent { it.name == 'Orca' } as SpriteComponent
 			var position = orcaSprite.position
-			orcaSprite.setPosition(position.x(), 12f + (Math.sin(bobbingTimer) * 8) as float, position.z())
+			orcaSprite.setPosition(position.x(), 24f + (Math.sin(bobbingTimer) * 8) as float, position.z())
 		}
 	}
 
@@ -108,30 +88,29 @@ class PlayerScript extends EntityScript {
 
 		// NOTE: C&C unit headings were ordered in a counter-clockwise order, the
 		//       reverse from how degrees-based headings are done.
-		var closestHeading = Math.round(player.heading / player.headingStep)
-		var frame = closestHeading ? player.headings - closestHeading as int : 0
-		if (player.accelerating) {
-			frame += player.headings
+		var closestHeading = Math.round(entity.heading / entity.headingStep)
+		var frame = closestHeading ? entity.headings - closestHeading as int : 0
+		if (entity.accelerating) {
+			frame += entity.headings
 		}
 
-		player.findComponents { it instanceof SpriteComponent }.each { component ->
-			var spriteComponent = component as SpriteComponent
-			spriteComponent.framePosition.set(spriteComponent.spriteSheet.getFramePosition(frame))
+		entity.findComponentsByType(SpriteComponent).each { component ->
+			component.framePosition.set(component.spriteSheet.getFramePosition(frame))
 		}
 	}
 
 	/**
 	 * Update player heading and sprite to always face the cursor.
 	 */
-	private void updateHeading(float delta) {
+	private void updateHeading() {
 
-		var cursorPosition = inputEventHandler.cursorPosition()
+		var cursorPosition = input.cursorPosition()
 		if (cursorPosition) {
-			var camera = ((ShooterScene)player.scene).camera
-			positionXY.set(player.position)
+			var camera = ((ShooterScene)entity.scene).camera
+			positionXY.set(entity.position)
 			worldCursorPosition.set(camera.unproject(cursorPosition.x(), cursorPosition.y(), unprojectResult))
 			worldCursorPosition.sub(positionXY, headingToCursor)
-			player.heading = Math.wrap(Math.toDegrees(headingToCursor.angle(up)) as float, 0f, 360f)
+			entity.heading = Math.wrap(Math.toDegrees(headingToCursor.angle(up)) as float, 0f, 360f)
 		}
 	}
 
@@ -142,34 +121,34 @@ class PlayerScript extends EntityScript {
 
 		// Set the direction of the movement force based on inputs
 		var impulseDirection = 0f
-		if (inputEventHandler.keyPressed(GLFW_KEY_W)) {
+		if (input.keyPressed(GLFW_KEY_W)) {
 			impulseDirection =
-				inputEventHandler.keyPressed(GLFW_KEY_A) ? Math.wrapToCircle((float)(player.heading - 45f)) :
-				inputEventHandler.keyPressed(GLFW_KEY_D) ? Math.wrapToCircle((float)(player.heading + 45f)) :
-				player.heading
-			player.accelerating = true
+				input.keyPressed(GLFW_KEY_A) ? Math.wrapToCircle((float)(entity.heading - 45f)) :
+					input.keyPressed(GLFW_KEY_D) ? Math.wrapToCircle((float)(entity.heading + 45f)) :
+						entity.heading
+			entity.accelerating = true
 		}
-		else if (inputEventHandler.keyPressed(GLFW_KEY_S)) {
+		else if (input.keyPressed(GLFW_KEY_S)) {
 			impulseDirection =
-				inputEventHandler.keyPressed(GLFW_KEY_A) ? Math.wrapToCircle((float)(player.heading - 135f)) :
-				inputEventHandler.keyPressed(GLFW_KEY_D) ? Math.wrapToCircle((float)(player.heading + 135f)) :
-				player.heading + 180f
-			player.accelerating = true
+				input.keyPressed(GLFW_KEY_A) ? Math.wrapToCircle((float)(entity.heading - 135f)) :
+					input.keyPressed(GLFW_KEY_D) ? Math.wrapToCircle((float)(entity.heading + 135f)) :
+						entity.heading + 180f
+			entity.accelerating = true
 		}
-		else if (inputEventHandler.keyPressed(GLFW_KEY_A)) {
-			impulseDirection = Math.wrapToCircle((float)(player.heading - 90f))
-			player.accelerating = true
+		else if (input.keyPressed(GLFW_KEY_A)) {
+			impulseDirection = Math.wrapToCircle((float)(entity.heading - 90f))
+			entity.accelerating = true
 		}
-		else if (inputEventHandler.keyPressed(GLFW_KEY_D)) {
-			impulseDirection = Math.wrapToCircle((float)(player.heading + 90f))
-			player.accelerating = true
+		else if (input.keyPressed(GLFW_KEY_D)) {
+			impulseDirection = Math.wrapToCircle((float)(entity.heading + 90f))
+			entity.accelerating = true
 		}
 		else {
-			player.accelerating = false
+			entity.accelerating = false
 		}
 
 		// Adjust the strength of the force based on acceleration time
-		if (player.accelerating) {
+		if (entity.accelerating) {
 			var impulseDirectionInRadians = Math.toRadians(impulseDirection)
 			impulse.set(Math.sin(impulseDirectionInRadians), Math.cos(impulseDirectionInRadians)).normalize().mul(MAX_SPEED).mul(delta)
 		}
@@ -178,12 +157,12 @@ class PlayerScript extends EntityScript {
 		}
 
 		// Calculate the velocity from the above
-		player.velocity.lerp(impulse, 0.5f * delta as float)
+		entity.velocity.lerp(impulse, 0.5f * delta as float)
 
 		// Adjust position based on velocity
-		if (player.velocity) {
-			updatedPosition.set(player.position).add(player.velocity).min(worldBoundsMax).max(worldBoundsMin)
-			player.setPosition(updatedPosition.x(), updatedPosition.y(), 0)
+		if (entity.velocity) {
+			updatedPosition.set(entity.position).add(entity.velocity).min(worldBoundsMax).max(worldBoundsMin)
+			entity.setPosition(updatedPosition.x(), updatedPosition.y(), 0)
 		}
 	}
 }

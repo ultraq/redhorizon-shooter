@@ -23,7 +23,7 @@ import nz.net.ultraq.redhorizon.classic.graphics.ShadowShader
 import nz.net.ultraq.redhorizon.engine.Entity
 import nz.net.ultraq.redhorizon.engine.graphics.SpriteComponent
 import nz.net.ultraq.redhorizon.engine.scripts.ScriptComponent
-import static nz.net.ultraq.redhorizon.shooter.ScopedValues.*
+import static nz.net.ultraq.redhorizon.shooter.ScopedValues.getRESOURCE_MANAGER
 
 import org.joml.Vector2f
 
@@ -58,20 +58,17 @@ class Player extends Entity<Player> implements AutoCloseable {
 	 */
 	Player() {
 
-		var resourceManager = RESOURCE_MANAGER.get()
-		var scriptEngine = SCRIPT_ENGINE.get()
-
 		addComponent(new FactionComponent(Faction.GOLD)
 			.withName('Faction - Gold'))
 
+		var resourceManager = RESOURCE_MANAGER.get()
 		var orcaSpriteSheet = resourceManager.loadSpriteSheet('orca.shp')
 		addComponent(new SpriteComponent(orcaSpriteSheet, PalettedSpriteShader)
-			.translate(-18f, 12f, 0f)
+			.translate(0f, 24f, 0f)
 			.withName('Orca'))
 		addComponent(new SpriteComponent(orcaSpriteSheet, ShadowShader)
-			.translate(-18f, -12f, 0f)
 			.withName('Shadow'))
 
-		addComponent(new ScriptComponent(scriptEngine, 'PlayerScript.groovy'))
+		addComponent(new ScriptComponent('PlayerScript'))
 	}
 }

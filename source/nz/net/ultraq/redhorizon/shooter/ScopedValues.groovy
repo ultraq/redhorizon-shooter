@@ -16,9 +16,8 @@
 
 package nz.net.ultraq.redhorizon.shooter
 
-import nz.net.ultraq.redhorizon.engine.scripts.ScriptEngine
 import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
-import nz.net.ultraq.redhorizon.input.InputEventHandler
+import nz.net.ultraq.redhorizon.graphics.Window
 
 /**
  * Keys for objects being shared using Java Scoped Values.
@@ -27,7 +26,6 @@ import nz.net.ultraq.redhorizon.input.InputEventHandler
  */
 class ScopedValues {
 
-	static final ScopedValue<InputEventHandler> INPUT_EVENT_HANDLER = ScopedValue.newInstance()
+	static final ScopedValue<Window> WINDOW = ScopedValue.newInstance()
 	static final ScopedValue<ResourceManager> RESOURCE_MANAGER = ScopedValue.newInstance()
-	static final ScopedValue<ScriptEngine> SCRIPT_ENGINE = ScopedValue.newInstance()
 }

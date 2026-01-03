@@ -22,9 +22,8 @@ import nz.net.ultraq.redhorizon.engine.Entity
 import nz.net.ultraq.redhorizon.engine.graphics.CameraEntity
 import nz.net.ultraq.redhorizon.engine.graphics.GridLinesEntity
 import nz.net.ultraq.redhorizon.graphics.Colour
-import nz.net.ultraq.redhorizon.graphics.Window
 import nz.net.ultraq.redhorizon.scenegraph.Scene
-import static nz.net.ultraq.redhorizon.shooter.ScopedValues.RESOURCE_MANAGER
+import static nz.net.ultraq.redhorizon.shooter.ScopedValues.*
 
 import org.joml.primitives.Rectanglef
 
@@ -47,11 +46,12 @@ class ShooterScene extends Scene implements AutoCloseable {
 	/**
 	 * Constructor, create a new scene to the given dimensions.
 	 */
-	ShooterScene(int width, int height, Window window) {
+	ShooterScene(int width, int height) {
 
 		this.width = width
 		this.height = height
 
+		var window = WINDOW.get()
 		camera = new CameraEntity(width, height, window)
 
 		addChild(camera)

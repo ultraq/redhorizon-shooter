@@ -112,7 +112,7 @@ class Shooter implements Runnable {
 				.run { ->
 
 					// Init scene
-					scene = new ShooterScene(WINDOW_WIDTH, WINDOW_HEIGHT, window).tap {
+					scene = new ShooterScene(WINDOW_WIDTH, WINDOW_HEIGHT).tap {
 						var debugOverlayComponent = new ImGuiDebugComponent(new DebugOverlay()
 							.withCursorTracking(camera.camera, camera.transform, this.window)).disable()
 						var nodeListComponent = new ImGuiDebugComponent(new NodeList(it)).disable()

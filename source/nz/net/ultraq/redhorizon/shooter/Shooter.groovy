@@ -18,12 +18,9 @@ package nz.net.ultraq.redhorizon.shooter
 
 import nz.net.ultraq.redhorizon.audio.AudioDevice
 import nz.net.ultraq.redhorizon.audio.openal.OpenALAudioDevice
-import nz.net.ultraq.redhorizon.classic.graphics.PalettedSpriteShader
 import nz.net.ultraq.redhorizon.classic.graphics.ShadowShader
 import nz.net.ultraq.redhorizon.engine.Engine
-import nz.net.ultraq.redhorizon.engine.Entity
 import nz.net.ultraq.redhorizon.engine.graphics.GraphicsSystem
-import nz.net.ultraq.redhorizon.engine.graphics.imgui.ImGuiDebugComponent
 import nz.net.ultraq.redhorizon.engine.graphics.imgui.LogPanel
 import nz.net.ultraq.redhorizon.engine.graphics.imgui.NodeList
 import nz.net.ultraq.redhorizon.engine.input.InputSystem
@@ -42,10 +39,11 @@ import nz.net.ultraq.redhorizon.graphics.imgui.DebugOverlay
 import nz.net.ultraq.redhorizon.graphics.opengl.BasicShader
 import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLFramebuffer
 import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLWindow
+import nz.net.ultraq.redhorizon.graphics.opengl.PalettedSpriteShader
 import nz.net.ultraq.redhorizon.input.InputEventHandler
+import nz.net.ultraq.redhorizon.scenegraph.Node
 import nz.net.ultraq.redhorizon.shooter.debug.DebugCollisionOutlineSystem
 import nz.net.ultraq.redhorizon.shooter.debug.DebugEverythingBinding
-import nz.net.ultraq.redhorizon.shooter.debug.DebugLinesBinding
 
 import org.lwjgl.system.Configuration
 import org.slf4j.Logger
@@ -113,22 +111,20 @@ class Shooter implements Runnable {
 
 					// Init scene
 					scene = new ShooterScene(WINDOW_WIDTH, WINDOW_HEIGHT).tap {
-						var debugOverlayComponent = new ImGuiDebugComponent(new DebugOverlay()
-							.withCursorTracking(camera.camera, camera.transform, this.window)).disable()
-						var nodeListComponent = new ImGuiDebugComponent(new NodeList(it)).disable()
-						var logPanelComponent = new ImGuiDebugComponent(new LogPanel()).disable()
-						addChild(new Entity()
-							.addComponent(debugOverlayComponent)
-							.addComponent(nodeListComponent)
-							.addComponent(logPanelComponent)
+						var debugOverlay = new DebugOverlay()
+							.withCursorTracking(window, camera)
+							.withProfilingLogging()
+						var nodeList = new NodeList(it).disable()
+						var logPanel = new LogPanel().disable()
+						addChild(new Node()
+							.addChild(debugOverlay)
+							.addChild(nodeList)
+							.addChild(logPanel)
 							.withName('Debug UI'))
 
-						var debugLinesBinding = new DebugLinesBinding(it)
-						var debugEverythingBinding = new DebugEverythingBinding(
-							[debugOverlayComponent, nodeListComponent, logPanelComponent], debugLinesBinding)
+						var debugEverythingBinding = new DebugEverythingBinding(debugOverlay, nodeList, logPanel)
 						inputEventHandler
-							.addImGuiDebugBindings([debugOverlayComponent], [nodeListComponent, logPanelComponent])
-							.addInputBinding(debugLinesBinding)
+							.addImGuiOverlayBinding([debugOverlay])
 							.addInputBinding(debugEverythingBinding)
 					}
 					var engine = new Engine()

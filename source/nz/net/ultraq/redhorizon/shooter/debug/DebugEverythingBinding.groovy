@@ -16,7 +16,7 @@
 
 package nz.net.ultraq.redhorizon.shooter.debug
 
-import nz.net.ultraq.redhorizon.engine.graphics.imgui.ImGuiComponent
+import nz.net.ultraq.redhorizon.graphics.imgui.ImGuiModule
 import nz.net.ultraq.redhorizon.input.KeyBinding
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_P
@@ -34,7 +34,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_P
  */
 class DebugEverythingBinding extends KeyBinding {
 
-	DebugEverythingBinding(List<ImGuiComponent> debugWindows, DebugLinesBinding debugLinesBinding) {
+	DebugEverythingBinding(ImGuiModule... debugWindows) {
 
 		super(GLFW_KEY_P, true, { ->
 			debugWindows.each { window ->
@@ -45,7 +45,6 @@ class DebugEverythingBinding extends KeyBinding {
 					window.enable()
 				}
 			}
-			debugLinesBinding.action()
 		})
 	}
 }

@@ -16,17 +16,18 @@
 
 package nz.net.ultraq.redhorizon.shooter.debug
 
-import nz.net.ultraq.redhorizon.engine.Entity
 import nz.net.ultraq.redhorizon.engine.System
-import nz.net.ultraq.redhorizon.engine.graphics.MeshComponent
-import nz.net.ultraq.redhorizon.engine.physics.CircleCollisionComponent
+import nz.net.ultraq.redhorizon.engine.physics.CircleCollider
 import nz.net.ultraq.redhorizon.graphics.Colour
 import nz.net.ultraq.redhorizon.graphics.Mesh.Type
+import nz.net.ultraq.redhorizon.graphics.Shape
 import nz.net.ultraq.redhorizon.graphics.Vertex
 import nz.net.ultraq.redhorizon.scenegraph.Scene
 import nz.net.ultraq.redhorizon.shooter.ShooterScene
 
 import org.joml.Vector3f
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * Manage the drawing of collision outlines for debuggin.
@@ -35,40 +36,43 @@ import org.joml.Vector3f
  */
 class DebugCollisionOutlineSystem extends System {
 
+	private static final Logger logger = LoggerFactory.getLogger(DebugCollisionOutlineSystem)
 	private static final String COLLISION_OUTLINE_NAME = 'Collision outline'
 
 	@Override
 	void update(Scene scene, float delta) {
 
-		scene.traverse(Entity) { Entity entity ->
-			var collision = entity.findComponentByType(CircleCollisionComponent) as CircleCollisionComponent
-			var collisionOutline = entity.findComponent { it.name == COLLISION_OUTLINE_NAME } as MeshComponent
-			if (((ShooterScene)scene).showCollisionLines) {
-				if (collision) {
-					if (!collisionOutline) {
-						var radius = collision.radius
-						collisionOutline = entity.addAndReturnComponent(
-							new MeshComponent(Type.LINE_LOOP, new Vertex[]{
-								new Vertex(new Vector3f(-radius as float, -radius as float, 0), Colour.YELLOW),
-								new Vertex(new Vector3f(radius as float, -radius as float, 0), Colour.YELLOW),
-								new Vertex(new Vector3f(radius as float, radius as float, 0), Colour.YELLOW),
-								new Vertex(new Vector3f(-radius as float, radius as float, 0), Colour.YELLOW)
-							})
-								.withName(COLLISION_OUTLINE_NAME)
-						)
+		average('Update', 1f, logger) { ->
+			scene.traverse(CircleCollider) { CircleCollider collider ->
+				var collisionOutline = collider.parent.findByName(COLLISION_OUTLINE_NAME)
+				if (((ShooterScene)scene).showCollisionLines) {
+					if (collider) {
+						if (!collisionOutline) {
+							var radius = collider.radius
+							collisionOutline = collider.parent.addAndReturnChild(
+								new Shape(Type.LINE_LOOP, new Vertex[]{
+									new Vertex(new Vector3f(-radius as float, -radius as float, 0), Colour.YELLOW),
+									new Vertex(new Vector3f(radius as float, -radius as float, 0), Colour.YELLOW),
+									new Vertex(new Vector3f(radius as float, radius as float, 0), Colour.YELLOW),
+									new Vertex(new Vector3f(-radius as float, radius as float, 0), Colour.YELLOW)
+								})
+									.withName(COLLISION_OUTLINE_NAME)
+							)
+						}
+						if (collider.enabled) {
+							collisionOutline.enable()
+						}
+						else {
+							collisionOutline.disable()
+						}
 					}
-					if (collision.enabled) {
-						collisionOutline.enable()
-					}
-					else {
+				}
+				else {
+					if (collisionOutline) {
 						collisionOutline.disable()
 					}
 				}
-			}
-			else {
-				if (collisionOutline) {
-					collisionOutline.disable()
-				}
+				return true
 			}
 		}
 	}

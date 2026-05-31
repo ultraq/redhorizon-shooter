@@ -16,12 +16,10 @@
 
 package nz.net.ultraq.redhorizon.shooter
 
-import nz.net.ultraq.redhorizon.classic.graphics.AlphaMaskComponent
-import nz.net.ultraq.redhorizon.classic.graphics.PaletteComponent
-import nz.net.ultraq.redhorizon.engine.Entity
-import nz.net.ultraq.redhorizon.engine.graphics.CameraEntity
-import nz.net.ultraq.redhorizon.engine.graphics.GridLinesEntity
+import nz.net.ultraq.redhorizon.engine.graphics.GridLines
+import nz.net.ultraq.redhorizon.graphics.Camera
 import nz.net.ultraq.redhorizon.graphics.Colour
+import nz.net.ultraq.redhorizon.graphics.PaletteAlphaMask
 import nz.net.ultraq.redhorizon.scenegraph.Scene
 import static nz.net.ultraq.redhorizon.shooter.ScopedValues.*
 
@@ -39,7 +37,7 @@ class ShooterScene extends Scene implements AutoCloseable {
 
 	final int width
 	final int height
-	final CameraEntity camera
+	final Camera camera
 	final Player player
 	boolean showCollisionLines = false
 
@@ -52,17 +50,17 @@ class ShooterScene extends Scene implements AutoCloseable {
 		this.height = height
 
 		var window = WINDOW.get()
-		camera = new CameraEntity(width, height, window)
+		camera = new Camera(width, height, window)
 
 		addChild(camera)
-		addChild(new GridLinesEntity(new Rectanglef(0, 0, width, height).center(), 24f,
+		addChild(new GridLines(new Rectanglef(0, 0, width, height).center(), 24f,
 			GRID_LINES_ORIGIN, GRID_LINES_DIVIDERS))
 
 		var resourceManager = RESOURCE_MANAGER.get()
-		addChild(new Entity()
-			.addComponent(new PaletteComponent(resourceManager.loadPalette('temperat-td.pal')))
-			.addComponent(new AlphaMaskComponent())
-			.withName('Palette & alpha mask'))
+		addChild(resourceManager.loadPalette('temperat-td.pal')
+			.withName('Palette'))
+		addChild(new PaletteAlphaMask()
+			.withName('Alpha mask'))
 
 		player = new Player()
 		addChild(player)

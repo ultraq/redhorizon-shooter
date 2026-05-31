@@ -17,13 +17,13 @@
 package nz.net.ultraq.redhorizon.shooter
 
 import nz.net.ultraq.redhorizon.classic.Faction
-import nz.net.ultraq.redhorizon.classic.graphics.FactionComponent
-import nz.net.ultraq.redhorizon.classic.graphics.PalettedSpriteShader
 import nz.net.ultraq.redhorizon.classic.graphics.ShadowShader
-import nz.net.ultraq.redhorizon.engine.Entity
-import nz.net.ultraq.redhorizon.engine.graphics.SpriteComponent
-import nz.net.ultraq.redhorizon.engine.scripts.ScriptComponent
-import static nz.net.ultraq.redhorizon.shooter.ScopedValues.getRESOURCE_MANAGER
+import nz.net.ultraq.redhorizon.engine.scripts.ScriptNode
+import nz.net.ultraq.redhorizon.graphics.PaletteSwapMap
+import nz.net.ultraq.redhorizon.graphics.Sprite
+import nz.net.ultraq.redhorizon.graphics.opengl.PalettedSpriteShader
+import nz.net.ultraq.redhorizon.scenegraph.Node
+import static nz.net.ultraq.redhorizon.shooter.ScopedValues.RESOURCE_MANAGER
 
 import org.joml.Vector2f
 
@@ -32,7 +32,7 @@ import org.joml.Vector2f
  *
  * @author Emanuel Rabina
  */
-class Player extends Entity<Player> implements AutoCloseable {
+class Player extends Node<Player> implements AutoCloseable {
 
 	// Unit variables
 	// TODO: Move to ImGui controls?
@@ -58,17 +58,17 @@ class Player extends Entity<Player> implements AutoCloseable {
 	 */
 	Player() {
 
-		addComponent(new FactionComponent(Faction.GOLD)
+		addChild(new PaletteSwapMap(Faction.GOLD.colours)
 			.withName('Faction - Gold'))
 
 		var resourceManager = RESOURCE_MANAGER.get()
 		var orcaSpriteSheet = resourceManager.loadSpriteSheet('orca.shp')
-		addComponent(new SpriteComponent(orcaSpriteSheet, PalettedSpriteShader)
+		addChild(new Sprite(orcaSpriteSheet, PalettedSpriteShader)
 			.translate(0f, 24f, 0f)
 			.withName('Orca'))
-		addComponent(new SpriteComponent(orcaSpriteSheet, ShadowShader)
+		addChild(new Sprite(orcaSpriteSheet, ShadowShader)
 			.withName('Shadow'))
 
-		addComponent(new ScriptComponent('PlayerScript'))
+		addChild(new ScriptNode(PlayerScript))
 	}
 }

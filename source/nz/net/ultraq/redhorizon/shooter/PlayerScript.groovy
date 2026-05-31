@@ -16,8 +16,8 @@
 
 package nz.net.ultraq.redhorizon.shooter
 
-import nz.net.ultraq.redhorizon.engine.graphics.SpriteComponent
-import nz.net.ultraq.redhorizon.engine.scripts.EntityScript
+import nz.net.ultraq.redhorizon.engine.scripts.Script
+import nz.net.ultraq.redhorizon.graphics.Sprite
 
 import org.joml.Vector2f
 import org.joml.Vector3f
@@ -28,7 +28,7 @@ import static org.lwjgl.glfw.GLFW.*
  *
  * @author Emanuel Rabina
  */
-class PlayerScript extends EntityScript<Player> {
+class PlayerScript extends Script<Player> {
 
 	// TODO: Make these public items into variables that can be controlled by ImGui?
 	static final float MAX_SPEED = 400f
@@ -54,7 +54,7 @@ class PlayerScript extends EntityScript<Player> {
 	@Override
 	void init() {
 
-		var scene = entity.scene as ShooterScene
+		var scene = node.scene as ShooterScene
 		worldBoundsMin = new Vector2f(-scene.width / 2f as float, -scene.height / 2f as float)
 		worldBoundsMax = new Vector2f(scene.width / 2f as float, scene.height / 2f as float)
 	}
@@ -65,7 +65,7 @@ class PlayerScript extends EntityScript<Player> {
 		updateBobbing(delta)
 		updateHeading()
 		updateMovement(delta)
-		updateFramePosition(delta)
+		updateFramePosition()
 	}
 
 	/**
@@ -73,9 +73,9 @@ class PlayerScript extends EntityScript<Player> {
 	 */
 	private void updateBobbing(float delta) {
 
-		if (entity.flying) {
+		if (node.flying) {
 			bobbingTimer += delta
-			var orcaSprite = entity.findComponent { it.name == 'Orca' } as SpriteComponent
+			var orcaSprite = node.findByName('Orca') as Sprite
 			var position = orcaSprite.position
 			orcaSprite.setPosition(position.x(), 24f + (Math.sin(bobbingTimer) * 8) as float, position.z())
 		}
@@ -84,18 +84,18 @@ class PlayerScript extends EntityScript<Player> {
 	/**
 	 * Adjust the selected sprite frame in each of the player's sprite components.
 	 */
-	private void updateFramePosition(float delta) {
+	private void updateFramePosition() {
 
 		// NOTE: C&C unit headings were ordered in a counter-clockwise order, the
 		//       reverse from how degrees-based headings are done.
-		var closestHeading = Math.round(entity.heading / entity.headingStep)
-		var frame = closestHeading ? entity.headings - closestHeading as int : 0
-		if (entity.accelerating) {
-			frame += entity.headings
+		var closestHeading = Math.round(node.heading / node.headingStep)
+		var frame = closestHeading ? node.headings - closestHeading as int : 0
+		if (node.accelerating) {
+			frame += node.headings
 		}
 
-		entity.findComponentsByType(SpriteComponent).each { component ->
-			component.framePosition.set(component.spriteSheet.getFramePosition(frame))
+		node.children.findAll { child -> child instanceof Sprite }.each { Sprite sprite ->
+			sprite.withFramePosition(sprite.spriteSheet.getFramePosition(frame))
 		}
 	}
 
@@ -106,11 +106,11 @@ class PlayerScript extends EntityScript<Player> {
 
 		var cursorPosition = input.cursorPosition()
 		if (cursorPosition) {
-			var camera = ((ShooterScene)entity.scene).camera
-			positionXY.set(entity.position)
+			var camera = ((ShooterScene)node.scene).camera
+			positionXY.set(node.position)
 			worldCursorPosition.set(camera.unproject(cursorPosition.x(), cursorPosition.y(), unprojectResult))
 			worldCursorPosition.sub(positionXY, headingToCursor)
-			entity.heading = Math.wrap(Math.toDegrees(headingToCursor.angle(up)) as float, 0f, 360f)
+			node.heading = Math.wrap(Math.toDegrees(headingToCursor.angle(up)) as float, 0f, 360f)
 		}
 	}
 
@@ -123,32 +123,32 @@ class PlayerScript extends EntityScript<Player> {
 		var impulseDirection = 0f
 		if (input.keyPressed(GLFW_KEY_W)) {
 			impulseDirection =
-				input.keyPressed(GLFW_KEY_A) ? Math.wrapToCircle((float)(entity.heading - 45f)) :
-					input.keyPressed(GLFW_KEY_D) ? Math.wrapToCircle((float)(entity.heading + 45f)) :
-						entity.heading
-			entity.accelerating = true
+				input.keyPressed(GLFW_KEY_A) ? Math.wrapToCircle((float)(node.heading - 45f)) :
+					input.keyPressed(GLFW_KEY_D) ? Math.wrapToCircle((float)(node.heading + 45f)) :
+						node.heading
+			node.accelerating = true
 		}
 		else if (input.keyPressed(GLFW_KEY_S)) {
 			impulseDirection =
-				input.keyPressed(GLFW_KEY_A) ? Math.wrapToCircle((float)(entity.heading - 135f)) :
-					input.keyPressed(GLFW_KEY_D) ? Math.wrapToCircle((float)(entity.heading + 135f)) :
-						entity.heading + 180f
-			entity.accelerating = true
+				input.keyPressed(GLFW_KEY_A) ? Math.wrapToCircle((float)(node.heading - 135f)) :
+					input.keyPressed(GLFW_KEY_D) ? Math.wrapToCircle((float)(node.heading + 135f)) :
+						node.heading + 180f
+			node.accelerating = true
 		}
 		else if (input.keyPressed(GLFW_KEY_A)) {
-			impulseDirection = Math.wrapToCircle((float)(entity.heading - 90f))
-			entity.accelerating = true
+			impulseDirection = Math.wrapToCircle((float)(node.heading - 90f))
+			node.accelerating = true
 		}
 		else if (input.keyPressed(GLFW_KEY_D)) {
-			impulseDirection = Math.wrapToCircle((float)(entity.heading + 90f))
-			entity.accelerating = true
+			impulseDirection = Math.wrapToCircle((float)(node.heading + 90f))
+			node.accelerating = true
 		}
 		else {
-			entity.accelerating = false
+			node.accelerating = false
 		}
 
 		// Adjust the strength of the force based on acceleration time
-		if (entity.accelerating) {
+		if (node.accelerating) {
 			var impulseDirectionInRadians = Math.toRadians(impulseDirection)
 			impulse.set(Math.sin(impulseDirectionInRadians), Math.cos(impulseDirectionInRadians)).normalize().mul(MAX_SPEED).mul(delta)
 		}
@@ -157,12 +157,12 @@ class PlayerScript extends EntityScript<Player> {
 		}
 
 		// Calculate the velocity from the above
-		entity.velocity.lerp(impulse, 0.5f * delta as float)
+		node.velocity.lerp(impulse, 0.5f * delta as float)
 
 		// Adjust position based on velocity
-		if (entity.velocity) {
-			updatedPosition.set(entity.position).add(entity.velocity).min(worldBoundsMax).max(worldBoundsMin)
-			entity.setPosition(updatedPosition.x(), updatedPosition.y(), 0)
+		if (node.velocity) {
+			updatedPosition.set(node.position).add(node.velocity).min(worldBoundsMax).max(worldBoundsMin)
+			node.setPosition(updatedPosition.x(), updatedPosition.y(), 0)
 		}
 	}
 }

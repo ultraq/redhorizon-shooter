@@ -16,40 +16,23 @@
 
 package nz.net.ultraq.redhorizon.shooter
 
-import nz.net.ultraq.redhorizon.audio.AudioDevice
-import nz.net.ultraq.redhorizon.audio.openal.OpenALAudioDevice
 import nz.net.ultraq.redhorizon.classic.graphics.ShadowShader
-import nz.net.ultraq.redhorizon.engine.Engine
-import nz.net.ultraq.redhorizon.engine.graphics.GraphicsSystem
-import nz.net.ultraq.redhorizon.engine.graphics.imgui.LogPanel
-import nz.net.ultraq.redhorizon.engine.graphics.imgui.NodeList
-import nz.net.ultraq.redhorizon.engine.input.InputSystem
-import nz.net.ultraq.redhorizon.engine.physics.CollisionSystem
-import nz.net.ultraq.redhorizon.engine.scene.SceneChangesSystem
-import nz.net.ultraq.redhorizon.engine.scripts.ScriptEngine
-import nz.net.ultraq.redhorizon.engine.scripts.ScriptSystem
-import nz.net.ultraq.redhorizon.engine.utilities.DeltaTimer
-import nz.net.ultraq.redhorizon.engine.utilities.ResourceManager
+import nz.net.ultraq.redhorizon.engine.graphics.GridLines
 import nz.net.ultraq.redhorizon.graphics.Colour
-import nz.net.ultraq.redhorizon.graphics.Framebuffer
-import nz.net.ultraq.redhorizon.graphics.SceneShaderContext
-import nz.net.ultraq.redhorizon.graphics.Shader
-import nz.net.ultraq.redhorizon.graphics.Window
-import nz.net.ultraq.redhorizon.graphics.imgui.DebugOverlay
-import nz.net.ultraq.redhorizon.graphics.opengl.BasicShader
-import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLFramebuffer
-import nz.net.ultraq.redhorizon.graphics.opengl.OpenGLWindow
+import nz.net.ultraq.redhorizon.graphics.PaletteAlphaMask
 import nz.net.ultraq.redhorizon.graphics.opengl.PalettedSpriteShader
-import nz.net.ultraq.redhorizon.input.InputEventHandler
-import nz.net.ultraq.redhorizon.scenegraph.Node
-import nz.net.ultraq.redhorizon.shooter.debug.DebugCollisionOutlineSystem
-import nz.net.ultraq.redhorizon.shooter.debug.DebugEverythingBinding
+import nz.net.ultraq.redhorizon.runtime.Application
+import nz.net.ultraq.redhorizon.runtime.Runtime
+import nz.net.ultraq.redhorizon.runtime.objects.ScreenEdges
+import nz.net.ultraq.redhorizon.runtime.utilities.VersionReader
+import nz.net.ultraq.redhorizon.scenegraph.Scene
+import static nz.net.ultraq.redhorizon.runtime.ScopedValues.RESOURCE_MANAGER
 
-import org.lwjgl.system.Configuration
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import org.joml.primitives.Rectanglef
 import picocli.CommandLine
 import picocli.CommandLine.Command
+
+import java.util.concurrent.Callable
 
 /**
  * Entry point to the Shooter game.
@@ -57,104 +40,53 @@ import picocli.CommandLine.Command
  * @author Emanuel Rabina
  */
 @Command(name = 'shooter')
-class Shooter implements Runnable {
+class Shooter extends Application implements Callable<Integer> {
+
+	public static final int WINDOW_WIDTH = 640
+	public static final int WINDOW_HEIGHT = 480
+	public static final Rectanglef WINDOW_BOUNDS = new Rectanglef(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT).center()
 
 	static {
 		System.setProperty('joml.format', 'false')
-		Configuration.STACK_SIZE.set(10240)
 	}
 
 	static void main(String[] args) {
 		System.exit(new CommandLine(new Shooter()).execute(args))
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(Shooter)
-	private static final int WINDOW_WIDTH = 640
-	private static final int WINDOW_HEIGHT = 400
+	Shooter() {
 
-	private Window window
-	private Framebuffer framebuffer
-	private Shader<SceneShaderContext>[] shaders
-	private AudioDevice audioDevice
-	private ResourceManager resourceManager
-	private ShooterScene scene
+		super('Shooter', new VersionReader('shooter.properties').read())
+	}
 
 	@Override
-	void run() {
+	Integer call() {
 
-		try {
-			// Startup
-			logger.debug('Setup')
-			var properties = new Properties()
-			properties.load(getResourceAsStream('shooter.properties'))
+		return new Runtime(this)
+			.withWindowBackgroundColour(Colour.GREY)
+			.withWindowWidth(WINDOW_WIDTH)
+			.withWindowHeight(WINDOW_HEIGHT)
+			.withFramebufferWidth(WINDOW_WIDTH * 2)
+			.withFramebufferHeight(WINDOW_HEIGHT * 2)
+			.withAdditionalShaders { -> [new ShadowShader(), new PalettedSpriteShader()] }
+			.withAudioMasterVolume(0.5f)
+			.withGridLines { ->
+				return new GridLines(new Rectanglef(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT).center(), 24f,
+					new Colour('GridLines-Origin', 0.2f, 0.2f, 0.2f), new Colour('GridLines-Dividers', 0.6f, 0.6f, 0.6f))
+			}
+			.execute()
+	}
 
-			// Init devices
-			window = new OpenGLWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Shooter ${properties.getProperty('version')}")
-				.centerToScreen()
-				.scaleToFit()
-				.withBackgroundColour(Colour.GREY)
-				.withVSync(true)
-			framebuffer = new OpenGLFramebuffer(WINDOW_WIDTH, WINDOW_HEIGHT)
-			shaders = [new BasicShader(), new ShadowShader(), new PalettedSpriteShader()]
-			audioDevice = new OpenALAudioDevice()
-				.withMasterVolume(0.5f)
-			resourceManager = new ResourceManager('nz/net/ultraq/redhorizon/shooter/')
-			var inputEventHandler = new InputEventHandler()
-				.addInputSource(window)
-				.addEscapeToCloseBinding(window)
-				.addVSyncBinding(window)
+	@Override
+	Scene configureScene(Scene scene) {
 
-			ScopedValue
-				.where(ScopedValues.WINDOW, window)
-				.where(ScopedValues.RESOURCE_MANAGER, resourceManager)
-				.run { ->
-
-					// Init scene
-					scene = new ShooterScene(WINDOW_WIDTH, WINDOW_HEIGHT).tap {
-						var debugOverlay = new DebugOverlay()
-							.withCursorTracking(window, camera)
-							.withProfilingLogging()
-						var nodeList = new NodeList(it).disable()
-						var logPanel = new LogPanel().disable()
-						addChild(new Node()
-							.addChild(debugOverlay)
-							.addChild(nodeList)
-							.addChild(logPanel)
-							.withName('Debug UI'))
-
-						var debugEverythingBinding = new DebugEverythingBinding(debugOverlay, nodeList, logPanel)
-						inputEventHandler
-							.addImGuiOverlayBinding([debugOverlay])
-							.addInputBinding(debugEverythingBinding)
-					}
-					var engine = new Engine()
-						.addSystem(new InputSystem(inputEventHandler))
-						.addSystem(new DebugCollisionOutlineSystem())
-						.addSystem(new ScriptSystem(new ScriptEngine('source/nz/net/ultraq/redhorizon/shooter/'), inputEventHandler))
-						.addSystem(new CollisionSystem())
-						.addSystem(new GraphicsSystem(window, framebuffer, shaders))
-						.addSystem(new SceneChangesSystem())
-						.withScene(scene)
-
-					// Game loop
-					logger.debug('Game loop')
-					window.show()
-					var deltaTimer = new DeltaTimer()
-					while (!window.shouldClose()) {
-						engine.update(deltaTimer.deltaTime())
-						Thread.yield()
-					}
-				}
-		}
-		finally {
-			// Shutdown
-			logger.debug('Shutdown')
-			scene?.close()
-			resourceManager?.close()
-			audioDevice?.close()
-			shaders?.each { it.close() }
-			framebuffer?.close()
-			window?.close()
-		}
+		var resourceManager = RESOURCE_MANAGER.get()
+		return scene
+			.addChild(resourceManager.loadPalette('temperat-td.pal')
+				.withName('Palette'))
+			.addChild(new PaletteAlphaMask()
+				.withName('Alpha mask'))
+			.addChild(new Player())
+			.addChild(new ScreenEdges(WINDOW_BOUNDS))
 	}
 }

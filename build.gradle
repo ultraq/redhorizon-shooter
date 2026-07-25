@@ -29,27 +29,22 @@ configure {
 		.useJavaVersion(25)
 		.useMavenCentralRepositories()
 		.configureSource()
-			.expand('**/*.properties', [version: version])
 			.withSourceDirectory('source')
 			.withDependencies() {
-				implementation 'ch.qos.logback:logback-classic:1.5.18'
+				implementation 'ch.qos.logback:logback-classic:1.5.38'
 				implementation 'info.picocli:picocli:4.7.7'
-				implementation 'nz.net.ultraq.groovy:groovy-extensions:3.3.0'
-				implementation 'nz.net.ultraq.groovy:joml-extensions:0.1.8'
-				implementation 'nz.net.ultraq.redhorizon:redhorizon-audio:0.43.0-SNAPSHOT'
-				implementation 'nz.net.ultraq.redhorizon:redhorizon-classic:0.43.0-SNAPSHOT'
-				implementation 'nz.net.ultraq.redhorizon:redhorizon-engine:0.43.0-SNAPSHOT'
-				implementation 'nz.net.ultraq.redhorizon:redhorizon-graphics:0.43.0-SNAPSHOT'
-				implementation 'nz.net.ultraq.redhorizon:redhorizon-input:0.43.0-SNAPSHOT'
-				implementation 'nz.net.ultraq.redhorizon:redhorizon-scenegraph:0.43.0-SNAPSHOT'
-				implementation 'org.apache.groovy:groovy:4.0.29'
-				implementation 'org.joml:joml:1.10.8'
+				implementation 'nz.net.ultraq.groovy:groovy-extensions:4.0.1'
+				implementation 'nz.net.ultraq.groovy:joml-extensions:0.3.1'
+				implementation 'nz.net.ultraq.redhorizon:redhorizon-runtime:0.43.2-SNAPSHOT'
+				implementation 'org.apache.groovy:groovy:5.0.7'
+				implementation 'org.joml:joml:1.10.9'
 				implementation 'org.joml:joml-primitives:1.10.0'
 			}
+			.expandExtensionModuleVersion()
+			.expand('**/*.properties', [version: version])
 }
 
 configurations.configureEach {
-	exclude group: 'org.jetbrains.kotlin'
 	resolutionStrategy {
 		cacheChangingModulesFor 0, 'seconds'
 		cacheDynamicVersionsFor 0, 'seconds'

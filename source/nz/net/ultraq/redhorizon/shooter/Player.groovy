@@ -72,11 +72,14 @@ class Player extends Node<Player> {
 		var orcaSpriteSheet = resourceManager.loadSpriteSheet('orca.shp')
 		addChild(new Sprite(orcaSpriteSheet, PalettedSpriteShader)
 			.translate(0f, 24f, 0f)
-			.withName('Orca'))
+			.withName('Orca')
+			.addChild(new BoxCollider(orcaSpriteSheet.width, orcaSpriteSheet.height)
+				.withName('Sprite collider')))
 		addChild(new Sprite(orcaSpriteSheet, ShadowShader)
 			.withName('Shadow'))
 		addChild(new MovementNode(200f))
-		addChild(new BoxCollider(24f, 24f))
+		addChild(new BoxCollider(orcaSpriteSheet.width, orcaSpriteSheet.height)
+			.withName('Base collider'))
 
 		addChild(new ScriptNode(PlayerScript))
 	}
@@ -108,7 +111,7 @@ class Player extends Node<Player> {
 		@Override
 		void init() {
 
-			node.find(BoxCollider)
+			(node.find('Base collider') as BoxCollider)
 				.on(CollisionStartEvent) { event ->
 					var otherCollider = event.otherCollider()
 					var otherObject = otherCollider.parent
@@ -175,9 +178,7 @@ class Player extends Node<Player> {
 
 			if (node.flying) {
 				bobbingTimer += delta
-				var orcaSprite = node.find('Orca') as Sprite
-				var position = orcaSprite.position
-				orcaSprite.setPosition(position.x(), 24f + (Math.sin(bobbingTimer) * node.bobbingAmplitude) as float, position.z())
+				node.find('Orca').setPosition(0f, 24f + (Math.sin(bobbingTimer) * node.bobbingAmplitude) as float, 0f)
 			}
 		}
 

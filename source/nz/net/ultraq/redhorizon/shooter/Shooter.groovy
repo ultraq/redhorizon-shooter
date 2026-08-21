@@ -68,8 +68,10 @@ class Shooter extends Application implements Callable<Integer> {
 			.withWindowHeight(WINDOW_HEIGHT)
 			.withFramebufferWidth(WINDOW_WIDTH * 2)
 			.withFramebufferHeight(WINDOW_HEIGHT * 2)
+			.withCameraWidth(WINDOW_WIDTH)
+			.withCameraHeight(WINDOW_HEIGHT)
 			.withAdditionalShaders { -> [new ShadowShader(), new PalettedSpriteShader()] }
-			.withAudioMasterVolume(0.5f)
+			.withAudioListenerGain(0.5f)
 			.withGridLines { ->
 				return new GridLines(new Rectanglef(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT).center(), 24f,
 					new Colour('GridLines-Origin', 0.2f, 0.2f, 0.2f), new Colour('GridLines-Dividers', 0.6f, 0.6f, 0.6f))

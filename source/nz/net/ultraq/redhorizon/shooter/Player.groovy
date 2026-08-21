@@ -30,10 +30,12 @@ import nz.net.ultraq.redhorizon.physics.CollisionStartEvent
 import nz.net.ultraq.redhorizon.physics.MovementNode
 import nz.net.ultraq.redhorizon.runtime.objects.ScreenEdges
 import nz.net.ultraq.redhorizon.scenegraph.Node
-import static nz.net.ultraq.redhorizon.runtime.ScopedValues.RESOURCE_MANAGER
+import static nz.net.ultraq.redhorizon.runtime.ScopedValues.*
 
 import org.joml.Vector2f
 import org.joml.Vector3f
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import static org.lwjgl.glfw.GLFW.*
 
 /**
@@ -46,6 +48,9 @@ class Player extends Node<Player> {
 	// TODO: These should come from the unit data for the orca sprite
 	final int headings = 32
 	final float headingStep = 360f / headings as float
+
+	float maxSpeed = 400f
+	float bobbingAmplitude = 8f
 
 	// Player properties adjustable by scripts
 	// TODO: These can be moved into their own components if other objects need them
@@ -81,8 +86,7 @@ class Player extends Node<Player> {
 	 */
 	static class PlayerScript extends Script<Player> {
 
-		// TODO: Make these items into variables that can be controlled by ImGui?
-		public static final float MAX_SPEED = 400f
+		private static final Logger logger = LoggerFactory.getLogger(PlayerScript)
 		private static final Vector2f up = new Vector2f(0, 1)
 
 		// Bobbing
@@ -112,15 +116,19 @@ class Player extends Node<Player> {
 						switch (otherCollider.name) {
 							case ScreenEdges.TOP_COLLIDER_NAME:
 								hitTopScreenEdge = true
+								logger.debug('Hitting top screen edge')
 								break
 							case ScreenEdges.BOTTOM_COLLIDER_NAME:
 								hitBottomScreenEdge = true
+								logger.debug('Hitting bottom screen edge')
 								break
 							case ScreenEdges.LEFT_COLLIDER_NAME:
 								hitLeftScreenEdge = true
+								logger.debug('Hitting left screen edge')
 								break
 							case ScreenEdges.RIGHT_COLLIDER_NAME:
 								hitRightScreenEdge = true
+								logger.debug('Hitting right screen edge')
 								break
 						}
 					}
@@ -132,15 +140,19 @@ class Player extends Node<Player> {
 						switch (otherCollider.name) {
 							case ScreenEdges.TOP_COLLIDER_NAME:
 								hitTopScreenEdge = false
+								logger.debug('No longer hitting top screen edge')
 								break
 							case ScreenEdges.BOTTOM_COLLIDER_NAME:
 								hitBottomScreenEdge = false
+								logger.debug('No longer hitting bottom screen edge')
 								break
 							case ScreenEdges.LEFT_COLLIDER_NAME:
 								hitLeftScreenEdge = false
+								logger.debug('No longer hitting left screen edge')
 								break
 							case ScreenEdges.RIGHT_COLLIDER_NAME:
 								hitRightScreenEdge = false
+								logger.debug('No longer hitting right screen edge')
 								break
 						}
 					}
@@ -165,7 +177,7 @@ class Player extends Node<Player> {
 				bobbingTimer += delta
 				var orcaSprite = node.find('Orca') as Sprite
 				var position = orcaSprite.position
-				orcaSprite.setPosition(position.x(), 24f + (Math.sin(bobbingTimer) * 8) as float, position.z())
+				orcaSprite.setPosition(position.x(), 24f + (Math.sin(bobbingTimer) * node.bobbingAmplitude) as float, position.z())
 			}
 		}
 
@@ -194,11 +206,12 @@ class Player extends Node<Player> {
 		 */
 		private void updateHeading() {
 
+			var window = WINDOW.get()
 			var cursorPosition = input.cursorPosition()
 			if (cursorPosition) {
 				var camera = node.scene.find(Camera)
 				positionXY.set(node.position)
-				worldCursorPosition.set(camera.unproject(cursorPosition.x(), cursorPosition.y(), unprojectResult))
+				worldCursorPosition.set(camera.unproject(window.viewport, cursorPosition.x(), cursorPosition.y(), unprojectResult))
 				worldCursorPosition.sub(positionXY, headingToCursor)
 				node.heading = Math.wrap(Math.toDegrees(headingToCursor.angle(up)) as float, 0f, 360f)
 			}
@@ -240,28 +253,30 @@ class Player extends Node<Player> {
 			// Adjust the strength of the force based on acceleration time
 			if (node.accelerating) {
 				var impulseDirectionInRadians = Math.toRadians(impulseDirection)
-				vector.set(Math.sin(impulseDirectionInRadians), Math.cos(impulseDirectionInRadians)).normalize().mul(MAX_SPEED).mul(delta)
+				vector.set(Math.sin(impulseDirectionInRadians), Math.cos(impulseDirectionInRadians)).normalize()
+					.mul(node.maxSpeed).mul(delta)
 			}
 			else {
 				vector.set(0f, 0f)
 			}
 
 			// Calculate the velocity from the above
+			// TODO: Add inertia calculation to the movement system
 			node.velocity.lerp(vector, 0.5f * delta as float)
 
 			// Adjust for collisions with screen edges
 			// TODO: Have this baked into a movement node with colliders? 🤔
-			if (hitLeftScreenEdge && node.velocity.x < 0f) {
-				node.velocity.x = 0f
+			if (hitLeftScreenEdge) {
+				node.velocity.x = Math.max(node.velocity.x, 0f)
 			}
-			if (hitRightScreenEdge && node.velocity.x > 0f) {
-				node.velocity.x = 0f
+			if (hitRightScreenEdge) {
+				node.velocity.x = Math.min(node.velocity.x, 0f)
 			}
-			if (hitTopScreenEdge && node.velocity.y > 0f) {
-				node.velocity.y = 0f
+			if (hitTopScreenEdge) {
+				node.velocity.y = Math.min(node.velocity.y, 0f)
 			}
-			if (hitBottomScreenEdge && node.velocity.y < 0f) {
-				node.velocity.y = 0f
+			if (hitBottomScreenEdge) {
+				node.velocity.y = Math.max(node.velocity.y, 0f)
 			}
 
 			// Adjust position based on velocity

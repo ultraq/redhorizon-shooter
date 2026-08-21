@@ -16,7 +16,7 @@
 
 plugins {
 	id 'idea'
-	id 'nz.net.ultraq.gradle.fluent-configuration' version '0.9.4'
+	id 'nz.net.ultraq.gradle.fluent-configuration' version '0.10.1'
 }
 
 description = 'A twin-stick shooter built using Red Horizon'
@@ -31,12 +31,11 @@ configure {
 		.configureSource()
 			.withSourceDirectory('source')
 			.withDependencies() {
-				implementation 'ch.qos.logback:logback-classic:1.5.38'
+				implementation 'ch.qos.logback:logback-classic:1.6.3'
 				implementation 'info.picocli:picocli:4.7.7'
 				implementation 'nz.net.ultraq.groovy:groovy-extensions:4.0.1'
-				implementation 'nz.net.ultraq.groovy:joml-extensions:0.3.1'
-				implementation 'nz.net.ultraq.redhorizon:redhorizon-runtime:0.43.2-SNAPSHOT'
-				implementation 'org.apache.groovy:groovy:5.0.7'
+				implementation 'nz.net.ultraq.redhorizon:redhorizon-runtime:0.44.0-SNAPSHOT'
+				implementation 'org.apache.groovy:groovy:5.1.0'
 				implementation 'org.joml:joml:1.10.9'
 				implementation 'org.joml:joml-primitives:1.10.0'
 			}

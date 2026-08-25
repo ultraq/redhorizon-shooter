@@ -66,8 +66,6 @@ class Shooter extends Application implements Callable<Integer> {
 			.withWindowBackgroundColour(Colour.GREY)
 			.withWindowWidth(WINDOW_WIDTH)
 			.withWindowHeight(WINDOW_HEIGHT)
-			.withFramebufferWidth(WINDOW_WIDTH * 2)
-			.withFramebufferHeight(WINDOW_HEIGHT * 2)
 			.withCameraWidth(WINDOW_WIDTH)
 			.withCameraHeight(WINDOW_HEIGHT)
 			.withAdditionalShaders { -> [new ShadowShader(), new PalettedSpriteShader()] }

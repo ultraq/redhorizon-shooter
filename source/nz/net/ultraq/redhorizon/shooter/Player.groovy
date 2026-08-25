@@ -49,7 +49,7 @@ class Player extends Node<Player> {
 	final int headings = 32
 	final float headingStep = 360f / headings as float
 
-	float maxSpeed = 400f
+	float maxSpeed = 200f
 	float bobbingAmplitude = 8f
 
 	// Player properties adjustable by scripts
@@ -57,7 +57,6 @@ class Player extends Node<Player> {
 	boolean flying = true
 	float heading = 25f
 	boolean accelerating = false
-	final Vector2f velocity = new Vector2f()
 
 	/**
 	 * Constructor, create a new player object.
@@ -77,7 +76,7 @@ class Player extends Node<Player> {
 				.withName('Sprite collider')))
 		addChild(new Sprite(orcaSpriteSheet, ShadowShader)
 			.withName('Shadow'))
-		addChild(new MovementNode(200f))
+		addChild(new MovementNode(maxSpeed))
 		addChild(new BoxCollider(orcaSpriteSheet.width, orcaSpriteSheet.height)
 			.withName('Base collider'))
 
@@ -102,7 +101,7 @@ class Player extends Node<Player> {
 		private Vector2f headingToCursor = new Vector2f()
 
 		// Movement
-		private Vector2f vector = new Vector2f()
+		private final Vector2f vector = new Vector2f()
 		private boolean hitLeftScreenEdge = false
 		private boolean hitRightScreenEdge = false
 		private boolean hitTopScreenEdge = false
@@ -114,25 +113,22 @@ class Player extends Node<Player> {
 			(node.find('Base collider') as BoxCollider)
 				.on(CollisionStartEvent) { event ->
 					var otherCollider = event.otherCollider()
-					var otherObject = otherCollider.parent
-					if (otherObject instanceof ScreenEdges) {
-						switch (otherCollider.name) {
-							case ScreenEdges.TOP_COLLIDER_NAME:
-								hitTopScreenEdge = true
-								logger.debug('Hitting top screen edge')
-								break
-							case ScreenEdges.BOTTOM_COLLIDER_NAME:
-								hitBottomScreenEdge = true
-								logger.debug('Hitting bottom screen edge')
-								break
-							case ScreenEdges.LEFT_COLLIDER_NAME:
-								hitLeftScreenEdge = true
-								logger.debug('Hitting left screen edge')
-								break
-							case ScreenEdges.RIGHT_COLLIDER_NAME:
-								hitRightScreenEdge = true
-								logger.debug('Hitting right screen edge')
-								break
+					if (otherCollider.parent instanceof ScreenEdges) {
+						if (otherCollider.name == ScreenEdges.TOP_COLLIDER_NAME) {
+							hitTopScreenEdge = true
+							logger.debug('Hitting top screen edge')
+						}
+						else if (otherCollider.name == ScreenEdges.BOTTOM_COLLIDER_NAME) {
+							hitBottomScreenEdge = true
+							logger.debug('Hitting bottom screen edge')
+						}
+						if (otherCollider.name == ScreenEdges.LEFT_COLLIDER_NAME) {
+							hitLeftScreenEdge = true
+							logger.debug('Hitting left screen edge')
+						}
+						else if (otherCollider.name == ScreenEdges.RIGHT_COLLIDER_NAME) {
+							hitRightScreenEdge = true
+							logger.debug('Hitting right screen edge')
 						}
 					}
 				}
@@ -140,23 +136,21 @@ class Player extends Node<Player> {
 					var otherCollider = event.otherCollider()
 					var otherObject = otherCollider.parent
 					if (otherObject instanceof ScreenEdges) {
-						switch (otherCollider.name) {
-							case ScreenEdges.TOP_COLLIDER_NAME:
-								hitTopScreenEdge = false
-								logger.debug('No longer hitting top screen edge')
-								break
-							case ScreenEdges.BOTTOM_COLLIDER_NAME:
-								hitBottomScreenEdge = false
-								logger.debug('No longer hitting bottom screen edge')
-								break
-							case ScreenEdges.LEFT_COLLIDER_NAME:
-								hitLeftScreenEdge = false
-								logger.debug('No longer hitting left screen edge')
-								break
-							case ScreenEdges.RIGHT_COLLIDER_NAME:
-								hitRightScreenEdge = false
-								logger.debug('No longer hitting right screen edge')
-								break
+						if (otherCollider.name == ScreenEdges.TOP_COLLIDER_NAME) {
+							hitTopScreenEdge = false
+							logger.debug('No longer hitting top screen edge')
+						}
+						else if (otherCollider.name == ScreenEdges.BOTTOM_COLLIDER_NAME) {
+							hitBottomScreenEdge = false
+							logger.debug('No longer hitting bottom screen edge')
+						}
+						if (otherCollider.name == ScreenEdges.LEFT_COLLIDER_NAME) {
+							hitLeftScreenEdge = false
+							logger.debug('No longer hitting left screen edge')
+						}
+						else if (otherCollider.name == ScreenEdges.RIGHT_COLLIDER_NAME) {
+							hitRightScreenEdge = false
+							logger.debug('No longer hitting right screen edge')
 						}
 					}
 				}
@@ -263,27 +257,22 @@ class Player extends Node<Player> {
 
 			// Calculate the velocity from the above
 			// TODO: Add inertia calculation to the movement system
-			node.velocity.lerp(vector, 0.5f * delta as float)
+			var movement = node.find(MovementNode)
+			movement.vector.lerp(vector, 0.5f * delta as float)
 
 			// Adjust for collisions with screen edges
 			// TODO: Have this baked into a movement node with colliders? 🤔
 			if (hitLeftScreenEdge) {
-				node.velocity.x = Math.max(node.velocity.x, 0f)
+				movement.vector.x = Math.max(movement.vector.x, 0f)
 			}
 			if (hitRightScreenEdge) {
-				node.velocity.x = Math.min(node.velocity.x, 0f)
+				movement.vector.x = Math.min(movement.vector.x, 0f)
 			}
 			if (hitTopScreenEdge) {
-				node.velocity.y = Math.min(node.velocity.y, 0f)
+				movement.vector.y = Math.min(movement.vector.y, 0f)
 			}
 			if (hitBottomScreenEdge) {
-				node.velocity.y = Math.max(node.velocity.y, 0f)
-			}
-
-			// Adjust position based on velocity
-			// TODO: Have this handled by the movement node
-			if (node.velocity) {
-				node.translate(node.velocity.x, node.velocity.y, 0f)
+				movement.vector.y = Math.max(movement.vector.y, 0f)
 			}
 		}
 	}

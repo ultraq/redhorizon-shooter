@@ -21,6 +21,7 @@ import nz.net.ultraq.redhorizon.classic.graphics.ShadowShader
 import nz.net.ultraq.redhorizon.engine.scripts.Script
 import nz.net.ultraq.redhorizon.engine.scripts.ScriptNode
 import nz.net.ultraq.redhorizon.graphics.Camera
+import nz.net.ultraq.redhorizon.graphics.PaletteAlphaMask
 import nz.net.ultraq.redhorizon.graphics.PaletteSwapMap
 import nz.net.ultraq.redhorizon.graphics.Sprite
 import nz.net.ultraq.redhorizon.graphics.opengl.PalettedSpriteShader
@@ -57,6 +58,7 @@ class Player extends Node<Player> {
 	boolean flying = true
 	float heading = 25f
 	boolean accelerating = false
+	float rateOfFire = 0.1f
 
 	/**
 	 * Constructor, create a new player object.
@@ -65,6 +67,10 @@ class Player extends Node<Player> {
 
 		var resourceManager = RESOURCE_MANAGER.get()
 
+		addChild(resourceManager.loadPalette('temperat-td.pal')
+			.withName('Palette'))
+		addChild(new PaletteAlphaMask()
+			.withName('Alpha mask'))
 		addChild(new PaletteSwapMap(Faction.GOLD.colours)
 			.withName('Faction - Gold'))
 
@@ -89,7 +95,6 @@ class Player extends Node<Player> {
 	static class PlayerScript extends Script<Player> {
 
 		private static final Logger logger = LoggerFactory.getLogger(PlayerScript)
-		private static final Vector2f up = new Vector2f(0, 1)
 
 		// Bobbing
 		private float bobbingTimer = 0f
@@ -106,6 +111,10 @@ class Player extends Node<Player> {
 		private boolean hitRightScreenEdge = false
 		private boolean hitTopScreenEdge = false
 		private boolean hitBottomScreenEdge = false
+
+		// Shooting
+		private float firingCooldown = 0f
+		private final Vector2f bulletInitialVelocity = new Vector2f()
 
 		@Override
 		void init() {
@@ -163,6 +172,7 @@ class Player extends Node<Player> {
 			updateHeading()
 			updateMovement(delta)
 			updateFramePosition()
+			updateShooting(delta)
 		}
 
 		/**
@@ -190,10 +200,7 @@ class Player extends Node<Player> {
 			if (node.accelerating) {
 				frame += node.headings
 			}
-
-			node.findAll(Sprite).each { sprite ->
-				sprite.withFramePosition(sprite.spriteSheet.getFramePosition(frame))
-			}
+			node.findAll(Sprite)*.withFramePosition(frame)
 		}
 
 		/**
@@ -208,7 +215,7 @@ class Player extends Node<Player> {
 				positionXY.set(node.position)
 				worldCursorPosition.set(camera.unproject(window.viewport, cursorPosition.x(), cursorPosition.y(), unprojectResult))
 				worldCursorPosition.sub(positionXY, headingToCursor)
-				node.heading = Math.wrap(Math.toDegrees(headingToCursor.angle(up)) as float, 0f, 360f)
+				node.heading = Math.wrap(Math.toDegrees(headingToCursor.angle(Vector2f.UP)) as float, 0f, 360f)
 			}
 		}
 
@@ -273,6 +280,28 @@ class Player extends Node<Player> {
 			}
 			if (hitBottomScreenEdge) {
 				movement.vector.y = Math.max(movement.vector.y, 0f)
+			}
+		}
+
+		/**
+		 * Fire bullets.
+		 */
+		private void updateShooting(float delta) {
+
+			firingCooldown -= delta
+
+			if ((input.keyPressed(GLFW_KEY_SPACE) || input.mouseButtonPressed(GLFW_MOUSE_BUTTON_1)) && firingCooldown <= 0f) {
+				var scene = node.scene
+				var movement = node.find(MovementNode)
+				scene.queueUpdate { ->
+					scene.find('Bullets').addChild(
+						new Bullet(
+							node.find('Orca').globalTransform,
+							node.heading,
+							movement.vector.mul(movement.speed, bulletInitialVelocity))
+					)
+				}
+				firingCooldown = node.rateOfFire
 			}
 		}
 	}

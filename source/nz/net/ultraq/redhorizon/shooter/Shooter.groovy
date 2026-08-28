@@ -25,6 +25,7 @@ import nz.net.ultraq.redhorizon.runtime.Application
 import nz.net.ultraq.redhorizon.runtime.Runtime
 import nz.net.ultraq.redhorizon.runtime.objects.ScreenEdges
 import nz.net.ultraq.redhorizon.runtime.utilities.VersionReader
+import nz.net.ultraq.redhorizon.scenegraph.Node
 import nz.net.ultraq.redhorizon.scenegraph.Scene
 import static nz.net.ultraq.redhorizon.runtime.ScopedValues.RESOURCE_MANAGER
 
@@ -82,11 +83,13 @@ class Shooter extends Application implements Callable<Integer> {
 
 		var resourceManager = RESOURCE_MANAGER.get()
 		return scene
-			.addChild(resourceManager.loadPalette('temperat-td.pal')
-				.withName('Palette'))
 			.addChild(new PaletteAlphaMask()
-				.withName('Alpha mask'))
+				.withName('Alpha mask (RA)'))
 			.addChild(new Player())
 			.addChild(new ScreenEdges(WINDOW_BOUNDS))
+			.addChild(new Node()
+				.withName('Bullets')
+				.addChild(resourceManager.loadPalette('temperat-ra.pal')
+					.withName('Palette (RA)')))
 	}
 }

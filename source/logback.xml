@@ -28,6 +28,8 @@
 		</encoder>
 	</appender>
 	<logger name="nz.net.ultraq.redhorizon" level="DEBUG"/>
+	<logger name="nz.net.ultraq.redhorizon.engine.physics.CollisionSystem" level="INFO"/>
+	<logger name="nz.net.ultraq.redhorizon.engine.physics.DefaultCollisionCandidatesFunction" level="INFO"/>
 	<root level="INFO">
 		<appender-ref ref="console"/>
 		<appender-ref ref="gui"/>

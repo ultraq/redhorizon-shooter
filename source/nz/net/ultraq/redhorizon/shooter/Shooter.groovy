@@ -85,11 +85,11 @@ class Shooter extends Application implements Callable<Integer> {
 		return scene
 			.addChild(new PaletteAlphaMask()
 				.withName('Alpha mask (RA)'))
-			.addChild(new Player())
-			.addChild(new ScreenEdges(WINDOW_BOUNDS))
 			.addChild(new Node()
 				.withName('Bullets')
 				.addChild(resourceManager.loadPalette('temperat-ra.pal')
 					.withName('Palette (RA)')))
+			.addChild(new Player())
+			.addChild(new ScreenEdges(WINDOW_BOUNDS))
 	}
 }

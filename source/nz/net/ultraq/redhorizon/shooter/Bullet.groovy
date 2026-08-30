@@ -21,15 +21,12 @@ import nz.net.ultraq.redhorizon.engine.scripts.ScriptNode
 import nz.net.ultraq.redhorizon.graphics.Sprite
 import nz.net.ultraq.redhorizon.graphics.opengl.PalettedSpriteShader
 import nz.net.ultraq.redhorizon.physics.CircleCollider
-import nz.net.ultraq.redhorizon.physics.CollisionStartEvent
-import nz.net.ultraq.redhorizon.runtime.objects.ScreenEdges
+import nz.net.ultraq.redhorizon.physics.MovementNode
 import nz.net.ultraq.redhorizon.scenegraph.Node
 import static nz.net.ultraq.redhorizon.runtime.ScopedValues.RESOURCE_MANAGER
 
 import org.joml.Matrix4fc
 import org.joml.Vector2f
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 /**
  * A single bullet fired from the player ship.
@@ -38,7 +35,7 @@ import org.slf4j.LoggerFactory
  */
 class Bullet extends Node<Bullet> {
 
-	static float bulletSpeed = 600f
+	static float bulletSpeed = 400f
 	static float bulletLifetime = 1f
 
 	// TODO: These should come from the object data for the bullet sprite
@@ -70,6 +67,7 @@ class Bullet extends Node<Bullet> {
 		addChild(new Sprite(bulletSpriteSheet, PalettedSpriteShader)
 			.withFramePosition(frame))
 
+		addChild(new MovementNode(bulletSpeed + initialVelocity.length() as float, vector))
 		addChild(new CircleCollider(2f))
 		addChild(new ScriptNode(BulletScript))
 	}
@@ -79,27 +77,8 @@ class Bullet extends Node<Bullet> {
 	 */
 	static class BulletScript extends Script<Bullet> {
 
-		private static final Logger logger = LoggerFactory.getLogger(BulletScript)
-
 		private float bulletTimer
 		private boolean queuedForRemoval = false
-
-		@Override
-		void init() {
-
-			node.find(CircleCollider).on(CollisionStartEvent) { event ->
-				var otherObject = event.otherCollider().parent
-
-				if (otherObject instanceof ScreenEdges && !queuedForRemoval) {
-					logger.debug('Bullet collided with {} - removing from scene', otherObject.name)
-					node.scene.queueUpdate { ->
-						node.parent?.removeChild(node)
-						node.close()
-					}
-					queuedForRemoval = true
-				}
-			}
-		}
 
 		@Override
 		void update(float delta) {
@@ -109,15 +88,10 @@ class Bullet extends Node<Bullet> {
 			// Destroy bullet if it reaches the max lifetime
 			if (bulletTimer > bulletLifetime && !queuedForRemoval) {
 				node.scene.queueUpdate { ->
-					node.parent?.removeChild(node)
+					node.remove()
 					node.close()
 				}
 				queuedForRemoval = true
-			}
-
-			// Keep moving along
-			else {
-				node.translate(node.vector.x * bulletSpeed * delta as float, node.vector.y * bulletSpeed * delta as float)
 			}
 		}
 	}

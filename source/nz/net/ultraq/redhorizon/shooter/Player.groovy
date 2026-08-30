@@ -33,6 +33,7 @@ import nz.net.ultraq.redhorizon.runtime.objects.ScreenEdges
 import nz.net.ultraq.redhorizon.scenegraph.Node
 import static nz.net.ultraq.redhorizon.runtime.ScopedValues.*
 
+import org.joml.Matrix4f
 import org.joml.Vector2f
 import org.joml.Vector3f
 import org.slf4j.Logger
@@ -57,7 +58,9 @@ class Player extends Node<Player> {
 	// TODO: These can be moved into their own components if other objects need them
 	boolean flying = true
 	float heading = 25f
+	final Vector2f headingVector = new Vector2f()
 	boolean accelerating = false
+	float firingOriginOffsetY = -4f
 	float rateOfFire = 0.1f
 
 	/**
@@ -103,7 +106,6 @@ class Player extends Node<Player> {
 		private Vector3f unprojectResult = new Vector3f()
 		private Vector2f worldCursorPosition = new Vector2f()
 		private Vector2f positionXY = new Vector2f()
-		private Vector2f headingToCursor = new Vector2f()
 
 		// Movement
 		private final Vector2f vector = new Vector2f()
@@ -114,6 +116,7 @@ class Player extends Node<Player> {
 
 		// Shooting
 		private float firingCooldown = 0f
+		private final Matrix4f bulletInitialTransform = new Matrix4f()
 		private final Vector2f bulletInitialVelocity = new Vector2f()
 
 		@Override
@@ -214,8 +217,8 @@ class Player extends Node<Player> {
 				var camera = node.scene.find(Camera)
 				positionXY.set(node.position)
 				worldCursorPosition.set(camera.unproject(window.viewport, cursorPosition.x(), cursorPosition.y(), unprojectResult))
-				worldCursorPosition.sub(positionXY, headingToCursor)
-				node.heading = Math.wrap(Math.toDegrees(headingToCursor.angle(Vector2f.UP)) as float, 0f, 360f)
+				worldCursorPosition.sub(positionXY, node.headingVector).normalize()
+				node.heading = Math.wrap(Math.toDegrees(node.headingVector.angle(Vector2f.UP)) as float, 0f, 360f)
 			}
 		}
 
@@ -294,12 +297,11 @@ class Player extends Node<Player> {
 				var scene = node.scene
 				var movement = node.find(MovementNode)
 				scene.queueUpdate { ->
-					scene.find('Bullets').addChild(
-						new Bullet(
-							node.find('Orca').globalTransform,
-							node.heading,
-							movement.vector.mul(movement.speed, bulletInitialVelocity))
-					)
+					var bulletsNode = scene.find('Bullets')
+					bulletsNode.addChild(new Bullet(
+						bulletInitialTransform.set(node.find('Orca').globalTransform).translate(0f, node.firingOriginOffsetY, 0f),
+						node.heading, movement.vector.mul(movement.speed, bulletInitialVelocity)
+					))
 				}
 				firingCooldown = node.rateOfFire
 			}
